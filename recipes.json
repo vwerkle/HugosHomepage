@@ -1,0 +1,382 @@
+{
+    "Main Courses": {
+        "Meat": [
+            {
+                "title": "Whole Roast Chicken",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwbpgPR/\" target=\"_blank\">3 Chili Recipe</a>",
+                "image": "ChiliChicken.jpg",
+                "date": "08/26/2024"
+            },
+            {
+                "title": "Bao Buns",
+                "notes": "<a href=\"https://www.kitchensanctuary.com/gua-bao/\">Buns and Pork Belly</a><br><a href=\"https://www.kitchensanctuary.com/chinese-crispy-chicken-honey-garlic-sauce/\">Crispy Chicken</a>",
+                "image": "BaoBuns.jpg",
+                "date": "12/21/2024"
+            },
+            {
+                "title": "Chicken Pot Pie",
+                "notes": "<a href=\"https://sallysbakingaddiction.com/double-crust-chicken-pot-pie/\">Recipe</a><br><a href=\"https://www.inspiredtaste.net/22662/flaky-pie-crust-recipe/\">Pie Crust Recipe</a><br>Use rotisserie chicken. Make crust. Tastes better the next day so save some",
+                "image": "PotPie.jpg",
+                "date": "11/22/2024"
+            },
+            {
+                "title": "Quails",
+                "notes": "Page 178 in Chin Chin Feed Me Book",
+                "image": "quail.jpg",
+                "date": "04/21/2024"
+            },
+            {
+                "title": "Crown Of Lamb",
+                "notes": "<a href=\"https://www.foodnetwork.com/recipes/alton-brown/crown-roast-of-lamb-recipe-2082917\">Recipe</a><br>Get from butcher, need to order ahead (expensive)",
+                "image": "crown.jpg",
+                "date": "12/22/2023"
+            },
+            {
+                "title": "Shepherds Pie",
+                "notes": "<a href=\"https://www.thewholesomedish.com/the-best-classic-shepherds-pie/\">Recipe</a><br>Use homemade beef stock to elevate",
+                "image": "shep.jpg",
+                "date": "11/01/2023"
+            },
+            {
+                "title": "Steak with Red Chimmichurri",
+                "notes": "Molly Baz book page 83",
+                "image": "chimi.jpg",
+                "date": "04/19/2024"
+            },
+            {
+                "title": "Jerk Chicken",
+                "notes": "<a href=\"https://www.chewoutloud.com/easy-jamaican-jerk-chicken-recipe/\">Recipe</a><br>Grill instead of bake",
+                "image": "jerk.jpg",
+                "date": "04/06/2024"
+            },
+            {
+                "title": "Butter Chicken",
+                "notes": "<a href=\"https://www.indianhealthyrecipes.com/butter-chicken/\">Recipe</a><br><a href=\"https://cafedelites.com/buttery-garlic-naan-recipe/\">Garlic Naan Recipe</a>",
+                "image": "butterchick.jpg",
+                "date": "10/21/2024"
+            },
+            {
+                "title": "Chicken & Broccoli",
+                "notes": "<a href=\"https://natashaskitchen.com/chicken-broccoli-and-mushroom-stir-fry/\">Recipe</a>",
+                "image": "broc.jpg",
+                "date": "1/22/2025"
+            },
+            {
+                "title": "Chicken Parm Sandwich",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwpSTGQ/\">Recipe</a><br>Use both panko and italian breadcrumbs",
+                "image": "chickParm.jpg",
+                "date": "09/24/2024"
+            },
+            {
+                "title": "Sausage Sandwich",
+                "notes": "Get sausage from roccos and throw it on the grill",
+                "image": "roccos.jpg",
+                "date": "10/06/2024"
+            },
+            {
+                "title": "Thanksgiving turkey",
+                "notes": "<a href=\"https://www.simplyrecipes.com/recipes/moms_roast_turkey/\">Upside Down Recipe</a><br>Flip with about 40 mins left. Make stuffing separately",
+                "image": "turkey.jpg",
+                "date": "11/20/2024"
+            },
+            {
+                "title": "Stuffed Peppers",
+                "notes": "<a href=\"https://cooking.nytimes.com/recipes/1021007-stuffed-peppers\">Recipe</a><br>Use half spicy italian sausage half ground beef",
+                "image": "peps.jpg",
+                "date": "09/24/2024"
+            },
+            {
+                "title": "Chicken Marinades",
+                "notes": "<a href=\"https://moribyan.com/5-chicken-marinades/\">5 Marinades</a><br>Harissa and cilantro Jalapeno are the best ones",
+                "image": "marinade.jpg",
+                "date": "01/15/2024"
+            },
+            {
+                "title": "Spicy Italian Sausage",
+                "notes": "<a href=\"https://www.thefedupfoodie.com/homemade-italian-sausage/\">Recipe</a>",
+                "image": "spicySaus.jpg",
+                "date": "02/20/2025"
+            },
+            {
+                "title": "Chicken Chorizo",
+                "notes": "<a href=\"https://masonfit.com/healthy-homemade-chicken-chorizo/\">Recipe</a>",
+                "image": "chorizo.jpg",
+                "date": "2/23/2025"
+            }
+        ],
+        "Seafood": [
+            {
+                "title": "Scallops",
+                "notes": "Page 176 in Chin Chin Feed Me Book",
+                "image": "scallops.jpg",
+                "date": "04/19/2024"
+            },
+            {
+                "title": "Lobster Roll",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwgEyB2/\">Recipe</a><br>1 small lobster isnt really enough for two rolls",
+                "image": "lobsterroll.jpg",
+                "date": "06/09/2024"
+            },
+            {
+                "title": "Trout Filet",
+                "notes": "Take one fish book page 183. Needs finger limes",
+                "image": "trout.jpg",
+                "date": "04/19/2024"
+            },
+            {
+                "title": "Garlic Shrimp Tacos",
+                "notes": "<a href=\"https://www.spendwithpennies.com/garlic-grilled-shrimp/\">Recipe</a>",
+                "image": "shrimp.jpg",
+                "date": "06/11/2023"
+            }
+        ],
+        "Pasta": [
+            {
+                "title": "Spaghetti Vongole",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwb6uox/\">Recipe</a><br><a href=\"https://www.onceuponachef.com/recipes/linguini-with-clams.html\">For Amounts</a><br>Homemade Spaghetti",
+                "image": "clams.jpg",
+                "date": "01/05/2025"
+            },
+            {
+                "title": "Ramen",
+                "notes": "Egg yolk, Kewpie Mayo, Soy Sauce, Garlic + Onion Powder, Sriracha, seasoning packet to make broth with water. Add bok choi and spinach to hot water",
+                "image": "ramen.jpg",
+                "date": "02/07/2024"
+            },
+            {
+                "title": "Cabbage and Sausage pasta",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwpF6U5/\">Recipe</a><br>Use spicy italian sausage",
+                "image": "cabpasta.jpg",
+                "date": "03/11/2024"
+            },
+            {
+                "title": "Lasagna",
+                "notes": "<a href=\"https://tastesbetterfromscratch.com/classic-italian-lasagna/\">Recipe</a>",
+                "image": "lasagna.jpg",
+                "date": "12/08/2023"
+            },
+            {
+                "title": "Butternut Squash Pasta",
+                "notes": "<a href=\"https://www.halfbakedharvest.com/creamy-roasted-garlic-butternut-squash-pasta/\">Recipe</a><br>Use Zuchette Pasta",
+                "image": "missing.jpg",
+                "date": "01/01/2001"
+            },
+            {
+                "title": "Baked Sausage Gnocchi",
+                "notes": "<a href=\"https://www.thereciperebel.com/baked-gnocchi-with-sausage/\">Recipe</a>",
+                "image": "gnocchi.jpg",
+                "date": "11/17/2023"
+            },
+            {
+                "title": "Orzo Skillet",
+                "notes": "<a href=\"https://www.halfbakedharvest.com/one-skillet-creamy-sun-dried-tomato-chicken-and-orzo/\">Reicpe</a>",
+                "image": "orzo.jpg",
+                "date": "08/11/2022"
+            },
+            {
+                "title": "Sausage & Cheese Ravioli",
+                "notes": "<a href=\"https://ashleemarie.com/homemade-italian-sausage-cheese-ravioli-recipe-video-tutorial/\">Recipe</a>",
+                "image": "rav.jpg",
+                "date": "02/20/2025"
+            },
+            {
+                "title": "Leek, Spinach & Cheese Agnolotti",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZT2my9HdC/\">Recipe</a>",
+                "image": "agno.jpg",
+                "date": "02/24/2025"
+            }
+        ],
+        "Other": [
+            {
+                "title": "Pizza",
+                "notes": "Beddia Book. Rise dough 3 days",
+                "image": "pizza.jpg",
+                "date": "01/12/204"
+            },
+            {
+                "title": "Dumplings",
+                "notes": "<a href=\"https://www.thekitchn.com/how-to-make-pork-dumplings-cooking-lessons-from-the-kitchn-216163\">Filling Reicpe</a><br><a href=\"https://redhousespice.com/homemade-dumpling-wrappers/\">Wrapper Recipe</a><br>Steam on Nappa Cabbage leaves",
+                "image": "dumplings.jpg",
+                "date": "05/12/2024"
+            },
+            {
+                "title": "Cabbage skillet",
+                "notes": "<a href=\"https://butteryourbiscuit.com/southern-fried-cabbage-and-sausage/\">Recipe</a>",
+                "image": "cabbage.jpg",
+                "date": "01/08/2025"
+            },
+            {
+                "title": "Shakshuka",
+                "notes": "<a href=\"https://www.themediterraneandish.com/shakshuka-recipe/\">Recipe</a>",
+                "image": "shuka.jpg",
+                "date": "05/07/2023"
+            }
+        ]
+    },
+    "Appetizers/Sides": {
+        "Soup": [
+            {
+                "title": "Potato Leek Soup",
+                "notes": "<a href=\"https://www.loveandlemons.com/potato-leek-soup/\">Recipe</a><br>Top with Bacon. Make veggie stock",
+                "image": "leeksoup.jpg",
+                "date": "11/15/2024"
+            },
+            {
+                "title": "Chicken Noodle Soup",
+                "notes": "<a href=\"https://www.allrecipes.com/recipe/26460/quick-and-easy-chicken-noodle-soup/\">Recipe</a><br>Use rotisserie chicken. Add turmeric",
+                "image": "cns.jpg",
+                "date": "11/15/2023"
+            },
+            {
+                "title": "Coconut Noodle Soup",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZT2LnqsEm/\">Recipe</a>",
+                "image": "soup.jpg",
+                "date": "1/17/2025"
+            },
+            {
+                "title": "Sausage & Veggie Soup",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZT2my9hr2/\">Recipe</a><br>Use homemade stock & Sausage. Great in winter",
+                "image": "saussoup.jpg",
+                "date": "02/17/2025"
+            }
+        ],
+        "Bread": [
+            {
+                "title": "Focaccia",
+                "notes": "<a href=\"https://www.thecookingworld.com/recipes/claire-saffitz-focaccia-recipe'\">Knead recipe</a> <br> <a href=\"https://www.bonappetit.com/recipe/easy-no-knead-focaccia?srsltid=AfmBOopsRoN1xsx9JuiiHfcTwfD1yhbBkvsKbOwS7yZmQGik5eZ6iDLB'\">No knead recipe</a><br> Add Shallots or tomatoes <br>",
+                "image": "focaccia.jpg",
+                "date": "01/03/2025"
+            },
+            {
+                "title": "Pita",
+                "notes": "<a href=\"https://www.themediterraneandish.com/homemade-pita-bread-recipe/\">Recipe</a><br>Use kitchen aid and cast iron",
+                "image": "pita.jpg",
+                "date": "07/02/2024"
+            },
+            {
+                "title": "Bagels",
+                "notes": "<a href=\"https://cinnamonshtick.com/egg-bagels/\">Egg Everything Recipe</a><br>Order distatic malt powder ahead of time on amazon",
+                "image": "bagel.jpg",
+                "date": "01/27/2024"
+            },
+            {
+                "title": "Sourdough",
+                "notes": "Sourdough book. Get a good starter from a restaurant",
+                "image": "bread.jpg",
+                "date": "03/29/2024"
+            },
+            {
+                "title": "English Muffins",
+                "notes": "<a href=\"https://preppykitchen.com/english-muffins/\">Recipe</a><br>These freeze well",
+                "image": "muffin.jpg",
+                "date": "03/28/2024"
+            }
+        ],
+        "Dips": [
+            {
+                "title": "Buff Chick Dip",
+                "notes": "<a href=\"https://theforkedspoon.com/buffalo-chicken-dip-recipe/\">Recipe</a>Use rotisserie chicken. Add a little bit of fresh dill",
+                "image": "buffchick.jpg",
+                "date": "11/03/2024"
+            },
+            {
+                "title": "French Onion Dip",
+                "notes": "<a href=\"https://www.southernliving.com/french-onion-dip-8603512\">Recipe</a><br>Cooking down onions takes hours",
+                "image": "french.jpg",
+                "date": "09/10/2023"
+            }
+        ],
+        "Salad": [
+            {
+                "title": "Cucumber salad",
+                "notes": "Chili Crunch, Sesame Oil, Rice Vinegar, Salt, Sugar, MSG, Sesame Seeds",
+                "image": "cuc.jpg",
+                "date": "01/01/2001"
+            },
+            {
+                "title": "Tortellini Pasta Salad",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwpXeXe/\">Recipe</a>",
+                "image": "torto.jpg",
+                "date": "05/25/2024"
+            },
+            {
+                "title": "Crispy Rice Salad",
+                "notes": "<a href=\"https://kalejunkie.com/chicken-shawarma-crispy-rice-salad-with-lemon-tahini-dressing/\">Recipe</a>",
+                "image": "ricesalad.jpg",
+                "date": "1/19/2025"
+            }
+        ],
+        "Other": [
+            {
+                "title": "Salmon Crudo",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwgbdcx/\">Mango Habanero Recipe</a>",
+                "image": "crudo.jpg",
+                "date": "08/14/2024"
+            },
+            {
+                "title": "Beats and Yams",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwbTLuu/\">Recipe</a>",
+                "image": "beets.jpg",
+                "date": "01/07/2025"
+            },
+            {
+                "title": "Sausage Stuffing",
+                "notes": "<a href=\"https://www.allrecipes.com/recipe/9202/sausage-stuffing/\">Recipe</a>",
+                "image": "stuffing.jpg",
+                "date": "11/20/2024"
+            },
+            {
+                "title": "Elote",
+                "notes": "<a href=\"https://www.loveandlemons.com/elote-recipe/\">Recipe</a><br>Home make the mayo",
+                "image": "elote.jpg",
+                "date": "08/01/24"
+            },
+            {
+                "title": "Duck Pancakes",
+                "notes": "Chin Chin Feed me book page 92",
+                "image": "duck.jpg",
+                "date": "04/19/2024"
+            },
+            {
+                "title": "Jalapeno Poppers",
+                "notes": "<a href=\"https://www.thekitchn.com/jalapeno-popper-22977595\">Recipe</a>",
+                "image": "poppers.jpg",
+                "date": "05/05/24"
+            }
+        ]
+    },
+    "Desserts": {
+        "Bakery": [
+            {
+                "title": "Banana Bread",
+                "notes": "<a href=\"https://butternutbakeryblog.com/chocolate-chip-banana-bread/\">Recipe</a><br>Tastes better the next day",
+                "image": "bbread.jpg",
+                "date": "10/01/2024"
+            },
+            {
+                "title": "Pumpkin Rolls (superior to cinnamon rolls)",
+                "notes": "<a href=\"https://www.ambitiouskitchen.com/best-pumpkin-cinnamon-rolls/\">Recipe</a><br>Use regular icing instead of cream cheese (powdered sugar, vanilla and water)",
+                "image": "roll.jpg",
+                "date": "12/25/2023"
+            },
+            {
+                "title": "Chocolate Chip Cookies",
+                "notes": "Megs secret Recipe",
+                "image": "cookie.jpg",
+                "date": "09/01/2024"
+            },
+            {
+                "title": "Ginger Bread Men",
+                "notes": "<a href=\"https://sallysbakingaddiction.com/best-gingerbread-cookies/\">Recipe</a>",
+                "image": "gmen.jpg",
+                "date": "12/20/2023"
+            },
+            {
+                "title": "Christmas Cookies",
+                "notes": "<a href=\"https://www.daringgourmet.com/vanillekipferl-austrian-vanilla-crescent-cookies/\">Vanillekipferl</a><br><a href=\"https://www.daringgourmet.com/zimtsterne-german-cinnamon-star-cookies/\">Zimsterne</a>",
+                "image": "cookies.jpg",
+                "date": "12/20/2023"
+            }
+        ]
+    }
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{recipe.title}}</title>
+    </head>
+    <body>
+        <h1>{{recipe.title}}</h1>
+        <h2>Ingredients</h2>
+        <ul>
+            {%for ingredient in recipe.ingredients %}
+                <li>{{ingredient}}</li>
+            {% endfor %}
+        </ul>
+        <h2>Steps</h2>
+        <ul>
+            {%for step in recipe.steps %}
+                <li>{{step}}</li>
+            {% endfor %}
+        </ul>
+        {% for image in recipe.images %}
+            <img src="{{url_for('static',filename=image.split('static/')[1]) }}" alt="{{recipe.title}}" style="width:300px;height:auto;">
+        {% endfor %}
+        <p><a href="{{url_for('recipes')}}">Back to Recipes</p>
+    </body>
+</html>
