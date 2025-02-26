@@ -17,7 +17,7 @@ def home():
 @app.route("/recipes")
 def recipes():
     recipesList = make_json()
-    print(recipesList)
+    #print(recipesList)
     #print (recipesList.join())
     return render_template('recipes.html',recipes=recipesList)
 
@@ -33,6 +33,7 @@ def recipe(recipe_id):
 def make_json():
     with open('Recipes.txt','r') as file:
         lines=file.readlines()
+        print(lines)
     recipesList = {}
     current_cat=""
     current_subcat=""
@@ -45,6 +46,7 @@ def make_json():
         elif line[0]=='-':
             current_cat=line[1:]
             recipesList[current_cat]={}
+            print(current_cat)
         elif line[0]=='+':
             current_subcat=line[1:]
             recipesList[current_cat][current_subcat]=[]
@@ -60,7 +62,6 @@ def make_json():
             current_rec={}
     
     recipes_json=json.dumps(recipesList, indent=4)
-    #print(recipes_json)
 
     with open('recipes.json','w') as jsonfile:
         jsonfile.write(recipes_json)
@@ -70,5 +71,6 @@ def make_json():
     return recipes_json
 
 if __name__ == '__main__':
-    print("hello",file=sys.stdout)
-    app.run(debug=True)
+    print("hello")
+    #print("hello",file=sys.stdout)
+    #app.run(debug=True)
