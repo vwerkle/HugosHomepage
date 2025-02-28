@@ -3,7 +3,7 @@ import sys
 import json
 app = Flask(__name__)
 
-
+locations = {"Fairmount","Fishtown","Rittenhouse","Center City","West Philly","NoLibs","South Philly"}
 
 
 
@@ -16,10 +16,17 @@ def home():
 
 @app.route("/recipes")
 def recipes():
-    recipesList = make_json()
+    recipesList = make_json_recipes()
     #print(recipesList)
     #print (recipesList.join())
     return render_template('recipes.html',recipes=recipesList)
+
+@app.route("/restaurants")
+def restaurants():
+    restList = make_json_restaurants()
+    sorted_rest = sorted(restList.values(),key=lambda x: x['rating'],reverse=True)
+    tags = sorted(set(tag for rest in sorted_rest for tag in rest['tags']) - set(locations))
+    return render_template('restaurants.html',restaurants=sorted_rest,tags=tags,locationfilters=locations)
 
 @app.route('/recipe/<int:recipe_id>')
 def recipe(recipe_id):
@@ -30,10 +37,10 @@ def recipe(recipe_id):
         return "Recipe not found", 404
     
 
-def make_json():
+def make_json_recipes():
     with open('Recipes.txt','r') as file:
         lines=file.readlines()
-        print(lines)
+        #print(lines)
     recipesList = {}
     current_cat=""
     current_subcat=""
@@ -46,7 +53,7 @@ def make_json():
         elif line[0]=='-':
             current_cat=line[1:]
             recipesList[current_cat]={}
-            print(current_cat)
+            #print(current_cat)
         elif line[0]=='+':
             current_subcat=line[1:]
             recipesList[current_cat][current_subcat]=[]
@@ -65,10 +72,38 @@ def make_json():
 
     with open('recipes.json','w') as jsonfile:
         jsonfile.write(recipes_json)
-    with open('recipes.json','r') as jfile:
-        recipes_json=json.load(jfile)
 
     return recipes_json
+
+def make_json_restaurants():
+    with open('Restaurants.txt', 'r') as file:
+        lines=file.readlines()
+    restaurants = {}
+    current_rest={}
+    for line in lines:
+        line= line.strip()
+        if line=="":
+            continue
+        elif not current_rest:
+            current_rest['name']=line
+        elif 'rating'not in current_rest:
+            current_rest['rating']=float(line)
+        elif 'price'not in current_rest:
+            current_rest['price']=int(line)
+        elif 'html'not in current_rest:
+            current_rest['html']=line
+        elif 'tags'not in current_rest:
+            current_rest['tags']=line.split(',')
+            #print(current_rest['tags'])
+            restaurants[current_rest['name']]=current_rest
+            current_rest={}
+    restaurants_json=json.dumps(restaurants, indent=4)
+
+    with open('restaurants.json','w') as jsonfile:
+        jsonfile.write(restaurants_json)
+
+    return restaurants
+
 
 if __name__ == '__main__':
     print("hello")
