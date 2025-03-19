@@ -8,6 +8,12 @@
                 "date": "08/26/2024"
             },
             {
+                "title": "Steak with Asian Style Au Poivre Sauce",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZT24wQVG2/\" target=\"_blank\">Recipe</a><br>Use Hanger Steak",
+                "image": "aupoivre.jpg",
+                "date": "3/8/2025"
+            },
+            {
                 "title": "Bao Buns",
                 "notes": "<a href=\"https://www.kitchensanctuary.com/gua-bao/\">Buns and Pork Belly</a><br><a href=\"https://www.kitchensanctuary.com/chinese-crispy-chicken-honey-garlic-sauce/\">Crispy Chicken</a>",
                 "image": "BaoBuns.jpg",
@@ -74,16 +80,22 @@
                 "date": "10/06/2024"
             },
             {
-                "title": "Thanksgiving turkey",
-                "notes": "<a href=\"https://www.simplyrecipes.com/recipes/moms_roast_turkey/\">Upside Down Recipe</a><br>Flip with about 40 mins left. Make stuffing separately",
-                "image": "turkey.jpg",
-                "date": "11/20/2024"
-            },
-            {
                 "title": "Stuffed Peppers",
                 "notes": "<a href=\"https://cooking.nytimes.com/recipes/1021007-stuffed-peppers\">Recipe</a><br>Use half spicy italian sausage half ground beef",
                 "image": "peps.jpg",
                 "date": "09/24/2024"
+            },
+            {
+                "title": "Beef, Basil & Celery Stir fry",
+                "notes": "Page 84 Molly Baz book. Use sriracha in marinade.",
+                "image": "stirfry.jpg",
+                "date": "03/17/2025"
+            },
+            {
+                "title": "Thanksgiving turkey",
+                "notes": "<a href=\"https://www.simplyrecipes.com/recipes/moms_roast_turkey/\">Upside Down Recipe</a><br>Flip with about 40 mins left. Make stuffing separately",
+                "image": "turkey.jpg",
+                "date": "11/20/2024"
             },
             {
                 "title": "Chicken Marinades",
@@ -102,6 +114,12 @@
                 "notes": "<a href=\"https://masonfit.com/healthy-homemade-chicken-chorizo/\">Recipe</a>",
                 "image": "chorizo.jpg",
                 "date": "2/23/2025"
+            },
+            {
+                "title": "Turkey Breakfast Sausage",
+                "notes": "<a href=\"https://www.allrecipes.com/recipe/229989/turkey-breakfast-sausage/\">Recipe</a>",
+                "image": "turkeysaus.jpg",
+                "date": "3/7/2025"
             }
         ],
         "Seafood": [
@@ -342,6 +360,18 @@
                 "notes": "<a href=\"https://www.thekitchn.com/jalapeno-popper-22977595\">Recipe</a>",
                 "image": "poppers.jpg",
                 "date": "05/05/24"
+            },
+            {
+                "title": "Fries",
+                "notes": "<a href=\"https://www.recipetineats.com/french-fries/\">Recipe</a>",
+                "image": "fries.jpg",
+                "date": "3/18/2025"
+            },
+            {
+                "title": "Traditional Pancakes",
+                "notes": "<a href=\"https://www.allrecipes.com/recipe/21014/good-old-fashioned-pancakes/\">Recipe</a>",
+                "image": "pancakes.jpg",
+                "date": "3/8/2025"
             }
         ]
     },

@@ -5,6 +5,11 @@
         ChiliChicken.jpg
         08/26/2024
 
+        Steak with Asian Style Au Poivre Sauce
+        <a href="https://www.tiktok.com/t/ZT24wQVG2/" target="_blank">Recipe</a><br>Use Hanger Steak
+        aupoivre.jpg
+        3/8/2025
+
         Bao Buns
         <a href="https://www.kitchensanctuary.com/gua-bao/">Buns and Pork Belly</a><br><a href="https://www.kitchensanctuary.com/chinese-crispy-chicken-honey-garlic-sauce/">Crispy Chicken</a>
         BaoBuns.jpg
@@ -60,15 +65,20 @@
         roccos.jpg
         10/06/2024
 
-        Thanksgiving turkey
-        <a href="https://www.simplyrecipes.com/recipes/moms_roast_turkey/">Upside Down Recipe</a><br>Flip with about 40 mins left. Make stuffing separately
-        turkey.jpg
-        11/20/2024
-
         Stuffed Peppers
         <a href="https://cooking.nytimes.com/recipes/1021007-stuffed-peppers">Recipe</a><br>Use half spicy italian sausage half ground beef
         peps.jpg
         09/24/2024
+
+        Beef, Basil & Celery Stir fry
+        Page 84 Molly Baz book. Use sriracha in marinade.
+        stirfry.jpg
+        03/17/2025
+
+        Thanksgiving turkey
+        <a href="https://www.simplyrecipes.com/recipes/moms_roast_turkey/">Upside Down Recipe</a><br>Flip with about 40 mins left. Make stuffing separately
+        turkey.jpg
+        11/20/2024
 
         Chicken Marinades
         <a href="https://moribyan.com/5-chicken-marinades/">5 Marinades</a><br>Harissa and cilantro Jalapeno are the best ones
@@ -84,6 +94,11 @@
         <a href="https://masonfit.com/healthy-homemade-chicken-chorizo/">Recipe</a>
         chorizo.jpg
         2/23/2025
+
+        Turkey Breakfast Sausage
+        <a href="https://www.allrecipes.com/recipe/229989/turkey-breakfast-sausage/">Recipe</a>
+        turkeysaus.jpg
+        3/7/2025
     
     +Seafood
         Scallops
@@ -279,6 +294,16 @@
         <a href="https://www.thekitchn.com/jalapeno-popper-22977595">Recipe</a>
         poppers.jpg
         05/05/24
+
+        Fries
+        <a href="https://www.recipetineats.com/french-fries/">Recipe</a>
+        fries.jpg
+        3/18/2025
+
+        Traditional Pancakes
+        <a href="https://www.allrecipes.com/recipe/21014/good-old-fashioned-pancakes/">Recipe</a>
+        pancakes.jpg
+        3/8/2025
 
 -Desserts
 

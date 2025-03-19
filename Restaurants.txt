@@ -10,8 +10,14 @@ Kalaya
 <a href="https://kalayaphilly.com/">Website</a><br>Best in the City
 Asian,Thai,Fishtown,Tasting Menu
 
+Mawn
+5
+3
+<a href="https://mawnphilly.com/">Website</a>
+Cambodian,Asian,Tasting Menu,South Philly
+
 Elma
-4.5
+5
 4
 <a href="https://www.elmaphilly.com/">Website</a><br>Fine dining like, BYOB
 Tasting Menu,BYOB,Fishtown
@@ -33,6 +39,12 @@ Parc
 4
 <a href="https://parc-restaurant.com/">Website</a>
 French,Brunch,Rittenhouse
+
+Suraya
+5
+3
+<a href="https://www.surayaphilly.com/">Website</a>
+Fishtown,Moroccan,Brunch,Tasting Menu
 
 Tuna Bar
 5
@@ -232,6 +244,18 @@ Giuseppe & Sons
 <a href="https://giuseppesons.com/">Website</a>
 Italian,Rittenhouse
 
+Ambrosia
+4.5
+2
+<a href="https://www.ambrosiabyob.com/menus/">Website</a>
+Italian, Rittenhouse,BYOB
+
+Alpen Rose
+4.5
+4
+<a href="https://www.alpenrosephl.com/">Website</a>
+Steak,Center City
+
 Del Friscos
 4.5
 4
@@ -261,3 +285,9 @@ Gilda
 1
 <a href="https://www.gildaphilly.com/">Website</a>
 Breakfast,Fishtown
+
+Sang Kee Peking Duck House
+4.5
+2
+<a href=https://www.sangkeechinatown.com/">Website</a>
+Chinatown,Asian

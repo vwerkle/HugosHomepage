@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect,url_for
 import sys
 import json
+from moonshot import moonshot_bp
 app = Flask(__name__)
-
+app.register_blueprint(moonshot_bp)
 locations = {"Fairmount","Fishtown","Rittenhouse","Center City","West Philly","NoLibs","South Philly"}
 
 
@@ -17,7 +18,7 @@ def home():
 @app.route("/recipes")
 def recipes():
     recipesList = make_json_recipes()
-    #print(recipesList)
+    print(type(recipesList))
     #print (recipesList.join())
     return render_template('recipes.html',recipes=recipesList)
 
@@ -73,7 +74,7 @@ def make_json_recipes():
     with open('recipes.json','w') as jsonfile:
         jsonfile.write(recipes_json)
 
-    return recipes_json
+    return recipesList
 
 def make_json_restaurants():
     with open('Restaurants.txt', 'r') as file:
