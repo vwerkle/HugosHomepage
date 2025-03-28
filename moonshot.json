@@ -1,12 +1,112 @@
 {
-    "Vincent":
-    {
-        "Shoeei Ohtani":"660271",
-        "Tommy Edman":"669242"
+    "chris B": {
+        "Colton Cowser": 681297,
+        "Rafael Devers": 646240,
+        "Trea Turner": 607208,
+        "CJ Abrams": 682928,
+        "J.T. Realmuto": 592663,
+        "Orlando Arcia": 606115,
+        "William Contreras": 661388,
+        "Matt Vierling":663837
     },
-    "Owen":
-    {
-        "Max Muncy":"571970",
-        "Ian Happ":"664023"
+    "Joe": {
+        "Cody Bellinger": 641355,
+        "Yordan Alvarez": 670541,
+        "Nathaniel Lowe": 663993,
+        "Michael Toglia": 669911,
+        "Ozzie Albies": 645277,
+        "Luis Robert Jr.": 673357,
+        "Christian Walker": 572233,
+        "Royce Lewis":668904
+    },
+    "Tom": {
+        "Pete Alonso": 624413,
+        "Vladimir Guerrero Jr.": 665489,
+        "Matt Olson": 621566,
+        "Mookie Betts": 605141,
+        "Austin Riley": 663586,
+        "Triston Casas": 671213,
+        "Ozzie Albies": 645277,
+        "James Wood": 695578
+    },
+    "Owen": {
+        "Mookie Betts": 605141,
+        "Julio Rodriguez": 677594,
+        "Fernando Tatis Jr.": 665487,
+        "Bobby Witt Jr.": 677951,
+        "Triston Casas": 671213,
+        "Max Muncy": 571970,
+        "Luis Robert Jr.": 673357,
+        "Adolis Garcia": 666969
+    },
+    "Dan": {
+        "Vladimir Guerrero Jr.": 665489,
+        "Matt Olson": 621566,
+        "Fernando Tatis Jr.": 665487,
+        "Jorge Soler": 624585,
+        "Julio Rodriguez": 677594,
+        "Austin Riley": 663586,
+        "Triston Casas": 671213,
+        "James Wood": 695578
+    },
+    "Chris R": {
+        "Ozzie Albies": 645277,
+        "Vladimir Guerrero Jr.": 665489,
+        "Julio Rodriguez": 677594,
+        "Mookie Betts": 605141,
+        "Cody Bellinger": 641355,
+        "Yordan Alvarez": 670541,
+        "Fernando Tatis Jr.": 665487,
+        "James Wood": 695578
+    },
+    "Mike": {
+        "Luis Robert Jr.": 673357,
+        "Ozzie Albies": 645277,
+        "Fernando Tatis Jr.": 665487,
+        "Kyle Tucker": 663656,
+        "Triston Casas": 671213,
+        "Pete Alonso": 624413,
+        "Austin Riley": 663586,
+        "Matt Olson": 621566
+    },
+    "Colin": {
+        "James Wood": 695578,
+        "Christian Walker": 572233,
+        "Triston Casas": 671213,
+        "Kyle Schwarber": 656941,
+        "Jhonkensy Noel": 678877,
+        "Ozzie Albies": 645277,
+        "Pete Alonso": 624413,
+        "Julio Rodriguez": 677594
+    },
+    "GV": {
+        "Bryce Harper": 547180,
+        "Rafael Devers": 646240,
+        "James Wood": 695578,
+        "Spencer Torkelson": 679529,
+        "Elly De La Cruz": 682829,
+        "Mookie Betts": 605141,
+        "Anthony Volpe": 683011,
+        "Corey Seager": 608369
+    },
+    "Vincent": {
+        "James Wood": 695578,
+        "Fernando Tatis Jr.": 665487,
+        "Luis Robert Jr.": 673357,
+        "Aaron Judge": 592450,
+        "Ozzie Albies": 645277,
+        "Tyler Soderstrom": 691016,
+        "Austin RIley": 663586,
+        "Kyle Tucker": 663656
+    },
+    "Jack": {
+        "Brent Rooker": 667670,
+        "Fernando Tatis Jr.": 665487,
+        "Austin Riley": 663586,
+        "Mookie Betts": 605141,
+        "Julio Rodriguez": 677594,
+        "Triston Casas": 671213,
+        "James Wood": 695578,
+        "Kyle Tucker": 663656
     }
 }

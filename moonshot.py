@@ -13,15 +13,18 @@ def get_players(filepath):
 
 def get_home_runs(player_ids):
     home_run_counts={}
-    print(player_ids)
+    #print(player_ids)
     for player_name, player_id in player_ids.items():
         player_stats= statsapi.player_stat_data(player_id,group="hitting",type="season")
         #print(player_stats['stats']['homeRuns'])
         #print(player_stats)
 
         #print(player_stats['stats'][0]['stats']['homeRuns'])
-        home_runs = player_stats['stats'][0]['stats']['homeRuns']
-        home_run_counts[player_name]=home_runs
+        try:
+            home_runs = player_stats['stats'][0]['stats']['homeRuns']
+            home_run_counts[player_name]=home_runs
+        except:
+            home_run_counts[player_name]=0
     return home_run_counts
 
 def process_groups(filepath):
@@ -43,5 +46,5 @@ def process_groups(filepath):
 @moonshot_bp.route("/moonshot")
 def moonshot():
     sorted_groups=process_groups("moonshot.json")
-    print(sorted_groups)
+    #print(sorted_groups)
     return render_template('moonshot.html', groups=sorted_groups)
