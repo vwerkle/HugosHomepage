@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, redirect,url_for
 import sys
 import json
-from moonshot import moonshot_bp
+from moonshot import moonshot_bp,moonshot_mike_bp
 app = Flask(__name__)
 app.register_blueprint(moonshot_bp)
+app.register_blueprint(moonshot_mike_bp)
 locations = {"Fairmount","Fishtown","Rittenhouse","Center City","West Philly","NoLibs","South Philly"}
 
 

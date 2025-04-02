@@ -4,6 +4,7 @@ import requests
 from flask import Flask, render_template, request, redirect,url_for, Blueprint
 
 moonshot_bp = Blueprint('moonshot',__name__)
+moonshot_mike_bp = Blueprint('wittle_mike',__name__)
 API_ENDPOINT="https://api.mlb.com/stats/homeruns"
 
 def get_players(filepath):
@@ -46,5 +47,11 @@ def process_groups(filepath):
 @moonshot_bp.route("/moonshot")
 def moonshot():
     sorted_groups=process_groups("moonshot.json")
-    #print(sorted_groups)
+    print(sorted_groups)
     return render_template('moonshot.html', groups=sorted_groups)
+
+@moonshot_mike_bp.route("/wittle_mike")
+def moonshotwm():
+    sorted_groupswm=process_groups("players_seamo.json")
+    print(sorted_groupswm)
+    return render_template('moonshot.html',groups=sorted_groupswm)
