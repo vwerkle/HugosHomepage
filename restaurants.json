@@ -36,7 +36,7 @@
     },
     "Elma": {
         "name": "Elma",
-        "rating": 4.5,
+        "rating": 5.0,
         "price": 4,
         "html": "<a href=\"https://www.elmaphilly.com/\">Website</a><br>Fine dining like, BYOB",
         "tags": [
@@ -454,6 +454,27 @@
             "Rittenhouse"
         ]
     },
+    "Ambrosia": {
+        "name": "Ambrosia",
+        "rating": 4.5,
+        "price": 2,
+        "html": "<a href=\"https://www.ambrosiabyob.com/menus/\">Website</a>",
+        "tags": [
+            "Italian",
+            " Rittenhouse",
+            "BYOB"
+        ]
+    },
+    "Alpen Rose": {
+        "name": "Alpen Rose",
+        "rating": 4.5,
+        "price": 4,
+        "html": "<a href=\"https://www.alpenrosephl.com/\">Website</a>",
+        "tags": [
+            "Steak",
+            "Center City"
+        ]
+    },
     "Del Friscos": {
         "name": "Del Friscos",
         "rating": 4.5,
@@ -504,6 +525,27 @@
         "html": "<a href=\"https://www.gildaphilly.com/\">Website</a>",
         "tags": [
             "Breakfast",
+            "Fishtown"
+        ]
+    },
+    "Sang Kee Peking Duck House": {
+        "name": "Sang Kee Peking Duck House",
+        "rating": 4.5,
+        "price": 2,
+        "html": "<a href=https://www.sangkeechinatown.com/\">Website</a>",
+        "tags": [
+            "Chinatown",
+            "Asian"
+        ]
+    },
+    "Jaffa Bar": {
+        "name": "Jaffa Bar",
+        "rating": 4.0,
+        "price": 3,
+        "html": "<a href=https://www.jaffabarphilly.com/\">Website</a>",
+        "tags": [
+            "Seafood",
+            "Happy Hour",
             "Fishtown"
         ]
     }

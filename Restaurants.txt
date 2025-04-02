@@ -291,3 +291,15 @@ Sang Kee Peking Duck House
 2
 <a href=https://www.sangkeechinatown.com/">Website</a>
 Chinatown,Asian
+
+Jaffa Bar
+4
+3
+<a href=https://www.jaffabarphilly.com/">Website</a>
+Seafood,Happy Hour,Fishtown
+
+Char
+4
+2
+<a href=https://www.char.pizza/about">Website</a>
+BYOB,Pizza,Fishtown
