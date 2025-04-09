@@ -1,12 +1,12 @@
 -Main Courses
     +Meat
         Whole Roast Chicken
-        <a href="https://www.tiktok.com/t/ZTYwbpgPR/" target="_blank">3 Chili Recipe</a>
+        <a href="https://www.tiktok.com/t/ZTYwbpgPR/" target="_blank">3 Chili Recipe(Tiktok)</a><br><a href="https://www.youtube.com/watch?v=9DJomIc7bjs" target="_blank">Recipe(Alternative)</a>
         ChiliChicken.jpg
         08/26/2024
 
         Steak with Asian Style Au Poivre Sauce
-        <a href="https://www.tiktok.com/t/ZT24wQVG2/" target="_blank">Recipe</a><br>Use Hanger Steak
+        <a href="https://www.tiktok.com/t/ZT24wQVG2/" target="_blank">Recipe(Tiktok)</a><br><a href="https://www.youtube.com/watch?v=3LdXSXG437E" target="_blank">Recipe(Alternative)</a><br>Use Hanger Steak
         aupoivre.jpg
         3/8/2025
 
@@ -24,6 +24,11 @@
         Page 178 in Chin Chin Feed Me Book
         quail.jpg
         04/21/2024
+
+        Asaparagus Risotto with Duck
+        <a href="https://www.tiktok.com/t/ZTjJfdN9V/">Recipe(Tiktok)</a><br><a href="https://www.loveandlemons.com/asparagus-risotto/">Recipe(Alternative)</a>Add leek with shallot. Can sub duck for shrimp or scallops. Duck is easy to make. Score it and cook like a steak
+        risottoduck.jpg
+        04/06/2025
 
         Crown Of Lamb
         <a href="https://www.foodnetwork.com/recipes/alton-brown/crown-roast-of-lamb-recipe-2082917">Recipe</a><br>Get from butcher, need to order ahead (expensive)
@@ -56,7 +61,7 @@
         1/22/2025
 
         Chicken Parm Sandwich
-        <a href="https://www.tiktok.com/t/ZTYwpSTGQ/">Recipe</a><br>Use both panko and italian breadcrumbs
+        <a href="https://www.tiktok.com/t/ZTYwpSTGQ/">Recipe(Tiktok)</a><br><a href="https://ohsweetbasil.com/chicken-parm-subs/" target="_blank">Recipe(Alternative)</a><br>Use both panko and italian breadcrumbs
         chickParm.jpg
         09/24/2024
 
@@ -76,7 +81,7 @@
         03/17/2025
 
         Chicken Teryaki
-        <a href="https://www.tiktok.com/t/ZT2wFspxC/">Recipe</a><br>Add fresh Pineapple if you have. Serve in hollowed out Pineapple
+        <a href="https://www.tiktok.com/t/ZT2wFspxC/">Recipe(Tiktok)</a><br><a href="https://cooking.nytimes.com/recipes/1012984-chicken-teriyaki" target="_blank">Recipe(Alternative)</a><br>Add fresh Pineapple if you have. Serve in hollowed out Pineapple
         teryaki.jpg
         03/24/2025
 
@@ -118,7 +123,7 @@
         04/19/2024
 
         Lobster Roll
-        <a href="https://www.tiktok.com/t/ZTYwgEyB2/">Recipe</a><br>1 small lobster isnt really enough for two rolls
+        <a href="https://www.tiktok.com/t/ZTYwgEyB2/">Recipe(Tiktok)</a><br><a href="https://www.foodiecrush.com/lobster-rolls/" target="_blank">Recipe(Alternative)</a><br>1 small lobster isnt really enough for two rolls
         lobsterroll.jpg
         06/09/2024
 
@@ -134,7 +139,7 @@
 
     +Pasta
         Spaghetti Vongole
-        <a href="https://www.tiktok.com/t/ZTYwb6uox/">Recipe</a><br><a href="https://www.onceuponachef.com/recipes/linguini-with-clams.html">For Amounts</a><br>Homemade Spaghetti
+        <a href="https://www.tiktok.com/t/ZTYwb6uox/">Recipe(Tiktok)</a><br><a href="https://www.onceuponachef.com/recipes/linguini-with-clams.html">For Amounts</a><br>Homemade Spaghetti
         clams.jpg
         01/05/2025
 
@@ -144,7 +149,7 @@
         02/07/2024
 
         Cabbage and Sausage pasta
-        <a href="https://www.tiktok.com/t/ZTYwpF6U5/">Recipe</a><br>Use spicy italian sausage
+        <a href="https://www.tiktok.com/t/ZTYwpF6U5/">Recipe(Tiktok)</a><br><a href="https://www.foodandwine.com/sausage-and-cabbage-pasta-7642625" target="_blank">Recipe(Alternative)</a><br>Use spicy italian sausage
         cabpasta.jpg
         03/11/2024
         
@@ -174,9 +179,14 @@
         02/20/2025
 
         Leek, Spinach & Cheese Agnolotti
-        <a href="https://www.tiktok.com/t/ZT2my9HdC/">Recipe</a>
+        <a href="https://www.tiktok.com/t/ZT2my9HdC/">Recipe(Tiktok)</a><br><a href="https://www.theburntbuttertable.com/spinach-and-ricotta-agnolotti-in-a-sage-butter/" target="_blank">Recipe(Alternative)</a>
         agno.jpg
         02/24/2025
+
+        Pasta alla Zozzona
+        <a href="https://www.tiktok.com/t/ZTjJfyxxJ/">Recipe (Tiktok)</a><br><a href="https://www.seriouseats.com/pasta-alla-zozzona-rigatoni-with-sausage-and-egg-yolks">Recipe (Alternative)</a>
+        zozzona.jpg
+        04/04/2025
 
     +Other
         Pizza
@@ -213,12 +223,12 @@
         11/15/2023
 
         Coconut Noodle Soup
-        <a href="https://www.tiktok.com/t/ZT2LnqsEm/">Recipe</a>
+        <a href="https://www.tiktok.com/t/ZT2LnqsEm/">Recipe(Tiktok)</a><br><a href="https://www.instagram.com/johngs/reel/DB1c3SjIfH9/" target="_blank">Recipe(Alternative)</a>
         soup.jpg
         1/17/2025
 
         Sausage & Veggie Soup
-        <a href="https://www.tiktok.com/t/ZT2my9hr2/">Recipe</a><br>Use homemade stock & Sausage. Great in winter
+        <a href="https://www.tiktok.com/t/ZT2my9hr2/">Recipe(Tiktok)</a><br><a href="https://www.youtube.com/watch?v=Q3zXVDB4lCQ" target="_blank">Recipe(Alternative)</a><br>Use homemade stock & Sausage. Great in winter
         saussoup.jpg
         02/17/2025
 
@@ -277,12 +287,12 @@
 
     +Other
         Salmon Crudo
-        <a href="https://www.tiktok.com/t/ZTYwgbdcx/">Mango Habanero Recipe</a>
+        <a href="https://www.tiktok.com/t/ZTYwgbdcx/">Mango Habanero Recipe(Tiktok)</a><br><a href="https://www.youtube.com/watch?v=E03-12RC9A0" target="_blank">Recipe(Alternative)</a>
         crudo.jpg
         08/14/2024
 
         Beats and Yams
-        <a href="https://www.tiktok.com/t/ZTYwbTLuu/">Recipe</a>
+        <a href="https://www.tiktok.com/t/ZTYwbTLuu/">Recipe(Tiktok)</a><br><a href="https://www.instagram.com/reel/C4WAFzQOKME/" target="_blank">Recipe(Alternative)</a>
         beets.jpg
         01/07/2025
 
@@ -315,6 +325,11 @@
         <a href="https://www.allrecipes.com/recipe/21014/good-old-fashioned-pancakes/">Recipe</a>
         pancakes.jpg
         3/8/2025
+
+        Pickled Onions
+        <a href="https://www.loveandlemons.com/pickled-red-onions/">Recipe</a><br>Add hot chile (fresno). Add peppercorn, mustard seed, garlic, bay leaf,cumin seeds.
+        onions.jpg
+        04/04/2025
 
 -Desserts
 

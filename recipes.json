@@ -3,13 +3,13 @@
         "Meat": [
             {
                 "title": "Whole Roast Chicken",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwbpgPR/\" target=\"_blank\">3 Chili Recipe</a>",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwbpgPR/\" target=\"_blank\">3 Chili Recipe(Tiktok)</a><br><a href=\"https://www.youtube.com/watch?v=9DJomIc7bjs\" target=\"_blank\">Recipe(Alternative)</a>",
                 "image": "ChiliChicken.jpg",
                 "date": "08/26/2024"
             },
             {
                 "title": "Steak with Asian Style Au Poivre Sauce",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZT24wQVG2/\" target=\"_blank\">Recipe</a><br>Use Hanger Steak",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZT24wQVG2/\" target=\"_blank\">Recipe(Tiktok)</a><br><a href=\"https://www.youtube.com/watch?v=3LdXSXG437E\" target=\"_blank\">Recipe(Alternative)</a><br>Use Hanger Steak",
                 "image": "aupoivre.jpg",
                 "date": "3/8/2025"
             },
@@ -30,6 +30,12 @@
                 "notes": "Page 178 in Chin Chin Feed Me Book",
                 "image": "quail.jpg",
                 "date": "04/21/2024"
+            },
+            {
+                "title": "Asaparagus Risotto with Duck",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTjJfdN9V/\">Recipe(Tiktok)</a><br><a href=\"https://www.loveandlemons.com/asparagus-risotto/\">Recipe(Alternative)</a>Add leek with shallot. Can sub duck for shrimp or scallops. Duck is easy to make. Score it and cook like a steak",
+                "image": "risottoduck.jpg",
+                "date": "04/06/2025"
             },
             {
                 "title": "Crown Of Lamb",
@@ -69,7 +75,7 @@
             },
             {
                 "title": "Chicken Parm Sandwich",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwpSTGQ/\">Recipe</a><br>Use both panko and italian breadcrumbs",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwpSTGQ/\">Recipe(Tiktok)</a><br><a href=\"https://ohsweetbasil.com/chicken-parm-subs/\" target=\"_blank\">Recipe(Alternative)</a><br>Use both panko and italian breadcrumbs",
                 "image": "chickParm.jpg",
                 "date": "09/24/2024"
             },
@@ -93,7 +99,7 @@
             },
             {
                 "title": "Chicken Teryaki",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZT2wFspxC/\">Recipe</a><br>Add fresh Pineapple if you have. Serve in hollowed out Pineapple",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZT2wFspxC/\">Recipe(Tiktok)</a><br><a href=\"https://cooking.nytimes.com/recipes/1012984-chicken-teriyaki\" target=\"_blank\">Recipe(Alternative)</a><br>Add fresh Pineapple if you have. Serve in hollowed out Pineapple",
                 "image": "teryaki.jpg",
                 "date": "03/24/2025"
             },
@@ -143,7 +149,7 @@
             },
             {
                 "title": "Lobster Roll",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwgEyB2/\">Recipe</a><br>1 small lobster isnt really enough for two rolls",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwgEyB2/\">Recipe(Tiktok)</a><br><a href=\"https://www.foodiecrush.com/lobster-rolls/\" target=\"_blank\">Recipe(Alternative)</a><br>1 small lobster isnt really enough for two rolls",
                 "image": "lobsterroll.jpg",
                 "date": "06/09/2024"
             },
@@ -163,7 +169,7 @@
         "Pasta": [
             {
                 "title": "Spaghetti Vongole",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwb6uox/\">Recipe</a><br><a href=\"https://www.onceuponachef.com/recipes/linguini-with-clams.html\">For Amounts</a><br>Homemade Spaghetti",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwb6uox/\">Recipe(Tiktok)</a><br><a href=\"https://www.onceuponachef.com/recipes/linguini-with-clams.html\">For Amounts</a><br>Homemade Spaghetti",
                 "image": "clams.jpg",
                 "date": "01/05/2025"
             },
@@ -175,7 +181,7 @@
             },
             {
                 "title": "Cabbage and Sausage pasta",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwpF6U5/\">Recipe</a><br>Use spicy italian sausage",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwpF6U5/\">Recipe(Tiktok)</a><br><a href=\"https://www.foodandwine.com/sausage-and-cabbage-pasta-7642625\" target=\"_blank\">Recipe(Alternative)</a><br>Use spicy italian sausage",
                 "image": "cabpasta.jpg",
                 "date": "03/11/2024"
             },
@@ -211,9 +217,15 @@
             },
             {
                 "title": "Leek, Spinach & Cheese Agnolotti",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZT2my9HdC/\">Recipe</a>",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZT2my9HdC/\">Recipe(Tiktok)</a><br><a href=\"https://www.theburntbuttertable.com/spinach-and-ricotta-agnolotti-in-a-sage-butter/\" target=\"_blank\">Recipe(Alternative)</a>",
                 "image": "agno.jpg",
                 "date": "02/24/2025"
+            },
+            {
+                "title": "Pasta alla Zozzona",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTjJfyxxJ/\">Recipe (Tiktok)</a><br><a href=\"https://www.seriouseats.com/pasta-alla-zozzona-rigatoni-with-sausage-and-egg-yolks\">Recipe (Alternative)</a>",
+                "image": "zozzona.jpg",
+                "date": "04/04/2025"
             }
         ],
         "Other": [
@@ -259,13 +271,13 @@
             },
             {
                 "title": "Coconut Noodle Soup",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZT2LnqsEm/\">Recipe</a>",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZT2LnqsEm/\">Recipe(Tiktok)</a><br><a href=\"https://www.instagram.com/johngs/reel/DB1c3SjIfH9/\" target=\"_blank\">Recipe(Alternative)</a>",
                 "image": "soup.jpg",
                 "date": "1/17/2025"
             },
             {
                 "title": "Sausage & Veggie Soup",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZT2my9hr2/\">Recipe</a><br>Use homemade stock & Sausage. Great in winter",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZT2my9hr2/\">Recipe(Tiktok)</a><br><a href=\"https://www.youtube.com/watch?v=Q3zXVDB4lCQ\" target=\"_blank\">Recipe(Alternative)</a><br>Use homemade stock & Sausage. Great in winter",
                 "image": "saussoup.jpg",
                 "date": "02/17/2025"
             }
@@ -339,13 +351,13 @@
         "Other": [
             {
                 "title": "Salmon Crudo",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwgbdcx/\">Mango Habanero Recipe</a>",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwgbdcx/\">Mango Habanero Recipe(Tiktok)</a><br><a href=\"https://www.youtube.com/watch?v=E03-12RC9A0\" target=\"_blank\">Recipe(Alternative)</a>",
                 "image": "crudo.jpg",
                 "date": "08/14/2024"
             },
             {
                 "title": "Beats and Yams",
-                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwbTLuu/\">Recipe</a>",
+                "notes": "<a href=\"https://www.tiktok.com/t/ZTYwbTLuu/\">Recipe(Tiktok)</a><br><a href=\"https://www.instagram.com/reel/C4WAFzQOKME/\" target=\"_blank\">Recipe(Alternative)</a>",
                 "image": "beets.jpg",
                 "date": "01/07/2025"
             },
@@ -384,6 +396,12 @@
                 "notes": "<a href=\"https://www.allrecipes.com/recipe/21014/good-old-fashioned-pancakes/\">Recipe</a>",
                 "image": "pancakes.jpg",
                 "date": "3/8/2025"
+            },
+            {
+                "title": "Pickled Onions",
+                "notes": "<a href=\"https://www.loveandlemons.com/pickled-red-onions/\">Recipe</a><br>Add hot chile (fresno). Add peppercorn, mustard seed, garlic, bay leaf,cumin seeds.",
+                "image": "onions.jpg",
+                "date": "04/04/2025"
             }
         ]
     },
