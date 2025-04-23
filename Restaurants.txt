@@ -305,7 +305,13 @@ Char
 BYOB,Pizza,Fishtown
 
 Zama
-4
+4.5
 3
 <a href=https://www.char.pizza/about">Website</a>
 Sushi,Rittenhouse
+
+Laurel
+4.5
+4
+<a href=https://www.restaurantlaurel.com/">Website</a>
+French,American,South Philly,Tasting Menu

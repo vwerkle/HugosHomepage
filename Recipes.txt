@@ -86,10 +86,14 @@
         03/24/2025
 
         Steak Donburi
-         <a href="https://jeccachantilly.com/steak-donburi/">Recipe</a>
-         donburi.jpg
-         03/27/2025
+        <a href="https://jeccachantilly.com/steak-donburi/">Recipe</a>
+        donburi.jpg
+        03/27/2025
         
+        Lemongrass Chicken
+        <a href="https://feedthepudge.com/grilled-lemongrass-chicken-ga-nuong-sa/">Recipe</a>Can be used for rice bowl or bahn mi
+        lemong.jpg
+        04/21/2025
 
         Thanksgiving turkey
         <a href="https://www.simplyrecipes.com/recipes/moms_roast_turkey/">Upside Down Recipe</a><br>Flip with about 40 mins left. Make stuffing separately
@@ -286,10 +290,25 @@
         1/19/2025
 
     +Other
-        Salmon Crudo
+        Mango Habanero Salmon Crudo
         <a href="https://www.tiktok.com/t/ZTYwgbdcx/">Mango Habanero Recipe(Tiktok)</a><br><a href="https://www.youtube.com/watch?v=E03-12RC9A0" target="_blank">Recipe(Alternative)</a>
         crudo.jpg
         08/14/2024
+        
+        Lemon Cilantro Chile Salmon Crudo
+        <a href="https://foodmymuse.com/salmon-crudo/">Recipe</a>
+        crudo2.jpg
+        04/17/2025
+
+        Spicy Salmon Crispy Bites
+        <a href="https://www.providerstore.com.au/blogs/journal/spicy-salmon-crispy-rice-by-duck-sauce-yum?srsltid=AfmBOopaIENRXLkEDh7pw0Tb5wsKVLXJMmvblNNqAVAS-G4wyxl7b4n5">Recipe. Can top with caviar</a>
+        bites.jpg
+        04/17/2025
+
+        Lemongrass Sriracha Baked Oysters
+        <a href="https://www.tiktok.com/t/ZTjd4XwNW/">Recipe (Tiktok)</a><br><a href="https://www.instagram.com/dennistheprescott/reel/DF8mJ5-SWUO/?locale=zh-TW&hl=en">Recipe (Alternative)</a>
+        oysters.jpg
+        04/17/2025
 
         Beats and Yams
         <a href="https://www.tiktok.com/t/ZTYwbTLuu/">Recipe(Tiktok)</a><br><a href="https://www.instagram.com/reel/C4WAFzQOKME/" target="_blank">Recipe(Alternative)</a>
