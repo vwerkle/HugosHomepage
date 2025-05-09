@@ -94,6 +94,11 @@
         <a href="https://feedthepudge.com/grilled-lemongrass-chicken-ga-nuong-sa/">Recipe</a>Can be used for rice bowl or bahn mi
         lemong.jpg
         04/21/2025
+        
+        Peri Peri Chicken
+        <a href="https://sandersonfarms.com/recipes/peri-peri-grilled-chicken/">Recipe</a>Marinate over night
+        peri.jpg
+        04/21/2025
 
         Thanksgiving turkey
         <a href="https://www.simplyrecipes.com/recipes/moms_roast_turkey/">Upside Down Recipe</a><br>Flip with about 40 mins left. Make stuffing separately

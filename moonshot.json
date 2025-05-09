@@ -1,5 +1,7 @@
 {
     "chris B": {
+        "offset": 16,
+        "players":{
         "Colton Cowser": 681297,
         "Rafael Devers": 646240,
         "Trea Turner": 607208,
@@ -8,8 +10,11 @@
         "Orlando Arcia": 606115,
         "William Contreras": 661388,
         "Matt Vierling":663837
+        }
     },
     "Joe": {
+        "offset": 27,
+        "players":{
         "Cody Bellinger": 641355,
         "Yordan Alvarez": 670541,
         "Nathaniel Lowe": 663993,
@@ -18,8 +23,11 @@
         "Luis Robert Jr.": 673357,
         "Christian Walker": 572233,
         "Royce Lewis":668904
+    }
     },
     "Tom": {
+        "offset": 40,
+        "players":{
         "Pete Alonso": 624413,
         "Vladimir Guerrero Jr.": 665489,
         "Matt Olson": 621566,
@@ -28,8 +36,11 @@
         "Triston Casas": 671213,
         "Ozzie Albies": 645277,
         "James Wood": 695578
+    }
     },
     "Owen": {
+        "offset": 30,
+        "players":{
         "Mookie Betts": 605141,
         "Julio Rodriguez": 677594,
         "Fernando Tatis Jr.": 665487,
@@ -38,8 +49,11 @@
         "Max Muncy": 571970,
         "Luis Robert Jr.": 673357,
         "Adolis Garcia": 666969
+    }
     },
     "Dan": {
+        "offset": 42,
+        "players":{
         "Vladimir Guerrero Jr.": 665489,
         "Matt Olson": 621566,
         "Fernando Tatis Jr.": 665487,
@@ -48,8 +62,11 @@
         "Austin Riley": 663586,
         "Triston Casas": 671213,
         "James Wood": 695578
+    }
     },
     "Chris R": {
+        "offset": 38,
+        "players":{
         "Ozzie Albies": 645277,
         "Vladimir Guerrero Jr.": 665489,
         "Julio Rodriguez": 677594,
@@ -58,8 +75,11 @@
         "Yordan Alvarez": 670541,
         "Fernando Tatis Jr.": 665487,
         "James Wood": 695578
+    }
     },
     "Mike": {
+        "offset": 43,
+        "players":{
         "Luis Robert Jr.": 673357,
         "Ozzie Albies": 645277,
         "Fernando Tatis Jr.": 665487,
@@ -68,8 +88,11 @@
         "Pete Alonso": 624413,
         "Austin Riley": 663586,
         "Matt Olson": 621566
+    }
     },
     "Colin": {
+        "offset": 41,
+        "players":{
         "James Wood": 695578,
         "Christian Walker": 572233,
         "Triston Casas": 671213,
@@ -78,8 +101,11 @@
         "Ozzie Albies": 645277,
         "Pete Alonso": 624413,
         "Julio Rodriguez": 677594
+    }
     },
     "GV": {
+        "offset": 45,
+        "players":{
         "Bryce Harper": 547180,
         "Rafael Devers": 646240,
         "James Wood": 695578,
@@ -88,8 +114,11 @@
         "Mookie Betts": 605141,
         "Anthony Volpe": 683011,
         "Corey Seager": 608369
+    }
     },
     "Vincent": {
+        "offset": 57,
+        "players":{
         "James Wood": 695578,
         "Fernando Tatis Jr.": 665487,
         "Luis Robert Jr.": 673357,
@@ -98,8 +127,11 @@
         "Tyler Soderstrom": 691016,
         "Austin RIley": 663586,
         "Kyle Tucker": 663656
+    }
     },
     "Jack": {
+        "offset": 49,
+        "players":{
         "Brent Rooker": 667670,
         "Fernando Tatis Jr.": 665487,
         "Austin Riley": 663586,
@@ -108,5 +140,6 @@
         "Triston Casas": 671213,
         "James Wood": 695578,
         "Kyle Tucker": 663656
+        }
     }
 }

@@ -54,12 +54,18 @@
             <thead>
                     <th>Player</th>
                     <th>Total</th>
+                    <th>Monthly</th>
             </thead>
             <tbody>
                 {% for group, stats in groups %}
                 <tr>
                     <td class="text-left">{{ group }}</td>
                     <td class="tex-right"> {{ stats.total_home_runs  }}</td>
+                    <td class="tex-right"> {% if stats.used_offset %}
+                        {{ stats.adjusted_total }}
+                      {% else %}
+                        —
+                      {% endif %}</td>
                 </tr>
                 {% endfor %}
         </tbody>

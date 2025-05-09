@@ -44,7 +44,7 @@ Suraya
 5
 3
 <a href="https://www.surayaphilly.com/">Website</a>
-Fishtown,Moroccan,Brunch,Tasting Menu
+Fishtown,Moroccan,Brunch,Tasting Menu,Mediterranean
 
 Tuna Bar
 5
@@ -56,13 +56,13 @@ Barcelona Wine Bar
 5
 3
 <a href="https://barcelonawinebar.com/location/philadelphia/">Website</a>
-Spanish,South Philly
+Spanish,South Philly,Mediterranean
 
 Oloroso
 5
 3
 <a href="https://www.olorosophl.com/">Website</a>
-Spanish,Center City,Tasting Menu
+Spanish,Center City,Tasting Menu,Mediterranean
 
 Osteria
 5
@@ -315,3 +315,15 @@ Laurel
 4
 <a href=https://www.restaurantlaurel.com/">Website</a>
 French,American,South Philly,Tasting Menu
+
+Emmet
+4.5
+4
+<a href=https://www.emmettphilly.com/">Website</a>
+Mediterranean,Fishtown,Tasting Menu
+
+Pizzeria Pizzata
+4
+<a href=https://www.pizzatapizzeria.com/">Website</a>
+Pizza,Fitler Square
+

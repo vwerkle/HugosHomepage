@@ -110,6 +110,18 @@
                 "date": "03/27/2025"
             },
             {
+                "title": "Lemongrass Chicken",
+                "notes": "<a href=\"https://feedthepudge.com/grilled-lemongrass-chicken-ga-nuong-sa/\">Recipe</a>Can be used for rice bowl or bahn mi",
+                "image": "lemong.jpg",
+                "date": "04/21/2025"
+            },
+            {
+                "title": "Peri Peri Chicken",
+                "notes": "<a href=\"https://sandersonfarms.com/recipes/peri-peri-grilled-chicken/\">Recipe</a>Marinate over night",
+                "image": "peri.jpg",
+                "date": "04/21/2025"
+            },
+            {
                 "title": "Thanksgiving turkey",
                 "notes": "<a href=\"https://www.simplyrecipes.com/recipes/moms_roast_turkey/\">Upside Down Recipe</a><br>Flip with about 40 mins left. Make stuffing separately",
                 "image": "turkey.jpg",

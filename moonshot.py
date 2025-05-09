@@ -31,17 +31,33 @@ def get_home_runs(player_ids):
 def process_groups(filepath):
     data =get_players(filepath)
     group_stats={}
-    for group,players in data.items():
-        home_run_counts=get_home_runs(players)
-        sorted_players = sorted(home_run_counts.items(), key=lambda x:x[1], reverse=True)
+    for group, group_data in data.items():
+        if 'players' in group_data:
+            players = group_data['players']
+            offset = group_data.get('offset', 0)
+        else:
+            players = group_data
+            offset = 0
+
+        home_run_counts = get_home_runs(players)
+
+        if not home_run_counts:
+            continue
+        sorted_players = sorted(home_run_counts.items(), key=lambda x: x[1], reverse=True)
+
         min_home_run_player = sorted_players[-1]
-        total_home_runs=sum(home_run_counts.values())-min(home_run_counts.values())
-        group_stats[group]={
-            'players':sorted_players,
-            'total_home_runs':total_home_runs,
-            'min_home_run_player':min_home_run_player[0]
+        total_home_runs = sum(home_run_counts.values()) - min(home_run_counts.values())
+        adjusted_total = sum(home_run_counts.values()) - offset
+
+        group_stats[group] = {
+            'players': sorted_players,
+            'total_home_runs': total_home_runs,
+            'adjusted_total': adjusted_total,
+            'min_home_run_player': min_home_run_player[0],
+            'used_offset': offset > 0
         }
-    sorted_groups = sorted(group_stats.items(), key=lambda x:x[1]['total_home_runs'],reverse=True)
+
+    sorted_groups = sorted(group_stats.items(), key=lambda x: x[1]['total_home_runs'], reverse=True)
     return sorted_groups
 
 @moonshot_bp.route("/moonshot")
