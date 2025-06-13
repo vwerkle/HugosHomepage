@@ -248,7 +248,7 @@ Ambrosia
 4.5
 2
 <a href="https://www.ambrosiabyob.com/menus/">Website</a>
-Italian, Rittenhouse,BYOB
+Italian,Rittenhouse,BYOB
 
 Alpen Rose
 4.5
@@ -289,41 +289,53 @@ Breakfast,Fishtown
 Sang Kee Peking Duck House
 4.5
 2
-<a href=https://www.sangkeechinatown.com/">Website</a>
+<a href="https://www.sangkeechinatown.com/">Website</a>
 Chinatown,Asian
 
 Jaffa Bar
 4
 3
-<a href=https://www.jaffabarphilly.com/">Website</a>
+<a href="https://www.jaffabarphilly.com/">Website</a>
 Seafood,Happy Hour,Fishtown
 
 Char
 4
 2
-<a href=https://www.char.pizza/about">Website</a>
+<a href="https://www.char.pizza/about">Website</a>
 BYOB,Pizza,Fishtown
 
 Zama
 4.5
 3
-<a href=https://www.char.pizza/about">Website</a>
+<a href="https://www.char.pizza/about">Website</a>
 Sushi,Rittenhouse
 
 Laurel
 4.5
 4
-<a href=https://www.restaurantlaurel.com/">Website</a>
+<a href="https://www.restaurantlaurel.com/">Website</a>
 French,American,South Philly,Tasting Menu
 
 Emmet
 4.5
 4
-<a href=https://www.emmettphilly.com/">Website</a>
+<a href="https://www.emmettphilly.com/">Website</a>
 Mediterranean,Fishtown,Tasting Menu
 
 Pizzeria Pizzata
 4
-<a href=https://www.pizzatapizzeria.com/">Website</a>
+2
+<a href="https://www.pizzatapizzeria.com/">Website</a>
 Pizza,Fitler Square
 
+Malbec
+4
+2
+<a href="http://www.malbecsteakhouse.com/">Website</a>
+South American,Steak,South Philly
+
+Circles and Squares
+4.5
+1
+<a href="https://www.instagram.com/circlesandsquaresphilly/?hl=en">Website</a>
+Fishtown,Pizza,Cheesesteak

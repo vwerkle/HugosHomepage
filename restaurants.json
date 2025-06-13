@@ -90,7 +90,8 @@
             "Fishtown",
             "Moroccan",
             "Brunch",
-            "Tasting Menu"
+            "Tasting Menu",
+            "Mediterranean"
         ]
     },
     "Tuna Bar": {
@@ -113,7 +114,8 @@
         "html": "<a href=\"https://barcelonawinebar.com/location/philadelphia/\">Website</a>",
         "tags": [
             "Spanish",
-            "South Philly"
+            "South Philly",
+            "Mediterranean"
         ]
     },
     "Oloroso": {
@@ -124,7 +126,8 @@
         "tags": [
             "Spanish",
             "Center City",
-            "Tasting Menu"
+            "Tasting Menu",
+            "Mediterranean"
         ]
     },
     "Osteria": {
@@ -461,7 +464,7 @@
         "html": "<a href=\"https://www.ambrosiabyob.com/menus/\">Website</a>",
         "tags": [
             "Italian",
-            " Rittenhouse",
+            "Rittenhouse",
             "BYOB"
         ]
     },
@@ -532,7 +535,7 @@
         "name": "Sang Kee Peking Duck House",
         "rating": 4.5,
         "price": 2,
-        "html": "<a href=https://www.sangkeechinatown.com/\">Website</a>",
+        "html": "<a href=\"https://www.sangkeechinatown.com/\">Website</a>",
         "tags": [
             "Chinatown",
             "Asian"
@@ -542,11 +545,65 @@
         "name": "Jaffa Bar",
         "rating": 4.0,
         "price": 3,
-        "html": "<a href=https://www.jaffabarphilly.com/\">Website</a>",
+        "html": "<a href=\"https://www.jaffabarphilly.com/\">Website</a>",
         "tags": [
             "Seafood",
             "Happy Hour",
             "Fishtown"
+        ]
+    },
+    "Char": {
+        "name": "Char",
+        "rating": 4.0,
+        "price": 2,
+        "html": "<a href=\"https://www.char.pizza/about\">Website</a>",
+        "tags": [
+            "BYOB",
+            "Pizza",
+            "Fishtown"
+        ]
+    },
+    "Zama": {
+        "name": "Zama",
+        "rating": 4.5,
+        "price": 3,
+        "html": "<a href=\"https://www.char.pizza/about\">Website</a>",
+        "tags": [
+            "Sushi",
+            "Rittenhouse"
+        ]
+    },
+    "Laurel": {
+        "name": "Laurel",
+        "rating": 4.5,
+        "price": 4,
+        "html": "<a href=\"https://www.restaurantlaurel.com/\">Website</a>",
+        "tags": [
+            "French",
+            "American",
+            "South Philly",
+            "Tasting Menu"
+        ]
+    },
+    "Emmet": {
+        "name": "Emmet",
+        "rating": 4.5,
+        "price": 4,
+        "html": "<a href=\"https://www.emmettphilly.com/\">Website</a>",
+        "tags": [
+            "Mediterranean",
+            "Fishtown",
+            "Tasting Menu"
+        ]
+    },
+    "Pizzeria Pizzata": {
+        "name": "Pizzeria Pizzata",
+        "rating": 4.0,
+        "price": 2,
+        "html": "<a href=\"https://www.pizzatapizzeria.com/\">Website</a>",
+        "tags": [
+            "Pizza",
+            "Fitler Square"
         ]
     }
 }
