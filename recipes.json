@@ -348,6 +348,12 @@
                 "date": "01/01/2001"
             },
             {
+                "title": "Grilled peach burrata Salad",
+                "notes": "Use prosciutto or speck",
+                "image": "summer.jpg",
+                "date": "07/13/2025"
+            },
+            {
                 "title": "Tortellini Pasta Salad",
                 "notes": "<a href=\"https://www.tiktok.com/t/ZTYwpXeXe/\">Recipe</a>",
                 "image": "torto.jpg",
@@ -432,7 +438,20 @@
                 "notes": "<a href=\"https://www.loveandlemons.com/pickled-red-onions/\">Recipe</a><br>Add hot chile (fresno). Add peppercorn, mustard seed, garlic, bay leaf,cumin seeds.",
                 "image": "onions.jpg",
                 "date": "04/04/2025"
+            },
+            {
+                "title": "Roasted Red Pepper Hummus",
+                "notes": "<a href=\"https://www.inspiredtaste.net/22016/roasted-red-pepper-hummus-recipe/\">Recipe</a><br>Add Sumac.",
+                "image": "onions.jpg",
+                "date": "07/15/2025"
+            },
+            {
+                "title": "Buttermilk Ranch",
+                "notes": "<a href=\"https://www.onceuponachef.com/recipes/homemade-buttermilk-ranch-dressing.html\">Recipe</a><br>Use fresh dill.",
+                "image": "onions.jpg",
+                "date": "07/15/2025"
             }
+
         ]
     },
     "Desserts": {

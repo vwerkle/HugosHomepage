@@ -304,6 +304,11 @@
         cuc.jpg
         01/01/2001
 
+        Grilled peach burrata Salad
+        notes": "Use prosciutto or speck
+        image": "summer.jpg
+        07/13/2025
+
         Tortellini Pasta Salad
         <a href="https://www.tiktok.com/t/ZTYwpXeXe/">Recipe</a>
         torto.jpg
@@ -374,6 +379,16 @@
         <a href="https://www.loveandlemons.com/pickled-red-onions/">Recipe</a><br>Add hot chile (fresno). Add peppercorn, mustard seed, garlic, bay leaf,cumin seeds.
         onions.jpg
         04/04/2025
+
+        Roasted Red Pepper Hummus
+        <a href=\"https://www.inspiredtaste.net/22016/roasted-red-pepper-hummus-recipe/\">Recipe</a><br>Add Sumac.
+        onions.jpg
+        07/15/2025
+
+        Buttermilk Ranch
+        <a href=\"https://www.onceuponachef.com/recipes/homemade-buttermilk-ranch-dressing.html\">Recipe</a><br>Use fresh dill.
+        ranch.jpg
+        07/15/2025
 
 -Desserts
 

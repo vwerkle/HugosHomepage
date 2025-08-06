@@ -339,3 +339,21 @@ Circles and Squares
 1
 <a href="https://www.instagram.com/circlesandsquaresphilly/?hl=en">Website</a>
 Fishtown,Pizza,Cheesesteak
+
+Javelin Suhsi
+4.0,
+2
+<a href=\"https://www.javelinphilly.com/\">Website</a>
+Suhsi,Asian,Japanese,Fairmount    
+
+El Rey
+4.0
+2
+<a href=\"https://elreyrestaurant.com/\">Website</a>",
+Mexican,Happy Hour, Rittenhouse
+
+Villa Di Roma"
+4
+2
+<a href=\"https://villadiroma.com/\">Website</a>
+Italian,South Philly,Pasta
