@@ -305,8 +305,8 @@
         01/01/2001
 
         Grilled peach burrata Salad
-        notes": "Use prosciutto or speck
-        image": "summer.jpg
+        Use prosciutto or speck
+        summer.jpg
         07/13/2025
 
         Tortellini Pasta Salad
