@@ -341,13 +341,13 @@ Circles and Squares
 Fishtown,Pizza,Cheesesteak
 
 Javelin Suhsi
-4.0,
+4
 2
 <a href=\"https://www.javelinphilly.com/\">Website</a>
 Suhsi,Asian,Japanese,Fairmount    
 
 El Rey
-4.0
+4
 2
 <a href=\"https://elreyrestaurant.com/\">Website</a>",
 Mexican,Happy Hour, Rittenhouse
