@@ -352,8 +352,14 @@ El Rey
 <a href=\"https://elreyrestaurant.com/\">Website</a>",
 Mexican,Happy Hour, Rittenhouse
 
-Villa Di Roma"
+Villa Di Roma
 4
 2
 <a href=\"https://villadiroma.com/\">Website</a>
 Italian,South Philly,Pasta
+
+Ama
+4.5
+4
+<a href=\"https://amaphl.com/\">Website</a>
+Mexican,Fishtown
