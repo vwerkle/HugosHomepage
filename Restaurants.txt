@@ -47,16 +47,22 @@ Suraya
 Fishtown,Moroccan,Brunch,Tasting Menu,Mediterranean
 
 Tuna Bar
-5
+4.5
 3
 <a href="https://www.tunabar.com/">Website</a>
 Sushi,Japanese,Seafood,NoLibs,Asian
 
 Barcelona Wine Bar
-5
+4
 3
 <a href="https://barcelonawinebar.com/location/philadelphia/">Website</a>
 Spanish,South Philly,Mediterranean
+
+Ama
+4.5
+4
+<a href=\"https://amaphl.com/\">Website</a>
+Mexican,Fishtown
 
 Oloroso
 5
@@ -358,8 +364,3 @@ Villa Di Roma
 <a href=\"https://villadiroma.com/\">Website</a>
 Italian,South Philly,Pasta
 
-Ama
-4.5
-4
-<a href=\"https://amaphl.com/\">Website</a>
-Mexican,Fishtown
