@@ -20,6 +20,12 @@
                 "title": "Chocolate Chip Cookies"
             }, 
             {
+                "date": "10/21/2025", 
+                "notes": "<a href=\"https://www.wellmadebykiley.com/blog/pumpkin-donuts-with-maple-bourbon-glaze\">Recipe</a>", 
+                "image": "donuts.jpg", 
+                "title": "Pumpkin Donuts"
+            }, 
+            {
                 "date": "12/20/2023", 
                 "notes": "<a href=\"https://sallysbakingaddiction.com/best-gingerbread-cookies/\">Recipe</a>", 
                 "image": "gmen.jpg", 
@@ -30,6 +36,12 @@
                 "notes": "<a href=\"https://www.daringgourmet.com/vanillekipferl-austrian-vanilla-crescent-cookies/\">Vanillekipferl</a><br><a href=\"https://www.daringgourmet.com/zimtsterne-german-cinnamon-star-cookies/\">Zimsterne</a>", 
                 "image": "cookies.jpg", 
                 "title": "Christmas Cookies"
+            }, 
+            {
+                "date": "09/05/2025", 
+                "notes": "<a href=\"https://bakewithzoha.com/perfect-vanilla-creme-brulee/#tasty-recipes-4465-jump-target\">Recipe</a><br>Use homemade vanilla extract", 
+                "image": "brulee.jpg", 
+                "title": "Creme Brulee"
             }
         ]
     }, 
@@ -92,6 +104,12 @@
                 "notes": "<a href=\"https://www.providerstore.com.au/blogs/journal/spicy-salmon-crispy-rice-by-duck-sauce-yum?srsltid=AfmBOopaIENRXLkEDh7pw0Tb5wsKVLXJMmvblNNqAVAS-G4wyxl7b4n5\">Recipe. Can top with caviar</a>", 
                 "image": "bites.jpg", 
                 "title": "Spicy Salmon Crispy Bites"
+            }, 
+            {
+                "date": "09/05/2025", 
+                "notes": "<a href=\"https://www.youtube.com/watch?v=hLsj8i3ihTo\">Recipe</a><br>Buy horseradish and make cocktail sauce", 
+                "image": "cocktail.jpg", 
+                "title": "Shrimp Cocktail"
             }, 
             {
                 "date": "04/17/2025", 
@@ -158,6 +176,12 @@
                 "notes": "<a href=\\\"https://www.onceuponachef.com/recipes/homemade-buttermilk-ranch-dressing.html\\\">Recipe</a><br>Use fresh dill.", 
                 "image": "ranch.jpg", 
                 "title": "Buttermilk Ranch"
+            }, 
+            {
+                "date": "10/15/2025", 
+                "notes": "<a href=\\\"https://lepetitgourmandblogcom.wordpress.com/2021/01/20/nyt-cookings-crisp-gnocchi-with-brussels-sprouts-and-brown-butter/\">Recipe</a><br>Use Bacon.", 
+                "image": "bruss.jpg", 
+                "title": "Brussel Sprout Gnocchi"
             }
         ], 
         "Salad": [
@@ -190,12 +214,18 @@
                 "notes": "<a href=\"https://kalejunkie.com/chicken-shawarma-crispy-rice-salad-with-lemon-tahini-dressing/\">Recipe</a>", 
                 "image": "ricesalad.jpg", 
                 "title": "Crispy Rice Salad"
+            }, 
+            {
+                "date": "09/08/2025", 
+                "notes": "<a href=\"https://reallifenutritionist.com/pesto-and-orzo-salad/#recipe\">Recipe</a>", 
+                "image": "orzosalad.jpg", 
+                "title": "Orzo Sausage Salad"
             }
         ], 
         "Bread": [
             {
                 "date": "01/03/2025", 
-                "notes": "<a href=\"https://www.thecookingworld.com/recipes/claire-saffitz-focaccia-recipe'\">Knead recipe</a> <br> <a href=\"https://www.bonappetit.com/recipe/easy-no-knead-focaccia?srsltid=AfmBOopsRoN1xsx9JuiiHfcTwfD1yhbBkvsKbOwS7yZmQGik5eZ6iDLB'\">No knead recipe</a><br> Add Shallots or tomatoes <br>", 
+                "notes": "<a href=\"https://www.thecookingworld.com/recipes/claire-saffitz-focaccia-recipe\">Knead recipe</a> <br> <a href=\"https://www.bonappetit.com/recipe/easy-no-knead-focaccia?srsltid=AfmBOopsRoN1xsx9JuiiHfcTwfD1yhbBkvsKbOwS7yZmQGik5eZ6iDLB'\">No knead recipe</a><br> Add Shallots or tomatoes <br>", 
                 "image": "focaccia.jpg", 
                 "title": "Focaccia"
             }, 
@@ -286,6 +316,18 @@
                 "notes": "<a href=\"https://www.tiktok.com/t/ZTjJfyxxJ/\">Recipe (Tiktok)</a><br><a href=\"https://www.seriouseats.com/pasta-alla-zozzona-rigatoni-with-sausage-and-egg-yolks\">Recipe (Alternative)</a>", 
                 "image": "zozzona.jpg", 
                 "title": "Pasta alla Zozzona"
+            }, 
+            {
+                "date": "10/04/2025", 
+                "notes": "<a href=\"https://www.alisoneroman.com/recipes/fresh-tomato-and-fennel-pasta/\">Recipe</a><br>Make when tomatoes are in season and get good ones.", 
+                "image": "fennelseed.jpg", 
+                "title": "Fennel Seed and Tomato Pasta"
+            }, 
+            {
+                "date": "10/20/2025", 
+                "notes": "<a href=\"https://cocinarodriguez.com/beef-short-rib-lasagna/\">Recipe</a><br>Make homemade pasta sheets", 
+                "image": "shortribs.jpg", 
+                "title": "Fennel Seed and Tomato Pasta"
             }
         ], 
         "Seafood": [
@@ -300,6 +342,12 @@
                 "notes": "<a href=\"https://www.tiktok.com/t/ZTYwgEyB2/\">Recipe(Tiktok)</a><br><a href=\"https://www.foodiecrush.com/lobster-rolls/\" target=\"_blank\">Recipe(Alternative)</a><br>1 small lobster isnt really enough for two rolls", 
                 "image": "lobsterroll.jpg", 
                 "title": "Lobster Roll"
+            }, 
+            {
+                "date": "09/05/2025", 
+                "notes": "<a href=\"https://www.tiktok.com/t/ZT6KB22kC/\">Fish</a><br><a href=\"https://www.themediterraneandish.com/chermoula-recipe/#wprm-recipe-container-44422\">Chermoula</a><br>Other sauce is tomatoes Harissa and olive oil.<br>Add anchovies to chermoula. 2 min pan 3/4 mins broiler", 
+                "image": "bronzino.jpg", 
+                "title": "Two Sauce Bronzino"
             }, 
             {
                 "date": "04/19/2024", 
