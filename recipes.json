@@ -142,6 +142,12 @@
                 "title": "Duck Pancakes"
             }, 
             {
+                "date": "12/01/25", 
+                "notes": "<a href=\"https://www.instagram.com/reel/DRln8ojEeHy/\">Recipe</a>", 
+                "image": "dumpy.jpg", 
+                "title": "Dumpling Ramekin"
+            }, 
+            {
                 "date": "05/05/24", 
                 "notes": "<a href=\"https://www.thekitchn.com/jalapeno-popper-22977595\">Recipe</a>", 
                 "image": "poppers.jpg", 
@@ -327,7 +333,13 @@
                 "date": "10/20/2025", 
                 "notes": "<a href=\"https://cocinarodriguez.com/beef-short-rib-lasagna/\">Recipe</a><br>Make homemade pasta sheets", 
                 "image": "shortribs.jpg", 
-                "title": "Fennel Seed and Tomato Pasta"
+                "title": "Shortrib Lasagna"
+            }, 
+            {
+                "date": "11/02/2025", 
+                "notes": "<a href=\"https://www.thechunkychef.com/family-favorite-baked-mac-and-cheese/\">Recipe</a>", 
+                "image": "mac.jpg", 
+                "title": "Gruyere Mac N Cheese"
             }
         ], 
         "Seafood": [
@@ -460,6 +472,12 @@
                 "notes": "<a href=\"https://natashaskitchen.com/chicken-broccoli-and-mushroom-stir-fry/\">Recipe</a>", 
                 "image": "broc.jpg", 
                 "title": "Chicken & Broccoli"
+            }, 
+            {
+                "date": "11/02/2025", 
+                "notes": "<a href=\"https://somuchfoodblog.com/apple-cider-braised-pork-shoulder/\">Recipe</a>", 
+                "image": "pulledpork.jpg", 
+                "title": "Apple Cider Pulled Pork"
             }, 
             {
                 "date": "09/24/2024", 
