@@ -209,7 +209,22 @@ def make_picks():
         saved_selections.append("")
     # For string comparison in HTML, ISO format is still best:
     current_time_str = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    # Create a simple list to track which of the 5 slots are locked
+    slot_locks = [False] * 5
+    
+    # Create a quick lookup for game lock times
+    game_times = {}
+    for g in games_for_date:
+        game_times[(g['away_team'] + " " + str(g['away_spread'])).strip()] = g['lock_time']
+        game_times[(g['home_team'] + " " + str(g['home_spread'])).strip()] = g['lock_time']
 
+    # Check each of the user's current saved picks
+    for i in range(5):
+        if i < len(saved_selections):
+            pick = saved_selections[i].strip()
+            # If the pick exists in our games list and the time has passed...
+            if pick in game_times and game_times[pick][:16] <= current_time_str[:16]:
+                slot_locks[i] = True
     if request.method == 'POST':
         # 1. Get the target date from the hidden input field
         target_date = request.form.get('date') 
@@ -262,7 +277,8 @@ def make_picks():
                            tomorrow_raw=tomorrow_raw,
                            today_pretty=today_pretty,
                            tomorrow_pretty=tomorrow_pretty,
-                           current_time=current_time_str,
+                           current_time_str=current_time_str,
+                           slot_locks=slot_locks,
                            saved_selections=saved_selections)
                         
 

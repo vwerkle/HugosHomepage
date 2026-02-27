@@ -163,30 +163,33 @@
 
         {% for i in range(5) %}
             {% set saved_val = saved_selections[i]|trim if i < saved_selections|length else "" %}
-            
+            {% set is_this_slot_locked = slot_locks[i] %}
+
             <div class="pick-card">
-                <label class="slot-label">Selection #{{ i + 1 }}</label>
-                <select name="game_picks">
+                <label class="slot-label">
+                    Selection #{{ i + 1 }} 
+                    {% if is_this_slot_locked %}<span style="color: #e74c3c;">🔒 LOCKED</span>{% endif %}
+                </label>
+                
+                {# IMPORTANT: If locked, add a hidden input so the data isn't lost on save #}
+                {% if is_this_slot_locked %}
+                    <input type="hidden" name="game_picks" value="{{ saved_val }}">
+                {% endif %}
+
+                <select name="game_picks" {% if is_this_slot_locked %}disabled{% endif %} style="{% if is_this_slot_locked %}background-color: #f0f0f0; cursor: not-allowed;{% endif %}">
                     <option value="">-- Select a Game --</option>
                     {% for game in games %}
                         {% set away_str = (game.away_team ~ " " ~ game.away_spread)|trim %}
                         {% set home_str = (game.home_team ~ " " ~ game.home_spread)|trim %}
-                        {% set is_locked = game.lock_time <= current_time %}
-
-                        {% if not is_locked or saved_val == away_str or saved_val == home_str %}
-                            
-                            <option value="{{ away_str }}" 
-                                {% if saved_val == away_str %}selected{% endif %}
-                                {% if is_locked %}disabled{% endif %}>
-                                {{ away_str }} {% if is_locked %}(LOCKED){% endif %}
+                        
+                        {# Only show available games OR the one already picked in this slot #}
+                        {% if game.lock_time[:16] > current_time_str[:16] or saved_val == away_str or saved_val == home_str %}
+                            <option value="{{ away_str }}" {% if saved_val == away_str %}selected{% endif %}>
+                                {{ away_str }}
                             </option>
-
-                            <option value="{{ home_str }}" 
-                                {% if saved_val == home_str %}selected{% endif %}
-                                {% if is_locked %}disabled{% endif %}>
-                                {{ home_str }} {% if is_locked %}(LOCKED){% endif %}
+                            <option value="{{ home_str }}" {% if saved_val == home_str %}selected{% endif %}>
+                                {{ home_str }}
                             </option>
-
                         {% endif %}
                     {% endfor %}
                 </select>
