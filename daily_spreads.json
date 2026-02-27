@@ -1,0 +1,547 @@
+{
+    "2026-02-26": [
+        {
+            "away_team": "New Hampshire Wildcats",
+            "away_spread": "+1.5",
+            "home_team": "Binghamton Bearcats",
+            "home_spread": "-1.5",
+            "lock_time": "2026-02-26T23:00:00Z"
+        },
+        {
+            "away_team": "Bryant Bulldogs",
+            "away_spread": "+9.5",
+            "home_team": "UMBC Retrievers",
+            "home_spread": "-9.5",
+            "lock_time": "2026-02-26T23:04:23Z"
+        },
+        {
+            "away_team": "Maine Black Bears",
+            "away_spread": "-8.5",
+            "home_team": "Albany Great Danes",
+            "home_spread": "+8.5",
+            "lock_time": "2026-02-26T23:30:00Z"
+        },
+        {
+            "away_team": "Bethune-Cookman Wildcats",
+            "away_spread": "+1.5",
+            "home_team": "Grambling St Tigers",
+            "home_spread": "-1.5",
+            "lock_time": "2026-02-26T23:35:42Z"
+        },
+        {
+            "away_team": "Mercyhurst Lakers",
+            "away_spread": "+1.5",
+            "home_team": "Central Connecticut St Blue Devils",
+            "home_spread": "-1.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "Winthrop Eagles",
+            "away_spread": "-1.5",
+            "home_team": "Charleston Southern Buccaneers",
+            "home_spread": "+1.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "Chicago St Cougars",
+            "away_spread": "+7.5",
+            "home_team": "LIU Sharks",
+            "home_spread": "-7.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "Fairleigh Dickinson Knights",
+            "away_spread": "-1.5",
+            "home_team": "Le Moyne Dolphins",
+            "home_spread": "+1.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "Florida Gulf Coast Eagles",
+            "away_spread": "-11.5",
+            "home_team": "North Florida Ospreys",
+            "home_spread": "+11.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "UNC Asheville Bulldogs",
+            "away_spread": "-5.5",
+            "home_team": "Gardner-Webb Bulldogs",
+            "home_spread": "+5.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "High Point Panthers",
+            "away_spread": "-14.5",
+            "home_team": "Presbyterian Blue Hose",
+            "home_spread": "+14.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "Stetson Hatters",
+            "away_spread": "+8.5",
+            "home_team": "Jacksonville Dolphins",
+            "home_spread": "-8.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "Stony Brook Seawolves",
+            "away_spread": "+12.5",
+            "home_team": "Monmouth Hawks",
+            "home_spread": "-12.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "New Haven Chargers",
+            "away_spread": "-4.5",
+            "home_team": "Wagner Seahawks",
+            "home_spread": "+4.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "South Carolina Upstate Spartans",
+            "away_spread": "+2.5",
+            "home_team": "Radford Highlanders",
+            "home_spread": "-2.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "St. Francis (PA) Red Flash",
+            "away_spread": "+18.5",
+            "home_team": "Stonehill Skyhawks",
+            "home_spread": "-18.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "UMass Lowell River Hawks",
+            "away_spread": "+8.5",
+            "home_team": "Vermont Catamounts",
+            "home_spread": "-8.5",
+            "lock_time": "2026-02-27T00:00:00Z"
+        },
+        {
+            "away_team": "Elon Phoenix",
+            "away_spread": "+3.5",
+            "home_team": "Towson Tigers",
+            "home_spread": "-3.5",
+            "lock_time": "2026-02-27T00:01:38Z"
+        },
+        {
+            "away_team": "Temple Owls",
+            "away_spread": "-2.5",
+            "home_team": "Florida Atlantic Owls",
+            "home_spread": "+2.5",
+            "lock_time": "2026-02-27T00:01:38Z"
+        },
+        {
+            "away_team": "UNC Greensboro Spartans",
+            "away_spread": "+0.5",
+            "home_team": "Chattanooga Mocs",
+            "home_spread": "-0.5",
+            "lock_time": "2026-02-27T00:03:20Z"
+        },
+        {
+            "away_team": "Liberty Flames",
+            "away_spread": "+3.5",
+            "home_team": "Kennesaw St Owls",
+            "home_spread": "-3.5",
+            "lock_time": "2026-02-27T00:04:32Z"
+        },
+        {
+            "away_team": "Northeastern Huskies",
+            "away_spread": "+8.5",
+            "home_team": "William & Mary Tribe",
+            "home_spread": "-8.5",
+            "lock_time": "2026-02-27T00:05:33Z"
+        },
+        {
+            "away_team": "Campbell Fighting Camels",
+            "away_spread": "-1.5",
+            "home_team": "Drexel Dragons",
+            "home_spread": "+1.5",
+            "lock_time": "2026-02-27T00:05:56Z"
+        },
+        {
+            "away_team": "Delaware Blue Hens",
+            "away_spread": "+4.5",
+            "home_team": "Jacksonville St Gamecocks",
+            "home_spread": "-4.5",
+            "lock_time": "2026-02-27T00:07:05Z"
+        },
+        {
+            "away_team": "North Carolina A&T Aggies",
+            "away_spread": "+21.5",
+            "home_team": "UNC Wilmington Seahawks",
+            "home_spread": "-21.5",
+            "lock_time": "2026-02-27T00:07:20Z"
+        },
+        {
+            "away_team": "UTEP Miners",
+            "away_spread": "+12.5",
+            "home_team": "Middle Tennessee Blue Raiders",
+            "home_spread": "-12.5",
+            "lock_time": "2026-02-27T00:34:00Z"
+        },
+        {
+            "away_team": "New Mexico St Aggies",
+            "away_spread": "+20.5",
+            "home_team": "Western Kentucky Hilltoppers",
+            "home_spread": "-20.5",
+            "lock_time": "2026-02-27T00:35:00Z"
+        },
+        {
+            "away_team": "Missouri St Bears",
+            "away_spread": "-1.5",
+            "home_team": "Louisiana Tech Bulldogs",
+            "home_spread": "+1.5",
+            "lock_time": "2026-02-27T00:35:22Z"
+        },
+        {
+            "away_team": "Alcorn St Braves",
+            "away_spread": "+6.0",
+            "home_team": "Texas Southern Tigers",
+            "home_spread": "-6.0",
+            "lock_time": "2026-02-27T01:00:00Z"
+        },
+        {
+            "away_team": "Morehead St Eagles",
+            "away_spread": "+3.0",
+            "home_team": "Arkansas-Little Rock Trojans",
+            "home_spread": "-3.0",
+            "lock_time": "2026-02-27T01:00:00Z"
+        },
+        {
+            "away_team": "Denver Pioneers",
+            "away_spread": "-2.5",
+            "home_team": "Oral Roberts Golden Eagles",
+            "home_spread": "+2.5",
+            "lock_time": "2026-02-27T01:00:00Z"
+        },
+        {
+            "away_team": "Michigan St Spartans",
+            "away_spread": "+6.5",
+            "home_team": "Purdue Boilermakers",
+            "home_spread": "-6.5",
+            "lock_time": "2026-02-27T01:00:00Z"
+        },
+        {
+            "away_team": "VMI Keydets",
+            "away_spread": "+17.5",
+            "home_team": "Samford Bulldogs",
+            "home_spread": "-17.5",
+            "lock_time": "2026-02-27T01:00:00Z"
+        },
+        {
+            "away_team": "South Dakota St Jackrabbits",
+            "away_spread": "-12.5",
+            "home_team": "UMKC Kangaroos",
+            "home_spread": "+12.5",
+            "lock_time": "2026-02-27T01:00:00Z"
+        },
+        {
+            "away_team": "Tarleton State Texans",
+            "away_spread": "+17.0",
+            "home_team": "Utah Valley Wolverines",
+            "home_spread": "-17.0",
+            "lock_time": "2026-02-27T01:00:00Z"
+        },
+        {
+            "away_team": "Eastern Illinois Panthers",
+            "away_spread": "+7.5",
+            "home_team": "Lindenwood Lions",
+            "home_spread": "-7.5",
+            "lock_time": "2026-02-27T01:30:00Z"
+        },
+        {
+            "away_team": "Florida A&M Rattlers",
+            "away_spread": "+9.0",
+            "home_team": "Southern Jaguars",
+            "home_spread": "-9.0",
+            "lock_time": "2026-02-27T01:30:00Z"
+        },
+        {
+            "away_team": "Tennessee St Tigers",
+            "away_spread": "+3.0",
+            "home_team": "SE Missouri St Redhawks",
+            "home_spread": "-3.0",
+            "lock_time": "2026-02-27T01:30:00Z"
+        },
+        {
+            "away_team": "Western Illinois Leathernecks",
+            "away_spread": "+13.5",
+            "home_team": "SIU-Edwardsville Cougars",
+            "home_spread": "-13.5",
+            "lock_time": "2026-02-27T01:30:00Z"
+        },
+        {
+            "away_team": "Tennessee Tech Golden Eagles",
+            "away_spread": "+7.5",
+            "home_team": "Tenn-Martin Skyhawks",
+            "home_spread": "-7.5",
+            "lock_time": "2026-02-27T01:30:00Z"
+        },
+        {
+            "away_team": "Abilene Christian Wildcats",
+            "away_spread": "+2.5",
+            "home_team": "Utah Tech Trailblazers",
+            "home_spread": "-2.5",
+            "lock_time": "2026-02-27T02:00:00Z"
+        },
+        {
+            "away_team": "N Colorado Bears",
+            "away_spread": "-1.0",
+            "home_team": "Eastern Washington Eagles",
+            "home_spread": "+1.0",
+            "lock_time": "2026-02-27T02:00:00Z"
+        },
+        {
+            "away_team": "Florida Int'l Golden Panthers",
+            "away_spread": "+6.0",
+            "home_team": "Sam Houston St Bearkats",
+            "home_spread": "-6.0",
+            "lock_time": "2026-02-27T02:00:00Z"
+        },
+        {
+            "away_team": "Hawai'i Rainbow Warriors",
+            "away_spread": "-2.0",
+            "home_team": "UC Davis Aggies",
+            "home_spread": "+2.0",
+            "lock_time": "2026-02-27T02:00:00Z"
+        },
+        {
+            "away_team": "Northern Arizona Lumberjacks",
+            "away_spread": "+10.5",
+            "home_team": "Idaho Vandals",
+            "home_spread": "-10.5",
+            "lock_time": "2026-02-27T02:00:00Z"
+        },
+        {
+            "away_team": "Wichita St Shockers",
+            "away_spread": "+1.5",
+            "home_team": "Memphis Tigers",
+            "home_spread": "-1.5",
+            "lock_time": "2026-02-27T02:00:00Z"
+        },
+        {
+            "away_team": "Sacramento St Hornets",
+            "away_spread": "+7.5",
+            "home_team": "Montana Grizzlies",
+            "home_spread": "-7.5",
+            "lock_time": "2026-02-27T02:00:00Z"
+        },
+        {
+            "away_team": "Portland St Vikings",
+            "away_spread": "+1.5",
+            "home_team": "Montana St Bobcats",
+            "home_spread": "-1.5",
+            "lock_time": "2026-02-27T02:00:00Z"
+        },
+        {
+            "away_team": "North Dakota St Bison",
+            "away_spread": "+3.0",
+            "home_team": "St. Thomas (MN) Tommies",
+            "home_spread": "-3.0",
+            "lock_time": "2026-02-27T02:00:00Z"
+        },
+        {
+            "away_team": "UC Riverside Highlanders",
+            "away_spread": "+10.0",
+            "home_team": "UC Santa Barbara Gauchos",
+            "home_spread": "-10.0",
+            "lock_time": "2026-02-27T02:00:00Z"
+        },
+        {
+            "away_team": "Jackson St Tigers",
+            "away_spread": "+3.5",
+            "home_team": "Prairie View Panthers",
+            "home_spread": "-3.5",
+            "lock_time": "2026-02-27T02:30:00Z"
+        },
+        {
+            "away_team": "CSU Bakersfield Roadrunners",
+            "away_spread": "+14.5",
+            "home_team": "UC San Diego Tritons",
+            "home_spread": "-14.5",
+            "lock_time": "2026-02-27T03:00:00Z"
+        },
+        {
+            "away_team": "UC Irvine Anteaters",
+            "away_spread": "+1.5",
+            "home_team": "CSU Northridge Matadors",
+            "home_spread": "-1.5",
+            "lock_time": "2026-02-27T03:00:00Z"
+        },
+        {
+            "away_team": "UT-Arlington Mavericks",
+            "away_spread": "+6.5",
+            "home_team": "Cal Baptist Lancers",
+            "home_spread": "-6.5",
+            "lock_time": "2026-02-27T03:00:00Z"
+        },
+        {
+            "away_team": "Long Beach St 49ers",
+            "away_spread": "+5.0",
+            "home_team": "Cal Poly Mustangs",
+            "home_spread": "-5.0",
+            "lock_time": "2026-02-27T03:00:00Z"
+        }
+    ],
+    "2026-02-27": [
+        {
+            "away_team": "Yale Bulldogs",
+            "away_spread": "-3.0",
+            "home_team": "Cornell Big Red",
+            "home_spread": "+3.0",
+            "lock_time": "2026-02-27T23:00:00Z"
+        },
+        {
+            "away_team": "Miami (OH) RedHawks",
+            "away_spread": "-12.5",
+            "home_team": "Western Michigan Broncos",
+            "home_spread": "+12.5",
+            "lock_time": "2026-02-27T23:00:00Z"
+        },
+        {
+            "away_team": "Quinnipiac Bobcats",
+            "away_spread": "-8.5",
+            "home_team": "Niagara Purple Eagles",
+            "home_spread": "+8.5",
+            "lock_time": "2026-02-27T23:30:00Z"
+        },
+        {
+            "away_team": "Brown Bears",
+            "away_spread": "+6.0",
+            "home_team": "Columbia Lions",
+            "home_spread": "-6.0",
+            "lock_time": "2026-02-28T00:00:00Z"
+        },
+        {
+            "away_team": "Merrimack Warriors",
+            "away_spread": "-10.0",
+            "home_team": "Canisius Golden Griffins",
+            "home_spread": "+10.0",
+            "lock_time": "2026-02-28T00:00:00Z"
+        },
+        {
+            "away_team": "Dartmouth Big Green",
+            "away_spread": "+7.0",
+            "home_team": "Pennsylvania Quakers",
+            "home_spread": "-7.0",
+            "lock_time": "2026-02-28T00:00:00Z"
+        },
+        {
+            "away_team": "Dayton Flyers",
+            "away_spread": "+3.5",
+            "home_team": "GW Revolutionaries",
+            "home_spread": "-3.5",
+            "lock_time": "2026-02-28T00:00:00Z"
+        },
+        {
+            "away_team": "Siena Saints",
+            "away_spread": "-0.0",
+            "home_team": "Fairfield Stags",
+            "home_spread": "0.0",
+            "lock_time": "2026-02-28T00:00:00Z"
+        },
+        {
+            "away_team": "Harvard Crimson",
+            "away_spread": "-3.5",
+            "home_team": "Princeton Tigers",
+            "home_spread": "+3.5",
+            "lock_time": "2026-02-28T00:00:00Z"
+        },
+        {
+            "away_team": "Rider Broncs",
+            "away_spread": "+12.0",
+            "home_team": "Iona Gaels",
+            "home_spread": "-12.0",
+            "lock_time": "2026-02-28T00:00:00Z"
+        },
+        {
+            "away_team": "Manhattan Jaspers",
+            "away_spread": "+8.0",
+            "home_team": "Saint Peter's Peacocks",
+            "home_spread": "-8.0",
+            "lock_time": "2026-02-28T00:00:00Z"
+        },
+        {
+            "away_team": "Mt. St. Mary's Mountaineers",
+            "away_spread": "+3.0",
+            "home_team": "Sacred Heart Pioneers",
+            "home_spread": "-3.0",
+            "lock_time": "2026-02-28T00:00:00Z"
+        },
+        {
+            "away_team": "UL Monroe Warhawks",
+            "away_spread": "+19.0",
+            "home_team": "Troy Trojans",
+            "home_spread": "-19.0",
+            "lock_time": "2026-02-28T00:00:00Z"
+        },
+        {
+            "away_team": "Old Dominion Monarchs",
+            "away_spread": "-1.0",
+            "home_team": "Georgia St Panthers",
+            "home_spread": "+1.0",
+            "lock_time": "2026-02-28T00:30:00Z"
+        },
+        {
+            "away_team": "Akron Zips",
+            "away_spread": "-3.5",
+            "home_team": "Kent State Golden Flashes",
+            "home_spread": "+3.5",
+            "lock_time": "2026-02-28T01:00:00Z"
+        },
+        {
+            "away_team": "Appalachian St Mountaineers",
+            "away_spread": "-1.0",
+            "home_team": "Texas State Bobcats",
+            "home_spread": "+1.0",
+            "lock_time": "2026-02-28T01:00:00Z"
+        },
+        {
+            "away_team": "Coastal Carolina Chanticleers",
+            "away_spread": "+5.5",
+            "home_team": "James Madison Dukes",
+            "home_spread": "-5.5",
+            "lock_time": "2026-02-28T01:00:00Z"
+        },
+        {
+            "away_team": "Michigan Wolverines",
+            "away_spread": "-1.5",
+            "home_team": "Illinois Fighting Illini",
+            "home_spread": "+1.5",
+            "lock_time": "2026-02-28T01:00:00Z"
+        },
+        {
+            "away_team": "Louisiana Ragin' Cajuns",
+            "away_spread": "+13.5",
+            "home_team": "Arkansas St Red Wolves",
+            "home_spread": "-13.5",
+            "lock_time": "2026-02-28T01:30:00Z"
+        },
+        {
+            "away_team": "Southern Miss Golden Eagles",
+            "away_spread": "+4.5",
+            "home_team": "South Alabama Jaguars",
+            "home_spread": "-4.5",
+            "lock_time": "2026-02-28T01:30:00Z"
+        },
+        {
+            "away_team": "Georgia Southern Eagles",
+            "away_spread": "+7.0",
+            "home_team": "Marshall Thundering Herd",
+            "home_spread": "-7.0",
+            "lock_time": "2026-02-28T02:00:00Z"
+        }
+    ],
+    "2026-02-28": [
+        {
+            "away_team": "Arkansas Razorbacks",
+            "away_spread": "+8.5",
+            "home_team": "Florida Gators",
+            "home_spread": "-8.5",
+            "lock_time": "2026-03-01T01:30:20Z"
+        }
+    ]
+}

@@ -1,0 +1,60 @@
+<div style="margin-bottom: 25px; text-align: center;">
+    <h2>Make Picks for {{ selected_date }}</h2>
+    
+    <a href="{{ url_for('make_picks', date=today_raw) }}">
+        <button type="button" {% if selected_date == today_raw %} style="font-weight: bold; border: 2px solid black;" {% endif %}>
+            Today ({{ today_pretty }})
+        </button>
+    </a>
+    
+    <a href="{{ url_for('make_picks', date=tomorrow_raw) }}">
+        <button type="button" {% if selected_date == tomorrow_raw %} style="font-weight: bold; border: 2px solid black;" {% endif %}>
+            Tomorrow ({{ tomorrow_pretty }})
+        </button>
+    </a>
+</div>
+<p>Debug Time: {{ current_time }}</p>
+<p>Saved List: {{ saved_selections }}</p>
+<form method="POST">
+    <input type="hidden" name="date" value="{{ selected_date }}">
+
+    {% for i in range(5) %}
+        {% set saved_val = saved_selections[i] if i < saved_selections|length else "" %}
+        
+        <p>
+            Pick #{{ i + 1 }}:
+            <select name="game_picks">
+                <option value="">-- Select a Game --</option>
+                {% for game in games %}
+                    {# Create variables for the values to ensure they match #}
+                    {% set away_str = game.away_team ~ " " ~ game.away_spread %}
+                    {% set home_str = game.home_team ~ " " ~ game.home_spread %}
+
+                    {# 1. Check if the game is in the future OR if it's currently picked #}
+                    {% if game.lock_time > current_time or saved_val == away_str or saved_val == home_str %}
+                        
+                        <option value="{{ away_str }}" 
+                            {% if saved_val == away_str %}selected{% endif %}
+                            {% if game.lock_time <= current_time %}disabled{% endif %}>
+                            {{ away_str }} {% if game.lock_time <= current_time %}(LOCKED){% endif %}
+                        </option>
+
+                        <option value="{{ home_str }}" 
+                            {% if saved_val == home_str %}selected{% endif %}
+                            {% if game.lock_time <= current_time %}disabled{% endif %}>
+                            {{ home_str }} {% if game.lock_time <= current_time %}(LOCKED){% endif %}
+                        </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </p>
+    {% endfor %}
+    
+    <button type="submit">Save All Picks</button>
+</form>
+
+{% if error %}
+    <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+        <strong>Error:</strong> {{ error }}
+    </div>
+{% endif %}

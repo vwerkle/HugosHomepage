@@ -1,0 +1,116 @@
+{
+    "Hugoat": {
+        "2026-02-25": [
+            {
+                "game_info": "Nebraska Cornhuskers -12.5",
+                "result": "win"
+            },
+            {
+                "game_info": "Nebraska Cornhuskers -12.5",
+                "result": "win"
+            },
+            {
+                "game_info": "Nebraska Cornhuskers -12.5",
+                "result": "win"
+            },
+            {
+                "game_info": "Nebraska Cornhuskers -12.5",
+                "result": "win"
+            },
+            {
+                "game_info": "Nebraska Cornhuskers -12.5",
+                "result": "win"
+            }
+        ],
+        "2026-02-26": [
+            {
+                "game_info": "Florida A&M Rattlers +9.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "SE Missouri St Redhawks -3.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "N Colorado Bears -1.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "Eastern Washington Eagles +1.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "UC Davis Aggies +2.0",
+                "result": "pending"
+            }
+        ],
+        "2026-02-27": [
+            {
+                "game_info": "Cornell Big Red +3.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "Merrimack Warriors -10.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "GW Revolutionaries -3.5",
+                "result": "pending"
+            },
+            {
+                "game_info": "Harvard Crimson -3.5",
+                "result": "pending"
+            },
+            {
+                "game_info": "UL Monroe Warhawks +19.0",
+                "result": "pending"
+            }
+        ]
+    },
+    "Hugo": {
+        "2026-02-26": [
+            {
+                "game_info": "Lindenwood Lions -7.5",
+                "result": "pending"
+            },
+            {
+                "game_info": "Southern Jaguars -9.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "SE Missouri St Redhawks -3.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "N Colorado Bears -1.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "UC Riverside Highlanders +10.0",
+                "result": "pending"
+            }
+        ],
+        "2026-02-27": [
+            {
+                "game_info": "Yale Bulldogs -3.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "Quinnipiac Bobcats -8.5",
+                "result": "pending"
+            },
+            {
+                "game_info": "Brown Bears +6.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "Fairfield Stags 0.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "Manhattan Jaspers +8.0",
+                "result": "pending"
+            }
+        ]
+    }
+}

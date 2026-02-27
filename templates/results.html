@@ -1,0 +1,92 @@
+<head>
+    <meta charset="UTF-8">
+</head>
+<style>
+    .grid-table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 12px; }
+    .grid-table th, .grid-table td { border: 1px solid #000; padding: 4px; text-align: center; }
+    
+    .header-name { background-color: #eee; font-weight: bold; }
+    .label-col { text-align: left; font-weight: bold; width: 120px; }
+    
+    /* Colors from your screenshot */
+    .win { background-color: #93c47d; }  /* Green */
+    .loss { background-color: #e06666; } /* Red */
+    .pending { background-color: #ffffff; }
+    .hidden-pick {
+    color: #999;
+    font-style: italic;
+    background-color: #f8f9fa !important; /* Override the win/loss colors */
+    }
+    .leader-highlight {
+        background-color: #ffd700 !important;
+        color: #000 !important;
+        border: 2px solid #b8860b !important;
+        font-weight: bold;
+    }
+    .crown-icon {
+        font-size: 1.2em;
+        margin-left: 5px;
+    }
+    .leaderboard-summary {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+    .leader-card {
+        background: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+        border-top: 5px solid #ffd700; /* Gold top border */
+    }
+    .leader-card.gold { border-color: #ffd700; }
+    .leader-name { font-size: 1.2rem; font-weight: bold; display: block; }
+    .leader-score { font-size: 2rem; color: #333; }
+</style>
+<div class="leaderboard-summary">
+    {% for user, score in sorted_leaderboard %}
+    <div class="leader-card {% if user in leaders %}gold{% endif %}">
+        <span class="leader-name">
+            {{ user }} {% if user in leaders %}👑{% endif %}
+        </span>
+        <span class="leader-score">{{ score }}</span>
+        <div style="font-size: 0.8rem; color: #666;">Total Wins</div>
+    </div>
+    {% endfor %}
+</div>
+<table class="grid-table">
+    <thead>
+        <tr>
+            <th>Date / Slot</th>
+            {% for user in usernames %}
+                <th class="{% if user in leaders %}leader-highlight{% endif %}">
+                    {{ user }} 
+                    {% if user in leaders %}
+                        <span class="crown-icon">👑</span>
+                    {% endif %}
+                    <br>
+                    <small>({{ user_totals[user] }} Wins)</small>
+                </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for day in table_data %}
+            {% for slot in day.slots %}
+            <tr>
+                <td class="label-col">{{ slot.label }}</td>
+                {% for user in usernames %}
+                    {% set p = slot.users[user] %}
+                    <td class="{{ p.result }} {% if 'HIDDEN' in p.info %}hidden-pick{% endif %}">
+                        {{ p.info }}
+                    </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            <tr style="height: 10px; background-color: #333;"><td colspan="{{ usernames|length + 1 }}"></td></tr>
+        {% endfor %}
+    </tbody>
+</table>

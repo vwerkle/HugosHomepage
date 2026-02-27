@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMTM Dness Hub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .hub-container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 300px;
+        }
+        h2 { color: #2c3e50; margin-bottom: 30px; }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .hub-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        .hub-btn:active { transform: scale(0.98); }
+        
+        .login { background-color: #3498db; }
+        .signup { background-color: #2ecc71; }
+        .picks { background-color: #e67e22; }
+        .results { background-color: #9b59b6; }
+        
+        .hub-btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="hub-container">
+        <h2>SMTM Dness</h2>
+        <div class="btn-group">
+            <a href="{{ url_for('login') }}" class="hub-btn login">Login</a>
+            <a href="{{ url_for('signup') }}" class="hub-btn signup">Sign Up</a>
+            <a href="{{ url_for('make_picks') }}" class="hub-btn picks">Make Picks</a>
+            <a href="{{ url_for('results') }}" class="hub-btn results">View Results</a>
+        </div>
+    </div>
+</body>
+</html>

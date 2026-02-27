@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 50px auto; text-align: center; }
+        .card { border: 1px solid #ccc; padding: 20px; border-radius: 8px; box-shadow: 2px 2px 10px #eee; }
+        .btn { background: #2c3e50; color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 16px; }
+        .message { color: green; margin-bottom: 20px; font-weight: bold; }
+        .input-group { margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Admin Controls</h2>
+        
+        {% if message %}
+            <p class="message">{{ message }}</p>
+        {% endif %}
+
+        <form method="POST">
+            <div class="input-group">
+                <label>Grading Lookback (Days):</label>
+                <input type="number" name="days_back" value="3" style="width: 50px;">
+                <p style="font-size: 12px; color: #666;">Standard is 3. Increase if you missed several days.</p>
+            </div>
+
+            <button type="submit" class="btn">🚀 Run Daily Sync</button>
+        </form>
+
+        <p style="margin-top: 20px;">
+            <a href="{{ url_for('results') }}">View Results Table</a>
+        </p>
+    </div>
+</body>
+</html>
