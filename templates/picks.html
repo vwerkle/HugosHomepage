@@ -1,60 +1,203 @@
-<div style="margin-bottom: 25px; text-align: center;">
-    <h2>Make Picks for {{ selected_date }}</h2>
-    
-    <a href="{{ url_for('make_picks', date=today_raw) }}">
-        <button type="button" {% if selected_date == today_raw %} style="font-weight: bold; border: 2px solid black;" {% endif %}>
-            Today ({{ today_pretty }})
-        </button>
-    </a>
-    
-    <a href="{{ url_for('make_picks', date=tomorrow_raw) }}">
-        <button type="button" {% if selected_date == tomorrow_raw %} style="font-weight: bold; border: 2px solid black;" {% endif %}>
-            Tomorrow ({{ tomorrow_pretty }})
-        </button>
-    </a>
-</div>
-<p>Debug Time: {{ current_time }}</p>
-<p>Saved List: {{ saved_selections }}</p>
-<form method="POST">
-    <input type="hidden" name="date" value="{{ selected_date }}">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make Picks | SMTM Dness</title>
+    <style>
+        :root {
+            --primary: #e67e22;
+            --primary-grad: linear-gradient(135deg, #e67e22, #d35400);
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
 
-    {% for i in range(5) %}
-        {% set saved_val = saved_selections[i] if i < saved_selections|length else "" %}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Date Toggle Buttons */
+        .date-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .date-btn {
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+            text-decoration: none;
+            color: #7f8c8d;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .date-btn.active {
+            background: var(--primary-grad);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
+        }
+
+        /* Pick Cards */
+        .pick-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid #bdc3c7;
+            transition: border-color 0.3s;
+        }
+
+        .pick-card:focus-within {
+            border-left-color: var(--primary);
+        }
+
+        .slot-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            background-color: #f9f9f9;
+            outline: none;
+        }
+
+        option:disabled {
+            color: #bdc3c7;
+            font-style: italic;
+        }
+
+        /* Submit Button */
+        .save-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary-grad);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 6px 15px rgba(230, 126, 34, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .save-btn:active { transform: scale(0.98); }
+
+        .error-banner {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #f5c6cb;
+            text-align: center;
+        }
+
+        .nav-back {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: #95a5a6;
+            text-decoration: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Make Your Picks</h2>
         
-        <p>
-            Pick #{{ i + 1 }}:
-            <select name="game_picks">
-                <option value="">-- Select a Game --</option>
-                {% for game in games %}
-                    {# Create variables for the values to ensure they match #}
-                    {% set away_str = game.away_team ~ " " ~ game.away_spread %}
-                    {% set home_str = game.home_team ~ " " ~ game.home_spread %}
-
-                    {# 1. Check if the game is in the future OR if it's currently picked #}
-                    {% if game.lock_time > current_time or saved_val == away_str or saved_val == home_str %}
-                        
-                        <option value="{{ away_str }}" 
-                            {% if saved_val == away_str %}selected{% endif %}
-                            {% if game.lock_time <= current_time %}disabled{% endif %}>
-                            {{ away_str }} {% if game.lock_time <= current_time %}(LOCKED){% endif %}
-                        </option>
-
-                        <option value="{{ home_str }}" 
-                            {% if saved_val == home_str %}selected{% endif %}
-                            {% if game.lock_time <= current_time %}disabled{% endif %}>
-                            {{ home_str }} {% if game.lock_time <= current_time %}(LOCKED){% endif %}
-                        </option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </p>
-    {% endfor %}
-    
-    <button type="submit">Save All Picks</button>
-</form>
-
-{% if error %}
-    <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
-        <strong>Error:</strong> {{ error }}
+        <div class="date-toggle">
+            <a href="{{ url_for('make_picks', date=today_raw) }}" 
+               class="date-btn {% if selected_date == today_raw %}active{% endif %}">
+                Today ({{ today_pretty }})
+            </a>
+            <a href="{{ url_for('make_picks', date=tomorrow_raw) }}" 
+               class="date-btn {% if selected_date == tomorrow_raw %}active{% endif %}">
+                Tomorrow ({{ tomorrow_pretty }})
+            </a>
+        </div>
     </div>
-{% endif %}
+
+    {% if error %}
+        <div class="error-banner">
+            <strong>⚠️ {{ error }}</strong>
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        <input type="hidden" name="date" value="{{ selected_date }}">
+
+        {% for i in range(5) %}
+            {% set saved_val = saved_selections[i]|trim if i < saved_selections|length else "" %}
+            
+            <div class="pick-card">
+                <label class="slot-label">Selection #{{ i + 1 }}</label>
+                <select name="game_picks">
+                    <option value="">-- Select a Game --</option>
+                    {% for game in games %}
+                        {% set away_str = (game.away_team ~ " " ~ game.away_spread)|trim %}
+                        {% set home_str = (game.home_team ~ " " ~ game.home_spread)|trim %}
+                        {% set is_locked = game.lock_time <= current_time %}
+
+                        {% if not is_locked or saved_val == away_str or saved_val == home_str %}
+                            
+                            <option value="{{ away_str }}" 
+                                {% if saved_val == away_str %}selected{% endif %}
+                                {% if is_locked %}disabled{% endif %}>
+                                {{ away_str }} {% if is_locked %}(LOCKED){% endif %}
+                            </option>
+
+                            <option value="{{ home_str }}" 
+                                {% if saved_val == home_str %}selected{% endif %}
+                                {% if is_locked %}disabled{% endif %}>
+                                {{ home_str }} {% if is_locked %}(LOCKED){% endif %}
+                            </option>
+
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        {% endfor %}
+        
+        <button type="submit" class="save-btn">Lock In All Picks</button>
+    </form>
+
+    <a href="{{ url_for('dness_hub') }}" class="nav-back">&larr; Return to Hub</a>
+</div>
+
+</body>
+</html>

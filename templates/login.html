@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tournament Signup | SMTM Dness</title>
+    <title>Login | SMTM Dness</title>
     <style>
         :root {
-            --primary-grad: linear-gradient(135deg, #3498db, #2ecc71);
+            --primary-grad: linear-gradient(135deg, #3498db, #9b59b6);
             --bg-color: #f4f7f6;
         }
 
@@ -20,26 +20,30 @@
             margin: 0;
         }
 
-        .signup-container {
+        .login-container {
             background: white;
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 380px;
             text-align: center;
         }
 
         h2 {
             color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 24px;
+            margin-bottom: 25px;
+            font-size: 26px;
         }
 
-        p.subtitle {
-            color: #7f8c8d;
-            margin-bottom: 30px;
+        .error-msg {
+            background-color: #fdeaea;
+            color: #c0392b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             font-size: 14px;
+            border: 1px solid #f5c6cb;
         }
 
         .form-group {
@@ -61,14 +65,16 @@
             padding: 12px 15px;
             border: 2px solid #ecf0f1;
             border-radius: 8px;
-            box-sizing: border-box; /* Crucial for padding */
+            box-sizing: border-box;
             font-size: 16px;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         input:focus {
             outline: none;
             border-color: #3498db;
+            background-color: #fff;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
         }
 
         button {
@@ -87,16 +93,16 @@
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.3);
         }
 
-        .login-link {
+        .footer-links {
             margin-top: 25px;
             font-size: 14px;
             color: #7f8c8d;
         }
 
-        .login-link a {
+        .footer-links a {
             color: #3498db;
             text-decoration: none;
             font-weight: bold;
@@ -105,31 +111,31 @@
 </head>
 <body>
 
-<div class="signup-container">
-    <h2>Join the Bracket Challenge</h2>
-    <p class="subtitle">Enter your details to start making picks</p>
+<div class="login-container">
+    <h2>Welcome Back</h2>
+
+    {% if error %}
+        <div class="error-msg">{{ error }}</div>
+    {% endif %}
 
     <form method="POST">
         <div class="form-group">
-            <label>User Name</label>
-            <input type="text" name="name" placeholder="Choose a username" required>
+            <label>Username</label>
+            <input type="text" name="name" placeholder="Enter your username" required autofocus>
         </div>
 
         <div class="form-group">
             <label>Password</label>
-            <input type="password" name="password" placeholder="Create a password" required>
+            <input type="password" name="password" placeholder="Enter your password" required>
         </div>
 
-        <div class="form-group">
-            <label>National Champion Pick</label>
-            <input type="text" name="champion" placeholder="e.g. Duke" required>
-        </div>
-
-        <button type="submit">Register Account</button>
+        <button type="submit">Log In</button>
     </form>
 
-    <div class="login-link">
-        Already have an account? <a href="{{ url_for('login') }}">Log In</a>
+    <div class="footer-links">
+        Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a>
+        <br><br>
+        <a href="{{ url_for('dness_hub') }}" style="color: #bdc3c7; font-weight: normal;">&larr; Back to Hub</a>
     </div>
 </div>
 

@@ -139,7 +139,9 @@ def update_games():
 @app.route('/dness')
 def dness_hub():
     return render_template('dness_hub.html')
-@app.route('/signup')
+
+
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if not REGISTRATION_OPEN:
         return "Registration is closed!"
@@ -161,7 +163,7 @@ def signup():
         session['user'] = name 
         # ---------------------
         
-        return "Signed up! You are now logged in. Go make your picks!"
+        return  redirect(url_for('login'))
     return render_template('signup.html')
 
 @app.route('/make-picks', methods=['GET', 'POST'])
@@ -266,26 +268,25 @@ def make_picks():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    error = None
     if request.method == 'POST':
-        name = request.form['name']
-        pw = request.form['password']
+        name = request.form.get('name')
+        pw = request.form.get('password')
         
-        with open(USERS_FILE, 'r') as f:
-            users = json.load(f)
+        # Using the safe load logic we discussed
+        if os.path.exists(USERS_FILE):
+            with open(USERS_FILE, 'r') as f:
+                users = json.load(f)
+        else:
+            users = {}
             
         if name in users and users[name]['password'] == pw:
             session['user'] = name
             return redirect(url_for('make_picks'))
         else:
-            return "Invalid name or password."
+            error = "Invalid username or password. Please try again."
             
-    return '''
-        <form method="post">
-            Name: <input type="text" name="name"><br>
-            Password: <input type="password" name="password"><br>
-            <input type="submit" value="Login">
-        </form>
-    '''
+    return render_template('login.html', error=error)
 
 @app.route('/results')
 def results():
