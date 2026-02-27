@@ -334,32 +334,33 @@ def results():
                     pick_str = pick_obj['game_info'].strip()
                     result_status = pick_obj.get('result', 'pending')
                     
-                    # Use the lock time from spreads if available
+                    # 1. Lookup the lock time from current spreads
                     game_lock_time = games_lookup.get(pick_str)
                     
-                    # Determine visibility
+                    # 2. Determine visibility
                     is_own_pick = (user == logged_in_user)
                     
-                    # A game is "started" if:
-                    # - It has a final result already
-                    # - OR its lock_time has passed
-                    # - OR it's a pick from a previous day (not in current spreads)
+                    # LOGIC: Show if result is final, OR lock time passed, OR it's a past date
+                    is_started = False
                     if result_status != 'pending':
                         is_started = True
                     elif game_lock_time:
                         is_started = current_time >= game_lock_time
-                    else:
-                        is_started = d < today_raw 
+                    elif d < today_raw: 
+                        # If date 'd' is before today, it's definitely started
+                        is_started = True
 
                     if is_own_pick or is_started:
                         display_text = pick_str
+                        is_hidden = False
                     else:
                         display_text = "🔒 HIDDEN"
-                    
+                        is_hidden = True
+                        
                     slot_data[user] = {
                         'info': display_text,
-                        'result': pick_obj.get('result', 'pending'),
-                        'is_hidden': not (is_own_pick or is_started)
+                        'result': result_status,
+                        'is_hidden': is_hidden
                     }
                 else:
                     slot_data[user] = {'info': '', 'result': 'none', 'is_hidden': False}
