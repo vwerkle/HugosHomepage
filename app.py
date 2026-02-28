@@ -223,8 +223,18 @@ def make_picks():
         if i < len(saved_selections):
             pick = saved_selections[i].strip()
             # If the pick exists in our games list and the time has passed...
-            if pick in game_times and game_times[pick][:16] <= current_time_str[:16]:
-                slot_locks[i] = True
+            if not pick: continue
+            # Look for the game this pick belongs to
+            for g in games_for_date:
+                away_t = g['away_team'].strip()
+                home_t = g['home_team'].strip()
+                
+                # Check if the saved pick contains either team name
+                if away_t in pick or home_t in pick:
+                    # We found the match! Now check the time.
+                    if g['lock_time'][:16] <= current_time_str[:16]:
+                        slot_locks[i] = True
+                    break
     if request.method == 'POST':
         # 1. Get the target date from the hidden input field
         target_date = request.form.get('date') 

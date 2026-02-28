@@ -176,21 +176,35 @@
                     <input type="hidden" name="game_picks" value="{{ saved_val }}">
                 {% endif %}
 
-                <select name="game_picks" {% if is_this_slot_locked %}disabled{% endif %} style="{% if is_this_slot_locked %}background-color: #f0f0f0; cursor: not-allowed;{% endif %}">
+                <select name="game_picks" {% if is_this_slot_locked %}disabled{% endif %}>
                     <option value="">-- Select a Game --</option>
+                    
+                    {# 1. Check if the saved_val is "missing" from the current games list #}
+                    {% set found_match = false %}
+                    {% for g in games %}
+                        {% if (g.away_team ~ " " ~ g.away_spread)|trim == saved_val or (g.home_team ~ " " ~ g.home_spread)|trim == saved_val %}
+                            {% set found_match = true %}
+                        {% endif %}
+                    {% endfor %}
+                
+                    {# 2. If it's missing (spread changed) but we have a value, force it into the list #}
+                    {% if saved_val and not found_match %}
+                        <option value="{{ saved_val }}" selected>
+                            {{ saved_val }} (Old Spread)
+                        </option>
+                    {% endif %}
+                
+                    {# 3. Standard games list #}
                     {% for game in games %}
                         {% set away_str = (game.away_team ~ " " ~ game.away_spread)|trim %}
                         {% set home_str = (game.home_team ~ " " ~ game.home_spread)|trim %}
                         
-                        {# Only show available games OR the one already picked in this slot #}
-                        {% if game.lock_time[:16] > current_time_str[:16] or saved_val == away_str or saved_val == home_str %}
-                            <option value="{{ away_str }}" {% if saved_val == away_str %}selected{% endif %}>
-                                {{ away_str }}
-                            </option>
-                            <option value="{{ home_str }}" {% if saved_val == home_str %}selected{% endif %}>
-                                {{ home_str }}
-                            </option>
-                        {% endif %}
+                        <option value="{{ away_str }}" {% if saved_val == away_str %}selected{% endif %}>
+                            {{ away_str }}
+                        </option>
+                        <option value="{{ home_str }}" {% if saved_val == home_str %}selected{% endif %}>
+                            {{ home_str }}
+                        </option>
                     {% endfor %}
                 </select>
             </div>
