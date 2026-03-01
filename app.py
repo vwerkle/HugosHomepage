@@ -128,9 +128,8 @@ def update_games():
         
         # 2. Update Results for the past
         # Check if user provided a specific date to look back, else default to '3' days
-        lookback = request.form.get('days_back', '3')
+        lookback = request.form.get('days_back', '1')
         results_count = update_all_results_logic(days_back=lookback)
-        
         message = f"Spreads Updated: {spreads_success} | Picks Graded: {results_count}"
         return render_template('admin.html', message=message)
 
