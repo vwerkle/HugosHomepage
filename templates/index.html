@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="homepage-container">
+    <section class="main-feature">
+        <a href="{{ url_for('recipes') }}" class="hero-card">
+            <div class="hero-content">
+                <span class="badge">Most Popular</span>
+                <h1>Recipes</h1>
+                <p>Heaters only</p>
+                <span class="btn-primary">View Recipes</span>
+            </div>
+        </a>
+    </section>
+
+    <section class="link-grid">
+        <a href="{{ url_for('restaurants') }}" class="grid-card">
+            <div class="card-icon">🍴</div>
+            <h3>Restaurants</h3>
+            <p>Reviews and recommendations.</p>
+        </a>
+
+        <a href="{{ url_for('pools') }}" class="grid-card">
+            <div class="card-icon">🏆</div>
+            <h3>Pools</h3>
+            <p>Moonshot & Madness Pick'em.</p>
+        </a>
+
+        <a href="{{ url_for('results') }}" class="grid-card">
+            <div class="card-icon">📊</div>
+            <h3>Leaderboards</h3>
+            <p>Current standings & history.</p>
+        </a>
+    </section>
+</div>
+
+<style>
+    .homepage-container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+    
+    /* Hero Card Styling */
+    .hero-card {
+        display: block;
+        background: linear-gradient(135.5deg, #2c3e50 0%, #000000 100%);
+        color: white;
+        padding: 60px;
+        border-radius: 20px;
+        text-decoration: none;
+        margin-bottom: 30px;
+        transition: transform 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    .hero-card:hover { transform: scale(1.01); }
+    .badge { background: #e74c3c; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+    
+    /* Grid Styling */
+    .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .grid-card {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-decoration: none;
+        color: #333;
+        text-align: center;
+        border: 1px solid #eee;
+        transition: all 0.3s ease;
+    }
+    .grid-card:hover { border-color: #3498db; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+    .card-icon { font-size: 40px; margin-bottom: 15px; }
+    .btn-primary { display: inline-block; margin-top: 20px; padding: 10px 25px; background: #3498db; border-radius: 5px; color: white; }
+</style>
+{% endblock %}

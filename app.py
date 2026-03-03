@@ -23,10 +23,9 @@ def init_db():
             with open(file, 'w') as f:
                 json.dump({}, f)
 
-@app.route("/")
-def home():
-    print("test")
-    return render_template('home.html')
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 
 @app.route("/recipes")
@@ -118,6 +117,11 @@ def make_json_restaurants():
         jsonfile.write(restaurants_json)
 
     return restaurants
+
+@app.route('/pools')
+def pools():
+    # You can pass specific data here if needed later
+    return render_template('pools.html')
 
 @app.route('/admin/update-games', methods=['GET', 'POST'])
 def update_games():

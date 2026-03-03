@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 60px auto;">
+    <h2 style="text-align: center; margin-bottom: 30px;">Active Pools</h2>
+    
+    <div class="pool-list">
+        <a href="/dness" class="pool-box highlight">March Madness Pick'em</a>
+        <a href="/moonshot-1" class="pool-box">Moonshot 1</a>
+        <a href="/moonshot-2" class="pool-box">Moonshot 2</a>
+    </div>
+
+    <a href="{{ url_for('index') }}" style="display: block; text-align: center; margin-top: 30px; color: #7f8c8d;">← Back to Homepage</a>
+</div>
+
+<style>
+    .pool-box {
+        display: block;
+        padding: 25px;
+        background: white;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #2c3e50;
+        font-weight: bold;
+        border: 1px solid #ddd;
+        transition: 0.2s;
+    }
+    .pool-box:hover { background: #f8f9fa; border-color: #3498db; }
+    .highlight { border-left: 5px solid #e74c3c; }
+</style>
+{% endblock %}

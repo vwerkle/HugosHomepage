@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hugo's Site</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2563eb; --dark: #0f172a; --bg: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--dark); }
+        nav { background: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .nav-logo { font-weight: 800; font-size: 1.2rem; text-decoration: none; color: var(--dark); }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="nav-logo">HUGO</a>
+        <div class="nav-links">
+            <a href="/recipes" style="text-decoration:none; color:inherit; margin-left:15px;">Recipes</a>
+            <a href="/pools" style="text-decoration:none; color:inherit; margin-left:15px;">Pools</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>&copy; 2026 Hugo's Homepage</footer>
+</body>
+</html>
