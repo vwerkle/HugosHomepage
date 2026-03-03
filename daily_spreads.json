@@ -1,60 +1,11 @@
 {
     "2026-03-01": [
         {
-            "away_team": "Charlotte 49ers",
-            "away_spread": "-1.5",
-            "home_team": "Florida Atlantic Owls",
-            "home_spread": "+1.5",
-            "lock_time": "2026-03-01T19:00:00Z"
-        },
-        {
-            "away_team": "Saint Peter's Peacocks",
-            "away_spread": "-6.5",
-            "home_team": "Marist Red Foxes",
-            "home_spread": "+6.5",
-            "lock_time": "2026-03-01T19:00:00Z"
-        },
-        {
-            "away_team": "Rice Owls",
-            "away_spread": "-6.5",
-            "home_team": "Temple Owls",
-            "home_spread": "+6.5",
-            "lock_time": "2026-03-01T19:02:21Z"
-        },
-        {
-            "away_team": "Memphis Tigers",
-            "away_spread": "+16.5",
-            "home_team": "East Carolina Pirates",
-            "home_spread": "-16.5",
-            "lock_time": "2026-03-01T19:02:59Z"
-        },
-        {
-            "away_team": "Murray St Racers",
-            "away_spread": "+9.5",
-            "home_team": "Bradley Braves",
-            "home_spread": "-9.5",
-            "lock_time": "2026-03-01T19:10:20Z"
-        },
-        {
-            "away_team": "Northern Iowa Panthers",
-            "away_spread": "-13.5",
-            "home_team": "Drake Bulldogs",
-            "home_spread": "+13.5",
-            "lock_time": "2026-03-01T20:02:27Z"
-        },
-        {
             "away_team": "Michigan St Spartans",
-            "away_spread": "-9.5",
+            "away_spread": "-13.5",
             "home_team": "Indiana Hoosiers",
-            "home_spread": "+9.5",
+            "home_spread": "+13.5",
             "lock_time": "2026-03-01T20:45:19Z"
-        },
-        {
-            "away_team": "DePaul Blue Demons",
-            "away_spread": "+4.5",
-            "home_team": "Marquette Golden Eagles",
-            "home_spread": "-4.5",
-            "lock_time": "2026-03-01T21:00:00Z"
         },
         {
             "away_team": "Southern Illinois Salukis",
@@ -62,6 +13,13 @@
             "home_team": "Evansville Purple Aces",
             "home_spread": "+8.5",
             "lock_time": "2026-03-01T21:03:25Z"
+        },
+        {
+            "away_team": "DePaul Blue Demons",
+            "away_spread": "-2.5",
+            "home_team": "Marquette Golden Eagles",
+            "home_spread": "+2.5",
+            "lock_time": "2026-03-01T21:11:56Z"
         },
         {
             "away_team": "Belmont Bruins",
@@ -123,9 +81,9 @@
         },
         {
             "away_team": "North Carolina Central Eagles",
-            "away_spread": "+1.5",
+            "away_spread": "+1.0",
             "home_team": "Maryland-Eastern Shore Hawks",
-            "home_spread": "-1.5",
+            "home_spread": "-1.0",
             "lock_time": "2026-03-03T00:00:00Z"
         },
         {

@@ -94,15 +94,6 @@
             text-align: center;
         }
 
-        .label-col {
-            background: #f8f9fa;
-            font-weight: bold;
-            color: #34495e;
-            text-align: left !important;
-            padding-left: 20px !important;
-            width: 140px;
-        }
-
         /* Win/Loss Logic */
         .win { color: white; background-color: var(--win-green) !important; font-weight: bold; }
         .loss { color: white; background-color: var(--loss-red) !important; font-weight: bold; }
@@ -157,7 +148,6 @@
         <table class="grid-table">
             <thead>
                 <tr>
-                    <th>Date / Slot</th>
                     {% for user in usernames %}
                         <th class="{% if user in leaders %}leader-highlight{% endif %}">
                             {{ user }} 
@@ -176,7 +166,6 @@
                     </tr>
                     {% for slot in day.slots %}
                     <tr>
-                        <td class="label-col">Slot {{ loop.index }}</td>
                         {% for user in usernames %}
                             {% set p = slot.users[user] %}
                             <td class="{{ p.result }} {% if 'HIDDEN' in p.info %}hidden-pick{% endif %}">

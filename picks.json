@@ -111,6 +111,28 @@
                 "game_info": "Manhattan Jaspers +8.0",
                 "result": "pending"
             }
+        ],
+        "2026-03-01": [
+            {
+                "game_info": "Marist Red Foxes +6.5",
+                "result": "loss"
+            },
+            {
+                "game_info": "Rice Owls -6.5",
+                "result": "loss"
+            },
+            {
+                "game_info": "Temple Owls +6.5",
+                "result": "win"
+            },
+            {
+                "game_info": "Northern Iowa Panthers -13.5",
+                "result": "win"
+            },
+            {
+                "game_info": "East Carolina Pirates -16.5",
+                "result": "loss"
+            }
         ]
     },
     "testyy": {
