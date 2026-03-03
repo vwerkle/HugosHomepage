@@ -1,0 +1,4 @@
+nssm status HugoSite
+nssm status CloudflareTunnel
+
+runs as a windows service

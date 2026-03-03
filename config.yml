@@ -1,0 +1,7 @@
+tunnel: 4f26c475-3715-49b9-99df-652a86483034
+credentials-file: C:\Users\vince\.cloudflared\4f26c475-3715-49b9-99df-652a86483034.json
+
+ingress:
+  - hostname: vwerkle.com
+    service: http://127.0.0.1:5000
+  - service: http_status:404
