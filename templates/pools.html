@@ -1,31 +1,119 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="container" style="max-width: 600px; margin: 60px auto;">
-    <h2 style="text-align: center; margin-bottom: 30px;">Active Pools</h2>
-    
-    <div class="pool-list">
-        <a href="/dness" class="pool-box highlight">March Madness Pick'em</a>
-        <a href="/moonshot-1" class="pool-box">Moonshot 1</a>
-        <a href="/moonshot-2" class="pool-box">Moonshot 2</a>
+<div class="container py-4">
+    <div class="header-section mb-4 px-2">
+        <h2 class="fw-800 m-0">My Pools</h2>
+        <p class="text-secondary small">2026 Season</p>
     </div>
 
-    <a href="{{ url_for('index') }}" style="display: block; text-align: center; margin-top: 30px; color: #7f8c8d;">← Back to Homepage</a>
+    <!-- <div class="row g-3 px-2">
+        <div class="col-6">
+            <a href="/moonshot1" class="app-card-link">
+                <div class="app-card gradient-blue">
+                    <div class="icon-box">🚀</div>
+                    <span class="app-name">Moonshot 1</span>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-6">
+            <a href="/moonshot2" class="app-card-link">
+                <div class="app-card gradient-purple">
+                    <div class="icon-box">🔭</div>
+                    <span class="app-name">Moonshot 2</span>
+                </div>
+            </a>
+        </div> -->
+
+        <div class="col-6">
+            <a href="/madness" class="app-card-link">
+                <div class="app-card gradient-orange">
+                    <div class="icon-box">🏀</div>
+                    <span class="app-name">SMTM Madness</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-6">
+            <a href="/random-pool" class="app-card-link">
+                <div class="app-card gradient-green glow">
+                    <div class="icon-box">🎲</div>
+                    <span class="app-name">Random</span>
+                    <div class="new-tag">NEW</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-5 px-2">
+        <h6 class="text-uppercase text-muted fw-bold small mb-3">Management</h6>
+        <div class="admin-shelf p-3">
+            <a href="/admin/update-games" class="admin-item">
+                <div class="admin-icon"><i class="bi bi-sliders"></i></div>
+                <span>SMTM Admin</span>
+            </a>
+            <div class="divider-v"></div>
+            <a href="/admin/random-pool" class="admin-item">
+                <div class="admin-icon"><i class="bi bi-cpu"></i></div>
+                <span>Random Pool Admin</span>
+            </a>
+        </div>
+    </div>
 </div>
 
 <style>
-    .pool-box {
-        display: block;
-        padding: 25px;
-        background: white;
-        margin-bottom: 15px;
-        border-radius: 10px;
-        text-decoration: none;
-        color: #2c3e50;
-        font-weight: bold;
-        border: 1px solid #ddd;
-        transition: 0.2s;
+    body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
+    .fw-800 { font-weight: 800; letter-spacing: -0.5px; }
+    
+    /* App Card Styling */
+    .app-card {
+        height: 140px;
+        border-radius: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        overflow: hidden;
     }
-    .pool-box:hover { background: #f8f9fa; border-color: #3498db; }
-    .highlight { border-left: 5px solid #e74c3c; }
+    .app-card:active { transform: scale(0.92); }
+    .app-card-link { text-decoration: none; }
+    
+    .icon-box { font-size: 2rem; margin-bottom: 8px; }
+    .app-name { font-weight: 700; font-size: 0.95rem; }
+    
+    /* Gradients */
+    .gradient-blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .gradient-purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .gradient-orange { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #633; }
+    .gradient-green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    
+    .glow { box-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
+    .new-tag { 
+        position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9);
+        color: #11998e; font-size: 0.6rem; font-weight: 900; padding: 2px 8px; border-radius: 10px;
+    }
+
+    /* Admin Shelf Styling */
+    .admin-shelf {
+        background: white;
+        border-radius: 20px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .admin-item {
+        text-decoration: none;
+        color: #444;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .admin-icon { font-size: 1.2rem; color: #007bff; }
+    .divider-v { width: 1px; height: 30px; background: #eee; }
 </style>
-{% endblock %}

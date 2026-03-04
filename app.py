@@ -3,10 +3,13 @@ import sys
 import json
 import os
 import pytz
+import random
+import requests
 from moonshot import moonshot_bp,moonshot_mike_bp
 from data_manager import fetch_and_save_spreads
 from update_results import update_all_results_logic
 from datetime import datetime,timedelta,timezone
+from waitress import serve
 app = Flask(__name__)
 app.secret_key = 'vincent'
 app.register_blueprint(moonshot_bp)
@@ -213,31 +216,19 @@ def make_picks():
     # For string comparison in HTML, ISO format is still best:
     current_time_str = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     # Create a simple list to track which of the 5 slots are locked
-    slot_locks = [False] * 5
-    
-    # Create a quick lookup for game lock times
-    game_times = {}
+    expired_options = set()
     for g in games_for_date:
-        game_times[(g['away_team'] + " " + str(g['away_spread'])).strip()] = g['lock_time']
-        game_times[(g['home_team'] + " " + str(g['home_spread'])).strip()] = g['lock_time']
+        if g['lock_time'][:16] <= current_time_str[:16]:
+            expired_options.add((g['away_team'] + " " + str(g['away_spread'])).strip())
+            expired_options.add((g['home_team'] + " " + str(g['home_spread'])).strip())
 
-    # Check each of the user's current saved picks
+    # 2. Reuse that logic to set your slot_locks (exactly like your current block)
+    slot_locks = [False] * 5
     for i in range(5):
-        if i < len(saved_selections):
-            pick = saved_selections[i].strip()
-            # If the pick exists in our games list and the time has passed...
-            if not pick: continue
-            # Look for the game this pick belongs to
-            for g in games_for_date:
-                away_t = g['away_team'].strip()
-                home_t = g['home_team'].strip()
-                
-                # Check if the saved pick contains either team name
-                if away_t in pick or home_t in pick:
-                    # We found the match! Now check the time.
-                    if g['lock_time'][:16] <= current_time_str[:16]:
-                        slot_locks[i] = True
-                    break
+        pick = saved_selections[i].strip()
+        if pick in expired_options:  # Reusing the work we did above!
+            slot_locks[i] = True
+    print(expired_options)
     if request.method == 'POST':
         # 1. Get the target date from the hidden input field
         target_date = request.form.get('date') 
@@ -250,7 +241,6 @@ def make_picks():
             if os.path.exists('daily_spreads.json'):
                 with open('daily_spreads.json', 'r') as f:
                     games_for_date = json.load(f).get(target_date, [])
-            
             return render_template('picks.html', 
                                 games=games_for_date,
                                 selected_date=target_date,
@@ -260,7 +250,9 @@ def make_picks():
                                 today_pretty=today_pretty,
                                 tomorrow_pretty=tomorrow_pretty,
                                 current_time=current_time_str,
-                                saved_selections=saved_selections
+                                saved_selections=saved_selections,
+                                slot_locks=slot_locks,
+                                expired_options=expired_options,
                                 )
         # 3. Format them for storage
         new_picks_data = [{"game_info": p, "result": "pending"} for p in user_selections]
@@ -292,7 +284,8 @@ def make_picks():
                            tomorrow_pretty=tomorrow_pretty,
                            current_time_str=current_time_str,
                            slot_locks=slot_locks,
-                           saved_selections=saved_selections)
+                           saved_selections=saved_selections,
+                            expired_options=expired_options,)
                         
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -417,7 +410,121 @@ def results():
                            leaders=leaders,
                            sorted_leaderboard=sorted_leaderboard)
 
+RANDOM_POOL_FILE = 'random_pool.json'
+PLAYERS_FILE = 'players.txt'
+API_KEY='069fb0f664323b83b2cdd9349e662208'
+@app.route('/admin/random-pool')
+def admin_random_pool():
+    return render_template('admin_random_pool.html')
+
+@app.route('/admin/init-pool', methods=['POST'])
+def init_pool():
+    # Load teams and players
+    with open('64_teams.txt', 'r') as f:
+        teams = [line.strip() for line in f.readlines() if line.strip()]
+    with open('players.txt', 'r') as f:
+        players = [line.strip() for line in f.readlines() if line.strip()]
+    
+    random.shuffle(teams)
+    
+    # Assign teams to players (looping through players if teams > players)
+    new_pool = {}
+    for i, team in enumerate(teams):
+        new_pool[team] = {
+            "owner": players[i % len(players)],
+            "status": "active",
+            "last_result": "pending"
+        }
+    
+    with open('random_pool.json', 'w') as f:
+        json.dump(new_pool, f, indent=4)
+    return "Pool Initialized!"
+
+@app.route('/admin/process-steals', methods=['POST'])
+def process_steals():
+    with open('random_pool.json', 'r') as f:
+        pool_data = json.load(f)
+
+    # Get scores (reusing your scores API)
+    url = f'https://api.the-odds-api.com/v4/sports/basketball_ncaab/scores/?apiKey={API_KEY}&daysFrom=1'
+    scores_data = requests.get(url).json()
+
+    for game in scores_data:
+        if not game['completed']: continue
+        
+        score_map = {s['name']: int(s['score']) for s in game['scores']}
+        home_team, away_team = game['home_team'], game['away_team']
+        
+        # Identify Winner/Loser
+        winner = home_team if score_map[home_team] > score_map[away_team] else away_team
+        loser = away_team if winner == home_team else home_team
+
+        if loser in pool_data and winner in pool_data:
+            loser_spread = pool_data[loser].get('locked_spread', 0)
+            
+            # Check the "Cover"
+            if (score_map[loser] + loser_spread) > score_map[winner]:
+                # THE STEAL
+                thief = pool_data[loser]['owner']
+                original_winner_owner = pool_data[winner]['owner']
+                
+                # Update history log
+                log_entry = f"{thief} (Stolen from {original_winner_owner})"
+                pool_data[winner]['history'].append(log_entry)
+                
+                # Transfer ownership
+                pool_data[winner]['owner'] = thief
+                pool_data[winner]['last_result'] = 'stolen'
+                pool_data[loser]['status'] = 'eliminated'
+            else:
+                # Normal Exit
+                pool_data[winner]['last_result'] = 'held'
+                pool_data[loser]['status'] = 'eliminated'
+
+    with open('random_pool.json', 'w') as f:
+        json.dump(pool_data, f, indent=4)
+    return "Steals and History Log Updated!"
+
+@app.route('/admin/lock-spreads', methods=['POST'])
+def lock_spreads():
+    # Fetch current odds from The Odds API
+    url = f'https://api.the-odds-api.com/v4/sports/basketball_ncaab/odds/?apiKey={API_KEY}&regions=us&markets=spreads'
+    response = requests.get(url)
+    if response.status_code != 200: return "API Error", 500
+    
+    odds_data = response.json()
+    
+    with open('random_pool.json', 'r') as f:
+        pool_data = json.load(f)
+
+    # Map teams to their current spread
+    for game in odds_data:
+        # We look for the 'h2h' or 'spreads' market
+        bookmaker = game['bookmakers'][0] # Use the first available bookie
+        market = bookmaker['markets'][0]
+        
+        for outcome in market['outcomes']:
+            team_name = outcome['name']
+            spread_val = outcome['point']
+            
+            if team_name in pool_data:
+                pool_data[team_name]['locked_spread'] = float(spread_val)
+
+    with open('random_pool.json', 'w') as f:
+        json.dump(pool_data, f, indent=4)
+        
+    return "Spreads Locked for Today's Games!"
+
+@app.route('/random-pool') # <--- Make sure this matches your URL
+def random_pool_viewer():
+    try:
+        with open('random_pool.json', 'r') as f:
+            pool_data = json.load(f)
+        return render_template('random_pool.html', pool_data=pool_data)
+    except FileNotFoundError:
+        return "Pool not initialized yet! Go to the admin page first."
+
 if __name__ == '__main__':
-    print("hello")
-    #print("hello",file=sys.stdout)
-    #app.run(debug=True)
+    from waitress import serve
+    print("Waitress is starting on port 5000...")
+    serve(app, host='0.0.0.0', port=5000, threads=4)

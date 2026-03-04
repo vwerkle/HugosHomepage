@@ -176,37 +176,31 @@
                     <input type="hidden" name="game_picks" value="{{ saved_val }}">
                 {% endif %}
 
-                <select name="game_picks" {% if is_this_slot_locked %}disabled{% endif %}>
-                    <option value="">-- Select a Game --</option>
-                    
-                    {# 1. Check if the saved_val is "missing" from the current games list #}
-                    {% set found_match = false %}
+                <select name="game_picks" {% if slot_locks[i] %}disabled{% endif %}>
+                    <option value="">-- Select a Team --</option>
                     {% for g in games %}
-                        {% if (g.away_team ~ " " ~ g.away_spread)|trim == saved_val or (g.home_team ~ " " ~ g.home_spread)|trim == saved_val %}
-                            {% set found_match = true %}
-                        {% endif %}
-                    {% endfor %}
-                
-                    {# 2. If it's missing (spread changed) but we have a value, force it into the list #}
-                    {% if saved_val and not found_match %}
-                        <option value="{{ saved_val }}" selected>
-                            {{ saved_val }} (Old Spread)
+                        {% set away_label = (g.away_team ~ " " ~ g.away_spread)|trim %}
+                        {% set home_label = (g.home_team ~ " " ~ g.home_spread)|trim %}
+
+                        {# AWAY OPTION #}
+                        <option value="{{ away_label }}" 
+                            {% if saved_selections[i] == away_label %}selected{% endif %}
+                            {% if away_label in expired_options %}disabled{% endif %}>
+                            {{ away_label }} {% if away_label in expired_options %}(LOCKED){% endif %}
                         </option>
-                    {% endif %}
-                
-                    {# 3. Standard games list #}
-                    {% for game in games %}
-                        {% set away_str = (game.away_team ~ " " ~ game.away_spread)|trim %}
-                        {% set home_str = (game.home_team ~ " " ~ game.home_spread)|trim %}
-                        
-                        <option value="{{ away_str }}" {% if saved_val == away_str %}selected{% endif %}>
-                            {{ away_str }}
-                        </option>
-                        <option value="{{ home_str }}" {% if saved_val == home_str %}selected{% endif %}>
-                            {{ home_str }}
+
+                        {# HOME OPTION #}
+                        <option value="{{ home_label }}" 
+                            {% if saved_selections[i] == home_label %}selected{% endif %}
+                            {% if home_label in expired_options %}disabled{% endif %}>
+                            {{ home_label }} {% if home_label in expired_options %}(LOCKED){% endif %}
                         </option>
                     {% endfor %}
                 </select>
+                {% if slot_locks[i] %}
+                    {# This sends the value to the server even though the dropdown is disabled #}
+                    <input type="hidden" name="game_picks" value="{{ saved_selections[i] }}">
+                {% endif %}
             </div>
         {% endfor %}
         
