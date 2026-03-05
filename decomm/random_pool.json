@@ -1,0 +1,42 @@
+{
+    "Purdue": {
+        "owner": "Hugo",
+        "status": "active",
+        "last_result": "pending"
+    },
+    "UConn": {
+        "owner": "Vincent",
+        "status": "active",
+        "last_result": "pending"
+    },
+    "Duke": {
+        "owner": "Alice",
+        "status": "active",
+        "last_result": "pending"
+    },
+    "Kansas": {
+        "owner": "Bob",
+        "status": "active",
+        "last_result": "pending"
+    },
+    "UNC": {
+        "owner": "Hugo",
+        "status": "active",
+        "last_result": "pending"
+    },
+    "Arizona": {
+        "owner": "Vincent",
+        "status": "active",
+        "last_result": "pending"
+    },
+    "Tennessee": {
+        "owner": "Alice",
+        "status": "active",
+        "last_result": "pending"
+    },
+    "Houston": {
+        "owner": "Bob",
+        "status": "active",
+        "last_result": "pending"
+    }
+}

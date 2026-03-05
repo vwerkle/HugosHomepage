@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>March Madness: Team Tracker</h2>
+<div class="team-grid">
+    {% for team, data in pool_data.items() %}
+    <div class="team-card {{ data.last_result }}">
+        <div class="team-name">{{ team }}</div>
+        <div class="owner-name">{{ data.owner }}</div>
+        {% if data.last_result == 'steal' %}
+            <div class="status-tag">TEAM STOLEN!</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+    .team-card { padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #ddd; }
+    .win { background-color: #d4edda; color: #155724; } /* Covered Spread */
+    .loss { background-color: #f8d7da; color: #721c24; } /* Didn't Cover */
+    .steal { background-color: #fff3cd; border: 2px dashed #856404; } /* Stolen Team */
+</style>
+{% endblock %}

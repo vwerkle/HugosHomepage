@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Recipes</title>
+        <style>
+            .category, .subcategory {
+                margin:  10px 0;
+            }
+            .subcategory{
+                margin-left:20px;
+            }
+            .recipes-grid{
+                display: grid;
+                grid-template-columns: repeat(auto-fill,minmax(200px, 1fr));
+                gap: 20px;
+            }
+            .recipe {
+                padding: 10px;
+                text-align: center;
+                
+            }
+            .hidden{
+                display:none;
+            }
+        </style>
+        <script>
+            function toggleVisibility(id,button)
+            {
+                var element = document.getElementById(id);
+                if(element.classList.contains('hidden')) {
+                    element.classList.remove('hidden');
+                    button.textContent=button.textContent.replace("(+)","(-)");
+                }
+                else {
+                    element.classList.add('hidden');
+                    button.textContent=button.textContent.replace("(-)","(+)");
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Recipes</h1>
+        {% for category, subcategories in recipes.items() %}
+            <div class="category">
+                <button onclick="toggleVisibility('{{ category }}', this)">{{ category }} (-)</button>
+                <div id="{{ category }}">
+                    {% for subcategory, recipes in subcategories.items() %}
+                    <div class="subcategory">
+                        <button onclick="toggleVisibility('{{ category }} - {{ subcategory }}', this)">{{ subcategory }} (-)</button>
+                        <div id="{{ category }} - {{ subcategory }}">
+                            <div class="recipes-grid">
+                            {% for recipe in recipes %}
+                                <div class="recipe">
+                                    <img src="{{ url_for('static',filename=recipe.image) }}" alt="{{ recipe.title }}" width="200">
+                                    <h2>{{ recipe.title }}</h2>
+                                    <p>{{ recipe.notes | safe }}</p>
+                                    <p>{{ recipe.date }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </body>
+</html>

@@ -24,7 +24,7 @@
         </div> -->
 
         <div class="col-6">
-            <a href="/madness" class="app-card-link">
+            <a href="{{ url_for('madness.dness_hub') }}" class="app-card-link">
                 <div class="app-card gradient-orange">
                     <div class="icon-box">🏀</div>
                     <span class="app-name">SMTM Madness</span>
@@ -33,7 +33,7 @@
         </div>
 
         <div class="col-6">
-            <a href="/random-pool" class="app-card-link">
+            <a href="{{ url_for('random_pool.random_pool_viewer') }}" class="app-card-link">
                 <div class="app-card gradient-green glow">
                     <div class="icon-box">🎲</div>
                     <span class="app-name">Random</span>
@@ -46,17 +46,21 @@
     <div class="mt-5 px-2">
         <h6 class="text-uppercase text-muted fw-bold small mb-3">Management</h6>
         <div class="admin-shelf p-3">
-            <a href="/admin/update-games" class="admin-item">
+             <a href="{{ url_for('madness.update_games') }}" class="admin-item">
                 <div class="admin-icon"><i class="bi bi-sliders"></i></div>
                 <span>SMTM Admin</span>
             </a>
             <div class="divider-v"></div>
-            <a href="/admin/random-pool" class="admin-item">
+             <a href="{{ url_for('random_pool.admin_random_pool') }}" class="admin-item">
                 <div class="admin-icon"><i class="bi bi-cpu"></i></div>
                 <span>Random Pool Admin</span>
             </a>
         </div>
     </div>
+</div>
+<div class="footer-links">
+    <br>
+    <a href="{{ url_for('index') }}" style="color: #bdc3c7; font-weight: normal; text-decoration: none;">&larr; Back to Homepage</a>
 </div>
 
 <style>

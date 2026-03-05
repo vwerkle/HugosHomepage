@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Cookbook</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfdfd;
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+            --accent: #e67e22;
+            --radius: 16px;
+            --shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* --- Search Bar --- */
+        .search-container { position: sticky; top: 10px; z-index: 100; margin-bottom: 40px; }
+        #recipeSearch {
+            width: 100%; padding: 15px 25px; font-size: 1.1rem; border-radius: 50px;
+            border: 2px solid #eee; box-shadow: var(--shadow); outline: none;
+        }
+
+        /* --- Collapsible Headers --- */
+        .category-wrapper { margin-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        .category-header {
+            width: 100%; background: none; border: none; display: flex; 
+            justify-content: space-between; align-items: center;
+            padding: 15px 0; cursor: pointer; font-size: 1.8rem;
+            font-weight: 800; color: var(--text-main); text-align: left;
+        }
+
+        .subcategory-section { margin-left: 15px; margin-bottom: 20px; }
+
+        .subcategory-header {
+            width: 100%; background: #f8f9fa; border: none; padding: 10px 15px;
+            border-radius: 8px; text-align: left; font-size: 1.1rem;
+            font-weight: 600; cursor: pointer; margin-bottom: 15px;
+            display: flex; justify-content: space-between;
+        }
+
+        /* --- Grid & Images --- */
+        .recipes-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px; padding-bottom: 20px;
+        }
+
+        .recipe-card {
+            background: var(--card-bg); border-radius: var(--radius);
+            overflow: hidden; box-shadow: var(--shadow);
+        }
+
+        .image-container { width: 100%; background-color: #f8f9fa; }
+        .recipe-image { 
+            width: 100%; height: auto; max-height: 500px; 
+            object-fit: contain; display: block; 
+        }
+
+        .recipe-content { padding: 20px; }
+        .recipe-title { font-size: 1.4rem; margin: 0 0 8px 0; }
+        .recipe-notes { color: #636e72; margin-bottom: 10px; }
+
+        /* Utilities */
+        .hidden { display: none; }
+        .icon { transition: transform 0.3s; font-size: 0.8rem; }
+        .icon.open { transform: rotate(180deg); }
+
+        @media (max-width: 600px) {
+            .subcategory-section { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="search-container">
+        <input type="text" id="recipeSearch" placeholder="Search for a recipe..." onkeyup="filterRecipes()">
+    </div>
+
+    {% for category, subcategories in recipes.items() %}
+    {% set cat_idx = loop.index %}
+    <div class="category-wrapper" id="cat-wrapper-{{ cat_idx }}">
+        <button class="category-header" onclick="toggle('cat-content-{{ cat_idx }}', this)">
+            {{ category }}
+            <span class="icon">▼</span>
+        </button>
+
+        <div id="cat-content-{{ cat_idx }}" class="category-content">
+            {% for subcategory, recipe_list in subcategories.items() %}
+            {% set sub_idx = loop.index %}
+            <div class="subcategory-section" id="sub-section-{{ cat_idx }}-{{ sub_idx }}">
+                <button class="subcategory-header" onclick="toggle('sub-grid-{{ cat_idx }}-{{ sub_idx }}', this)">
+                    {{ subcategory }}
+                    <span class="icon">▼</span>
+                </button>
+                
+                <div id="sub-grid-{{ cat_idx }}-{{ sub_idx }}" class="recipes-grid">
+                    {% for recipe in recipe_list %}
+                    <div class="recipe-card" data-title="{{ recipe.title | lower }}" data-notes="{{ recipe.notes | lower }}">
+                        <div class="image-container">
+                            <img src="{{ url_for('static', filename=recipe.image) }}" alt="{{ recipe.title }}" class="recipe-image">
+                        </div>
+                        <div class="recipe-content">
+                            <h2 class="recipe-title">{{ recipe.title }}</h2>
+                            <div class="recipe-notes">{{ recipe.notes | safe }}</div>
+                            <div class="recipe-date">{{ recipe.date }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+// Toggle Visibility
+function toggle(id, btn) {
+    const el = document.getElementById(id);
+    const icon = btn.querySelector('.icon');
+    el.classList.toggle('hidden');
+    icon.classList.toggle('open');
+}
+
+// Search with Auto-Expand
+function filterRecipes() {
+    const input = document.getElementById('recipeSearch').value.toLowerCase();
+    const cards = document.querySelectorAll('.recipe-card');
+    
+    cards.forEach(card => {
+        const text = card.getAttribute('data-title') + " " + card.getAttribute('data-notes');
+        if (text.includes(input)) {
+            card.style.display = "";
+        } else {
+            card.style.display = "none";
+        }
+    });
+
+    // If searching, show the hidden sections so the user sees results
+    if (input.length > 0) {
+        document.querySelectorAll('.category-content, .recipes-grid').forEach(el => {
+            el.classList.remove('hidden');
+        });
+        document.querySelectorAll('.icon').forEach(i => i.classList.add('open'));
+    }
+}
+</script>
+
+</body>
+</html>

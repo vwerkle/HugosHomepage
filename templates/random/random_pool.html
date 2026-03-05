@@ -1,0 +1,29 @@
+<div class="team-grid">
+    {% for team, info in pool_data.items() %}
+    <div class="team-card {{ 'eliminated' if info.status == 'eliminated' else 'active' }}">
+        <h3>{{ team }}</h3>
+        <p>Current Owner: <strong>{{ info.owner }}</strong></p>
+        
+        <div class="history-box">
+            <small>History:</small>
+            <ul class="history-list">
+                {% for entry in info.history %}
+                    <li>{{ entry }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .history-box { 
+        margin-top: 10px; 
+        padding-top: 10px; 
+        border-top: 1px solid #eee; 
+        font-size: 0.75rem; 
+        text-align: left;
+    }
+    .history-list { list-style: none; padding: 0; margin: 0; color: #666; }
+    .eliminated { opacity: 0.5; grayscale(1); }
+</style>
