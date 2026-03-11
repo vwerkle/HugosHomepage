@@ -64,98 +64,101 @@ def make_picks():
     username = session.get('user')
     if not username: return redirect(url_for('madness.login'))
     
+    # 1. TIME & DATE SETUP
     eastern = pytz.timezone('US/Eastern')
     now_est = datetime.now(eastern)
     today_raw = now_est.strftime('%Y-%m-%d')
     tomorrow_dt = now_est + timedelta(days=1)
-    tomorrow_raw = (now_est + timedelta(days=1)).strftime('%Y-%m-%d')
+    tomorrow_raw = tomorrow_dt.strftime('%Y-%m-%d')
     today_pretty = now_est.strftime('%b %d')
     tomorrow_pretty = tomorrow_dt.strftime('%b %d')
     
     selected_date = request.args.get('date', today_raw)
     current_time_str = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-    selected_date = request.args.get('date', today_raw)
 
+    # 2. LOAD ACTIVE SPREADS & BUILD LOCK LOOKUP
     games_for_date = []
+    game_lock_lookup = {}  # Map Team -> Lock Time
+    expired_options = set() # Exact strings that are already locked
+
     if os.path.exists(SPREADS_FILE):
         with open(SPREADS_FILE, 'r') as f:
             games_for_date = json.load(f).get(selected_date, [])
             games_for_date = sorted(games_for_date, key=lambda x: x['lock_time'])
+            
+            for g in games_for_date:
+                away_str = f"{g['away_team']} {g['away_spread']}".strip()
+                home_str = f"{g['home_team']} {g['home_spread']}".strip()
+                
+                # Build lookup for "Smart Locking" (Team-based)
+                game_lock_lookup[g['away_team'].strip()] = g['lock_time']
+                game_lock_lookup[g['home_team'].strip()] = g['lock_time']
 
+                # Identify if game has started
+                if g['lock_time'][:16] <= current_time_str[:16]:
+                    expired_options.add(away_str)
+                    expired_options.add(home_str)
+
+    # 3. LOAD SAVED PICKS
     saved_selections = []
+    saved_picks_raw_data = []
     if os.path.exists(PICKS_FILE):
         with open(PICKS_FILE, 'r') as f:
             all_user_picks = json.load(f)
-            # Get this user's dictionary -> then get the list for this date
             user_data = all_user_picks.get(username, {})
-            existing_picks_list = user_data.get(selected_date, [])
-            
-            # Convert the list of dicts into a simple list of strings for the HTML to match
-            saved_selections = [p['game_info'] for p in existing_picks_list]
+            saved_picks_raw_data = user_data.get(selected_date, [])
+            saved_selections = [p['game_info'] for p in saved_picks_raw_data]
 
-    # Ensure we always pass a list of 5 strings so the loop doesn't break
     while len(saved_selections) < 5:
         saved_selections.append("")
-    # For string comparison in HTML, ISO format is still best:
-    current_time_str = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-    # Create a simple list to track which of the 5 slots are locked
-    expired_options = set()
-    for g in games_for_date:
-        if g['lock_time'][:16] <= current_time_str[:16]:
-            expired_options.add((g['away_team'] + " " + str(g['away_spread'])).strip())
-            expired_options.add((g['home_team'] + " " + str(g['home_spread'])).strip())
 
-    # 2. Reuse that logic to set your slot_locks (exactly like your current block)
+    # 4. SMART SLOT LOCKS
     slot_locks = [False] * 5
     for i in range(5):
-        pick = saved_selections[i].strip()
-        if pick in expired_options:  # Reusing the work we did above!
-            slot_locks[i] = True
-    print(expired_options)
-    if request.method == 'POST':
-        # 1. Get the target date from the hidden input field
-        target_date = request.form.get('date') 
+        pick_str = saved_selections[i].strip()
+        if not pick_str: continue
         
-        # 2. Get the list of picks (removes empty dropdowns)
-        user_selections = list(filter(None, request.form.getlist('game_picks')))
-        if len(user_selections) != len(set(user_selections)):
-        # Refetch the data needed to reload the page with an error
-            games_for_date = []
-            if os.path.exists('daily_spreads.json'):
-                with open('daily_spreads.json', 'r') as f:
-                    games_for_date = json.load(f).get(target_date, [])
-            return render_template('madness/picks.html', 
-                                games=games_for_date,
-                                selected_date=target_date,
-                                error="You cannot select the same game twice!",
-                                today_raw=today_raw,
-                                tomorrow_raw=tomorrow_raw,
-                                today_pretty=today_pretty,
-                                tomorrow_pretty=tomorrow_pretty,
-                                current_time=current_time_str,
-                                saved_selections=saved_selections,
-                                slot_locks=slot_locks,
-                                expired_options=expired_options,
-                                )
-        # 3. Format them for storage
-        new_picks_data = [{"game_info": p, "result": "pending"} for p in user_selections]
+        # Extract Team Name (handles "LSU Tigers +6.5" -> "LSU Tigers")
+        team_part = pick_str.rsplit(' ', 1)[0].strip() if " " in pick_str else pick_str
+        
+        lock_time = game_lock_lookup.get(team_part)
+        
+        if lock_time:
+            # Game is live: lock only if time passed
+            if lock_time[:16] <= current_time_str[:16]:
+                slot_locks[i] = True
+        else:
+            # Game is graded/missing: lock it!
+            slot_locks[i] = True
 
-        # 4. Open and update the picks file
+    # 5. POST LOGIC
+    if request.method == 'POST':
+        target_date = request.form.get('date') 
+        user_selections = list(filter(None, request.form.getlist('game_picks')))
+        
+        # BOUNCER: Security checks
+        if len(user_selections) > 5:
+            return render_template('madness/picks.html', error="Max 5 picks allowed!", **locals())
+        if len(user_selections) != len(set(user_selections)):
+            return render_template('madness/picks.html', error="Duplicate teams selected!", **locals())
+
+        # ANTI-CHEAT: Ensure no new picks for started games
+        for pick in user_selections:
+            if pick in expired_options and pick not in saved_selections:
+                return render_template('madness/picks.html', error=f"Too late! {pick} has started.", **locals())
+
+        # Format and Save (Preserve existing results)
+        new_picks_data = []
+        for pick in user_selections:
+            existing_status = next((p.get('result', 'pending') for p in saved_picks_raw_data if p['game_info'] == pick), 'pending')
+            new_picks_data.append({"game_info": pick, "result": existing_status})
+
         with open(PICKS_FILE, 'r+') as f:
             all_picks = json.load(f)
-            
-            # Ensure the user has a dictionary entry
-            if username not in all_picks:
-                all_picks[username] = {}
-            
-            # Save the new picks specifically for the targeted date
-            # This prevents "Tomorrow" picks from overwriting "Today" picks
+            if username not in all_picks: all_picks[username] = {}
             all_picks[username][target_date] = new_picks_data
+            f.seek(0); json.dump(all_picks, f, indent=4); f.truncate()
             
-            # Move pointer to start and overwrite the file
-            f.seek(0)
-            json.dump(all_picks, f, indent=4)
-            f.truncate()
         return redirect(url_for('madness.results'))
 
     return render_template('madness/picks.html', 
@@ -168,7 +171,8 @@ def make_picks():
                            current_time_str=current_time_str,
                            slot_locks=slot_locks,
                            saved_selections=saved_selections,
-                            expired_options=expired_options,)
+                           expired_options=expired_options)
+
 @madness_bp.route('/results')
 def results():
     eastern = pytz.timezone('US/Eastern')
