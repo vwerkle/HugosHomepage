@@ -44,6 +44,7 @@
         .signup { background-color: #2ecc71; }
         .picks { background-color: #e67e22; }
         .results { background-color: #9b59b6; }
+        .spreads { background-color: #f1c40f; }
         
         .hub-btn:hover { opacity: 0.9; }
     </style>
@@ -57,6 +58,7 @@
             <a href="{{ url_for('madness.signup') }}" class="hub-btn signup">Sign Up</a>
             <a href="{{ url_for('madness.make_picks') }}" class="hub-btn picks">Make Picks</a>
             <a href="{{ url_for('madness.results') }}" class="hub-btn results">View Results</a>
+            <a href="{{ url_for('madness.all_spreads') }}" class="hub-btn spreads">View Spreads</a>
         </div>
 
         <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">

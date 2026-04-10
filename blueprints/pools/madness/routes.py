@@ -18,18 +18,25 @@ def dness_hub():
 
 @madness_bp.route('/admin/update-games', methods=['GET', 'POST'])
 def update_games():
-    # Only allow logged-in admins (optional: add your own admin check here)
+    # Get the user from the session
+    user = session.get('user')
+
+    # Check if the username is 'Hugo'
+    if user != 'hugo':
+        return "You are not permissioned to access this page.", 403
+
     if request.method == 'POST':
         # 1. Update Spreads for the future
         spreads_success = fetch_and_save_spreads()
         
         # 2. Update Results for the past
-        # Check if user provided a specific date to look back, else default to '3' days
         lookback = request.form.get('days_back', '1')
         results_count = update_all_results_logic(days_back=lookback)
+        
         message = f"Spreads Updated: {spreads_success} | Picks Graded: {results_count}"
         return render_template('madness/admin.html', message=message)
-
+    
+    # If GET request, just render the page
     return render_template('madness/admin.html')
 
 @madness_bp.route('/signup', methods=['GET', 'POST'])
@@ -178,11 +185,12 @@ def results():
     eastern = pytz.timezone('US/Eastern')
     now_est = datetime.now(eastern)
     today_raw = now_est.strftime('%Y-%m-%d')
+    
     # 1. Load Picks and Spreads
     all_picks = json.load(open(PICKS_FILE)) if os.path.exists(PICKS_FILE) else {}
     all_spreads = json.load(open(SPREADS_FILE)) if os.path.exists(SPREADS_FILE) else {}
     
-    # Use UTC time to match the API lock_times
+    # Use UTC time as a string for comparison (ensure format matches JSON)
     current_time = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     logged_in_user = session.get('user')
     
@@ -191,25 +199,20 @@ def results():
     for user_data in all_picks.values():
         all_dates.update(user_data.keys())
     
-    # Sorted oldest to newest to match your Excel sheet flow
-    sorted_dates = sorted(list(all_dates))
-
+    sorted_dates = sorted(list(all_dates), reverse=True)
     table_data = []
     
     for d in sorted_dates:
-        # 2. Build a more robust lookup for this specific date
-        # We strip() the strings to prevent hidden space issues
+        # 2. TEAM-BASED LOOKUP
+        # We map "UConn Huskies" -> "2026-03-21T02:00:00Z"
         games_on_day = all_spreads.get(d, [])
-        games_lookup = {}
+        team_lock_lookup = {}
         for g in games_on_day:
-            away_key = f"{g['away_team']} {g['away_spread']}".strip()
-            home_key = f"{g['home_team']} {g['home_spread']}".strip()
-            games_lookup[away_key] = g['lock_time']
-            games_lookup[home_key] = g['lock_time']
+            team_lock_lookup[g['away_team'].strip()] = g['lock_time']
+            team_lock_lookup[g['home_team'].strip()] = g['lock_time']
 
         day_block = {'date': d, 'slots': []}
         
-        # 3. Iterate through the 5 pick slots
         for i in range(5):
             slot_data = {}
             for user in usernames:
@@ -219,21 +222,31 @@ def results():
                     pick_str = pick_obj['game_info'].strip()
                     result_status = pick_obj.get('result', 'pending')
                     
-                    # 1. Lookup the lock time from current spreads
-                    game_lock_time = games_lookup.get(pick_str)
+                    # 3. EXTRACT TEAM NAME FROM PICK
+                    # Logic: Split "UConn Huskies -20.5" and take everything except the last part (the spread)
+                    if " " in pick_str:
+                        # rsplit handles names like "NC State" correctly by splitting at the last space
+                        pick_team = pick_str.rsplit(' ', 1)[0].strip()
+                    else:
+                        pick_team = pick_str
+
+                    # 4. LOOKUP LOCK TIME
+                    game_lock_time = team_lock_lookup.get(pick_team)
                     
-                    # 2. Determine visibility
                     is_own_pick = (user == logged_in_user)
-                    
-                    # LOGIC: Show if result is final, OR lock time passed, OR it's a past date
                     is_started = False
+
                     if result_status != 'pending':
                         is_started = True
                     elif game_lock_time:
+                        # String comparison works here IF formats are identical
                         is_started = current_time >= game_lock_time
                     elif d < today_raw: 
-                        # If date 'd' is before today, it's definitely started
                         is_started = True
+                    else:
+                        # If team isn't found in current spreads (line moved significantly or deleted)
+                        # and it's not a past date, we default to False to avoid the TypeError
+                        is_started = False
 
                     if is_own_pick or is_started:
                         display_text = pick_str
@@ -253,18 +266,19 @@ def results():
             day_block['slots'].append({'label': f"Day {d} - P{i+1}", 'users': slot_data})
         
         table_data.append(day_block)
+
+    # 5. LEADERBOARD LOGIC
     user_totals = {user: 0 for user in usernames}
     for row in table_data:
         for slot in row['slots']:
             for user, p in slot['users'].items():
                 if p.get('result') == 'win':
                     user_totals[user] += 1
-    sorted_leaderboard = sorted(user_totals.items(), key=lambda x: x[1], reverse=True)
 
-    # Re-calculate leaders (just for the crown/styling)
+    sorted_leaderboard = sorted(user_totals.items(), key=lambda x: x[1], reverse=True)
     max_score = max(user_totals.values()) if user_totals else 0
     leaders = [u for u, s in user_totals.items() if s == max_score and s > 0]
-    # Pass user_totals to the template
+
     return render_template('madness/results.html', 
                            usernames=usernames, 
                            table_data=table_data, 
@@ -272,3 +286,27 @@ def results():
                            user_totals=user_totals,
                            leaders=leaders,
                            sorted_leaderboard=sorted_leaderboard)
+
+@madness_bp.route('/all-spreads')
+def all_spreads():
+    eastern = pytz.timezone('US/Eastern')
+    now_est = datetime.now(eastern)
+    today_raw = now_est.strftime('%Y-%m-%d')
+    
+    selected_date = request.args.get('date', today_raw)
+    
+    games_list = []
+    if os.path.exists(SPREADS_FILE):
+        with open(SPREADS_FILE, 'r') as f:
+            all_data = json.load(f)
+            games_list = all_data.get(selected_date, [])
+            
+            # Sort by lock_time (chronological)
+            # 2026-03-11T16:30:13Z format sorts naturally as a string
+            games_list = sorted(games_list, key=lambda x: x.get('lock_time', ''))
+    
+    print(games_list)
+    return render_template('madness/all_spreads.html', 
+                           games=games_list, 
+                           selected_date=selected_date,
+                           today_raw=today_raw)

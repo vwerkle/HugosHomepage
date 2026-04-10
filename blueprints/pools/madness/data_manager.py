@@ -3,8 +3,22 @@ import json
 import os
 from datetime import datetime, timezone
 import pytz
-API_KEY = '069fb0f664323b83b2cdd9349e662208'
+#API_KEY = '069fb0f664323b83b2cdd9349e662208'
+API_KEY='04c4c51be76c5b78d808eee92a328cc9'
 SPREADS_FILE = 'data/madness/daily_spreads.json'
+TOURNAMENT_TEAMS = {
+    "Duke", "Arizona", "Michigan", "Florida", "Houston", "UConn", "Iowa State", 
+    "Purdue", "Michigan State", "Illinois", "Gonzaga", "Virginia", "Nebraska", 
+    "Alabama", "Kansas", "Arkansas", "Vanderbilt", "St. John's", "Texas Tech", 
+    "Wisconsin", "Tennessee", "North Carolina", "Louisville", "BYU", "Kentucky", 
+    "Saint Mary's", "Miami", "UCLA", "Clemson", "Villanova", "Ohio State", 
+    "Georgia", "Utah State", "TCU", "Saint Louis", "Iowa", "Santa Clara", "UCF", 
+    "Missouri", "Texas A&M", "NC State", "Texas", "SMU", "Miami (OH)", "VCU", 
+    "South Florida", "McNeese", "Akron", "Northern Iowa", "High Point", 
+    "California Baptist", "Hofstra", "Troy", "Hawai'i", "North Dakota State", 
+    "Penn", "Wright State", "Kennesaw State", "Tennessee State", "Idaho", 
+    "Furman", "Queens", "Siena", "LIU", "Howard", "UMBC", "Lehigh", "Prairie View A&M"
+}
 
 def fetch_and_save_spreads():
     # 1. Check if the key is still the placeholder
@@ -23,12 +37,13 @@ def fetch_and_save_spreads():
             return False
             
         data = response.json()
+        print(data)
         formatted_games = {}
         eastern = pytz.timezone('US/Eastern')
 
         for game in data:
             try:
-            # Convert UTC string to Eastern Time object
+                # Convert UTC string to Eastern Time object
                 utc_dt = datetime.strptime(game['commence_time'], '%Y-%m-%dT%H:%M:%SZ')
                 utc_dt = pytz.utc.localize(utc_dt)
 
@@ -47,6 +62,7 @@ def fetch_and_save_spreads():
                 market = bookmaker['markets'][0]
                 home_team = game['home_team']
                 away_team = game['away_team']
+                is_home_in = any(team in home_team for team in TOURNAMENT_TEAMS)
                 
                 # Safety Check: Find the spread value for the home team
                 outcomes = market.get('outcomes', [])
@@ -63,7 +79,8 @@ def fetch_and_save_spreads():
                 
                 if date_key not in formatted_games:
                     formatted_games[date_key] = []
-                formatted_games[date_key].append(game_entry)
+                if(is_home_in):
+                    formatted_games[date_key].append(game_entry)
             except (IndexError, KeyError) as e:
                 print(f"Skipping a game due to missing data: {e}")
                 continue

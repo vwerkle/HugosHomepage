@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Lines | SMTM Dness</title>
+    <style>
+        :root {
+            --primary: #e67e22;
+            --primary-grad: linear-gradient(135deg, #e67e22, #d35400);
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: #2c3e50;
+        }
+
+        .container { max-width: 700px; margin: 0 auto; }
+        
+        .header { text-align: center; margin-bottom: 30px; }
+
+        .game-card {
+            background: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--primary);
+        }
+
+        .time-box {
+            font-size: 13px;
+            color: #95a5a6;
+            font-weight: bold;
+            min-width: 80px;
+        }
+
+        .matchup {
+            flex-grow: 1;
+            padding: 0 20px;
+        }
+
+        .team-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 17px;
+        }
+
+        .team-name { font-weight: 600; }
+        .spread { 
+            color: var(--primary); 
+            font-weight: bold; 
+            background: #fff3e0;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #7f8c8d;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>Tournament Lines</h2>
+        <p>Date: {{ selected_date }}</p>
+    </div>
+
+    {% if not games %}
+        <div style="text-align: center; padding: 50px;">
+            <p>No games found for this date.</p>
+        </div>
+    {% endif %}
+
+    {% for g in games %}
+        <div class="game-card">
+            <div class="time-box">
+                {# Simple string slice to show time from ISO format #}
+                {{ g.lock_time[11:16] }} UTC
+            </div>
+            
+            <div class="matchup">
+                <div class="team-row">
+                    <span class="team-name">{{ g.away_team }}</span>
+                    <span class="spread">{{ g.away_spread }}</span>
+                </div>
+                <div class="team-row">
+                    <span class="team-name">{{ g.home_team }}</span>
+                    <span class="spread">{{ g.home_spread }}</span>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div style="text-align: center;">
+        <a href="{{ url_for('madness.dness_hub') }}" class="nav-link">&larr; Back to Hub</a>
+    </div>
+</div>
+
+</body>
+</html>

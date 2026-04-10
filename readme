@@ -1,3 +1,7 @@
+.\venv\Scripts\activate
+
+
+
 nssm status HugoSite
 nssm status CloudflareTunnel
 

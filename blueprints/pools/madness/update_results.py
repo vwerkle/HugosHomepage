@@ -4,7 +4,8 @@ import os
 import pytz
 from datetime import datetime
 # Use the same variables from your main app
-API_KEY = '069fb0f664323b83b2cdd9349e662208'
+#API_KEY = '069fb0f664323b83b2cdd9349e662208'
+API_KEY = '04c4c51be76c5b78d808eee92a328cc9'
 PICKS_FILE = 'data/madness/picks.json'
 
 
