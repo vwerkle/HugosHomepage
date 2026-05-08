@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make Picks | World Cup 2026</title>
+    <style>
+        :root { --green: #16a34a; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; margin: 0; padding: 20px; }
+        .container { max-width: 650px; margin: 0 auto; }
+
+        .page-header { text-align: center; margin-bottom: 20px; }
+        .page-header h2 { margin: 0 0 4px; color: #1a2e1a; }
+        .page-header p { margin: 0; color: #6c757d; font-size: 0.85rem; }
+
+        /* Date nav */
+        .date-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            background: white; border-radius: 14px; padding: 14px 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px;
+        }
+        .date-nav-arrow {
+            text-decoration: none; font-size: 1.3rem; color: #374151;
+            padding: 4px 10px; border-radius: 8px; transition: background 0.15s;
+        }
+        .date-nav-arrow:hover { background: #f1f5f9; }
+        .date-nav-arrow.disabled { color: #d1d5db; pointer-events: none; }
+        .date-nav-center { text-align: center; }
+        .date-display { font-size: 1.05rem; font-weight: 700; color: #1e293b; }
+        .date-progress { font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+
+        /* Game cards */
+        .game-card {
+            background: white; border-radius: 14px; padding: 16px 20px; margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #e2e8f0;
+        }
+        .game-card.knockout { border-left-color: #f59e0b; }
+        .game-card.locked { background: #f9fafb; opacity: 0.82; }
+
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .teams { font-size: 0.95rem; font-weight: 700; color: #1e293b; }
+        .teams .vs { color: #94a3b8; font-weight: 400; margin: 0 6px; }
+        .meta { font-size: 0.72rem; color: #94a3b8; text-align: right; line-height: 1.5; }
+        .knockout-badge {
+            display: inline-block; background: #fef3c7; color: #92400e;
+            font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-left: 6px;
+        }
+        .lock-icon { font-size: 0.72rem; color: #e74c3c; margin-left: 5px; }
+
+        .pick-options { display: flex; gap: 8px; }
+        .pick-option { flex: 1; }
+        .pick-option input[type="radio"] { display: none; }
+        .pick-option label {
+            display: block; text-align: center; padding: 9px 4px; border-radius: 9px;
+            border: 2px solid #e2e8f0; font-size: 0.8rem; font-weight: 600; color: #475569;
+            cursor: pointer; transition: all 0.15s; user-select: none;
+        }
+        .pick-option input:checked + label { background: var(--green); color: white; border-color: var(--green); }
+        .pick-option label:hover { border-color: var(--green); color: var(--green); }
+        .locked-pick .pick-option label { cursor: default; }
+        .locked-pick .pick-option label:hover { border-color: #e2e8f0; color: #475569; }
+        .locked-pick .pick-option input:checked + label { background: #64748b; border-color: #64748b; }
+
+        .result-badge {
+            display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+            border-radius: 10px; margin-top: 8px;
+        }
+        .result-badge.home_win { background: #dbeafe; color: #1d4ed8; }
+        .result-badge.away_win { background: #fee2e2; color: #991b1b; }
+        .result-badge.draw     { background: #f3f4f6; color: #374151; }
+
+        .save-btn {
+            width: 100%; padding: 15px; background: var(--green); color: white; border: none;
+            border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 18px;
+            box-shadow: 0 4px 14px rgba(22,163,74,0.3); transition: transform 0.15s;
+        }
+        .save-btn:active { transform: scale(0.98); }
+
+        .empty-msg { text-align: center; color: #94a3b8; padding: 50px 0; font-size: 0.95rem; }
+        .nav-back { display: block; text-align: center; margin-top: 24px; color: #94a3b8; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+<nav style="background:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <a href="/" style="font-weight:800;font-size:1.2rem;text-decoration:none;color:#0f172a;">HUGO</a>
+    <div>
+        <a href="/worldcup/results" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Leaderboard</a>
+        <a href="/worldcup/logout" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Log Out ({{ username }})</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h2>⚽ World Cup 2026</h2>
+        <p>Group stage = 1 pt &bull; Knockout = 2 pts &bull; Picks lock at kickoff</p>
+    </div>
+
+    {% if not all_dates %}
+        <div class="empty-msg">No games have been added yet. Check back soon!</div>
+    {% else %}
+
+    <!-- Date navigation -->
+    <div class="date-nav">
+        <a href="{{ url_for('worldcup.picks', date=prev_date) if prev_date else '#' }}"
+           class="date-nav-arrow {% if not prev_date %}disabled{% endif %}">&#8592;</a>
+        <div class="date-nav-center">
+            <div class="date-display">{{ selected_date }}</div>
+            <div class="date-progress">
+                Day {{ all_dates.index(selected_date) + 1 }} of {{ all_dates|length }}
+            </div>
+        </div>
+        <a href="{{ url_for('worldcup.picks', date=next_date) if next_date else '#' }}"
+           class="date-nav-arrow {% if not next_date %}disabled{% endif %}">&#8594;</a>
+    </div>
+
+    {% if not games_today %}
+        <div class="empty-msg">No pickable games on this date.</div>
+    {% else %}
+    <form method="POST" action="{{ url_for('worldcup.picks', date=selected_date) }}">
+        {% for game in games_today %}
+        <div class="game-card {% if game.stage != 'group' %}knockout{% endif %} {% if game.locked %}locked{% endif %}">
+            <div class="game-header">
+                <div class="teams">
+                    {{ game.away_team }}
+                    <span class="vs">vs</span>
+                    {{ game.home_team }}
+                    {% if game.stage != 'group' %}
+                        <span class="knockout-badge">{{ game.stage_label }} &times;2</span>
+                    {% endif %}
+                    {% if game.locked %}<span class="lock-icon">🔒</span>{% endif %}
+                </div>
+                <div class="meta">
+                    {{ game.kickoff_time[11:16] }} UTC
+                    {% if game.group %}<br>{{ game.group }}{% endif %}
+                </div>
+            </div>
+
+            {% set cur = user_picks.get(game.id, '') %}
+            <div class="pick-options {% if game.locked %}locked-pick{% endif %}">
+                <div class="pick-option">
+                    <input type="radio" name="pick_{{ game.id }}" id="away_{{ game.id }}" value="away_win"
+                        {% if cur == 'away_win' %}checked{% endif %}
+                        {% if game.locked %}disabled{% endif %}>
+                    <label for="away_{{ game.id }}">{{ game.away_team }} Win</label>
+                </div>
+                <div class="pick-option">
+                    <input type="radio" name="pick_{{ game.id }}" id="draw_{{ game.id }}" value="draw"
+                        {% if cur == 'draw' %}checked{% endif %}
+                        {% if game.locked %}disabled{% endif %}>
+                    <label for="draw_{{ game.id }}">Draw</label>
+                </div>
+                <div class="pick-option">
+                    <input type="radio" name="pick_{{ game.id }}" id="home_{{ game.id }}" value="home_win"
+                        {% if cur == 'home_win' %}checked{% endif %}
+                        {% if game.locked %}disabled{% endif %}>
+                    <label for="home_{{ game.id }}">{{ game.home_team }} Win</label>
+                </div>
+            </div>
+
+            {% if game.result != 'pending' %}
+            <div>
+                <span class="result-badge {{ game.result }}">
+                    Result:
+                    {% if game.result == 'home_win' %}{{ game.home_team }} Win
+                    {% elif game.result == 'away_win' %}{{ game.away_team }} Win
+                    {% else %}Draw{% endif %}
+                </span>
+            </div>
+            {% endif %}
+
+            {% if game.locked %}
+                <input type="hidden" name="pick_{{ game.id }}" value="{{ cur }}">
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="save-btn">Save Picks for {{ selected_date }}</button>
+    </form>
+    {% endif %}
+
+    {% endif %}
+
+    <a href="{{ url_for('worldcup.hub') }}" class="nav-back">&larr; Back to Hub</a>
+</div>
+</body>
+</html>

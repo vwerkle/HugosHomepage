@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Cup 2026</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; margin: 0; }
+        .page-center { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 64px); padding: 20px; }
+        .hub-container { text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 340px; }
+        .trophy { font-size: 3rem; margin-bottom: 10px; }
+        h2 { color: #1a2e1a; margin: 0 0 5px; }
+        .subtitle { color: #6c757d; font-size: 0.9rem; margin-bottom: 30px; }
+        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+        .hub-btn {
+            padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: bold;
+            text-decoration: none; color: white; transition: opacity 0.2s, transform 0.2s; display: block;
+        }
+        .hub-btn:active { transform: scale(0.97); }
+        .hub-btn:hover { opacity: 0.88; }
+        .btn-login    { background: #2563eb; }
+        .btn-signup   { background: #16a34a; }
+        .btn-picks    { background: #d97706; }
+        .btn-results  { background: #7c3aed; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 25px 0; }
+        .footer-links { margin-top: 10px; }
+        .footer-links a { color: #bdc3c7; text-decoration: none; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+<nav style="background:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);font-family:'Inter',sans-serif;">
+    <a href="/" style="font-weight:800;font-size:1.2rem;text-decoration:none;color:#0f172a;">HUGO</a>
+    <div>
+        <a href="/recipes3" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Recipes</a>
+        <a href="/restaurants" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Restaurants</a>
+        <a href="/pools" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Pools</a>
+    </div>
+</nav>
+<div class="page-center">
+    <div class="hub-container">
+        <div class="trophy">⚽</div>
+        <h2>World Cup 2026</h2>
+        <p class="subtitle">Pick every match. Group stage = 1 pt. Knockout = 2 pts.</p>
+
+        <div class="btn-group">
+            {% if username %}
+                <div style="font-size:0.8rem;color:#6c757d;margin-bottom:4px;">Logged in as <strong>{{ username }}</strong> &mdash; <a href="{{ url_for('worldcup.logout') }}" style="color:#dc2626;text-decoration:none;">Log Out</a></div>
+            {% else %}
+                <a href="{{ url_for('worldcup.login') }}" class="hub-btn btn-login">Log In</a>
+                <a href="{{ url_for('worldcup.signup') }}" class="hub-btn btn-signup">Sign Up</a>
+            {% endif %}
+            <a href="{{ url_for('worldcup.picks') }}" class="hub-btn btn-picks">Make Picks</a>
+            <a href="{{ url_for('worldcup.results') }}" class="hub-btn btn-results">Leaderboard</a>
+            {% if username == 'hugo' %}
+                <a href="{{ url_for('worldcup.admin') }}" class="hub-btn" style="background:#6b7280;">Admin</a>
+            {% endif %}
+        </div>
+
+        <div class="footer-links">
+            <br>
+            <a href="{{ url_for('pools') }}">&larr; Back to Pools</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

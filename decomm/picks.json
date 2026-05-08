@@ -1,0 +1,26 @@
+{
+    "Hugo": {
+        "2026-03-03": [
+            {
+                "game_info": "Grand Canyon Antelopes -20.0",
+                "result": "pending"
+            },
+            {
+                "game_info": "Kansas Jayhawks -5.5",
+                "result": "loss"
+            },
+            {
+                "game_info": "BYU Cougars +1.5",
+                "result": "loss"
+            },
+            {
+                "game_info": "Auburn Tigers -8.5",
+                "result": "pending"
+            },
+            {
+                "game_info": "Nebraska Cornhuskers -1.0",
+                "result": "pending"
+            }
+        ]
+    }
+}

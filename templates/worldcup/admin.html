@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | World Cup 2026</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; margin: 0; padding: 20px; }
+        .container { max-width: 960px; margin: 0 auto; }
+        h2 { color: #1a2e1a; }
+        .card { background: white; border-radius: 14px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .card h3 { margin-top: 0; color: #374151; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 16px; }
+        .form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+        .form-group { display: flex; flex-direction: column; flex: 1; min-width: 200px; }
+        label { font-size: 0.78rem; font-weight: 600; color: #6b7280; margin-bottom: 5px; }
+        input[type="text"], input[type="password"], select {
+            padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem;
+        }
+        input:focus, select:focus { outline: none; border-color: #16a34a; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: white; white-space: nowrap; }
+        .btn-sync   { background: #16a34a; font-size: 1rem; padding: 12px 28px; }
+        .btn-save   { background: #2563eb; }
+        .btn-result { background: #2563eb; padding: 5px 12px; font-size: 0.78rem; }
+        .btn-delete { background: #dc2626; padding: 5px 12px; font-size: 0.78rem; }
+
+        .msg { padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-weight: 600; font-size: 0.9rem; }
+        .msg.success { background: #dcfce7; color: #15803d; }
+        .msg.error   { background: #fee2e2; color: #991b1b; }
+
+        .api-hint { font-size: 0.78rem; color: #6b7280; margin-top: 6px; }
+        .api-hint a { color: #2563eb; }
+
+        /* Sync banner */
+        .sync-banner { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .sync-info { font-size: 0.85rem; color: #6b7280; }
+
+        /* Games table */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        th { background: #1e3a1e; color: white; padding: 10px 12px; text-align: left; }
+        td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        tr:hover td { background: #f9fafb; }
+        .result-form { display: flex; gap: 8px; align-items: center; }
+        .result-form select { padding: 5px 8px; font-size: 0.8rem; }
+        .pending-badge { color: #94a3b8; font-style: italic; }
+        .home_win { color: #1d4ed8; font-weight: 600; }
+        .away_win { color: #991b1b; font-weight: 600; }
+        .draw { color: #374151; font-weight: 600; }
+        .knockout-tag { display: inline-block; background: #fef3c7; color: #92400e; font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 8px; }
+        .count-badge { background: #e0f2fe; color: #0369a1; font-size: 0.75rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; }
+    </style>
+</head>
+<body>
+<nav style="background:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <a href="/" style="font-weight:800;font-size:1.2rem;text-decoration:none;color:#0f172a;">HUGO</a>
+    <div>
+        <a href="/worldcup" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Hub</a>
+        <a href="/worldcup/results" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Leaderboard</a>
+        <a href="/pools" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Pools</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>⚽ World Cup 2026 — Admin</h2>
+
+    {% if message %}
+    <div class="msg {{ message_type }}">{{ message }}</div>
+    {% endif %}
+
+    <!-- Sync -->
+    <div class="card">
+        <h3>Sync Games &amp; Results from API</h3>
+        <div class="sync-banner">
+            <form method="POST">
+                <input type="hidden" name="action" value="sync">
+                <button type="submit" class="btn btn-sync">🔄 Sync Now</button>
+            </form>
+            <div class="sync-info">
+                Pulls all World Cup 2026 fixtures and results from <strong>football-data.org</strong>.<br>
+                New games are added; existing games have their results updated. Safe to run repeatedly.
+            </div>
+        </div>
+    </div>
+
+    <!-- API Key -->
+    <div class="card">
+        <h3>API Key (football-data.org)</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="save_api_key">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="text" name="api_key" value="{{ api_key }}" placeholder="Paste your key here">
+                </div>
+                <button type="submit" class="btn btn-save">Save Key</button>
+            </div>
+        </form>
+        <p class="api-hint">
+            Free key at <a href="https://www.football-data.org/client/register" target="_blank">football-data.org/client/register</a>.
+            The free tier covers international competitions including the World Cup (10 req/min, plenty for syncing).
+        </p>
+    </div>
+
+    <!-- Games list -->
+    <div class="card">
+        <h3>All Games <span class="count-badge">{{ games|length }}</span></h3>
+        {% if not games %}
+        <p style="color:#94a3b8;">No games yet — hit Sync to pull them in.</p>
+        {% else %}
+        <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Kickoff (UTC)</th>
+                    <th>Match</th>
+                    <th>Stage / Group</th>
+                    <th>Current Result</th>
+                    <th>Override Result</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game_id, game in games %}
+                <tr>
+                    <td style="white-space:nowrap">{{ game.kickoff_time[:16].replace('T', ' ') }}</td>
+                    <td>
+                        <strong>{{ game.away_team }}</strong>
+                        <span style="color:#94a3b8;margin:0 4px;">vs</span>
+                        <strong>{{ game.home_team }}</strong>
+                    </td>
+                    <td>
+                        {{ stage_labels.get(game.stage, game.stage) }}
+                        {% if game.stage != 'group' %}<span class="knockout-tag">&times;2</span>{% endif %}
+                        {% if game.group %}<br><small style="color:#94a3b8;">{{ game.group }}</small>{% endif %}
+                    </td>
+                    <td class="{{ game.result }}">
+                        {% if game.result == 'pending' %}<span class="pending-badge">Pending</span>
+                        {% elif game.result == 'home_win' %}{{ game.home_team }} Win
+                        {% elif game.result == 'away_win' %}{{ game.away_team }} Win
+                        {% else %}Draw{% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" class="result-form">
+                            <input type="hidden" name="action" value="update_result">
+                            <input type="hidden" name="game_id" value="{{ game_id }}">
+                            <select name="result">
+                                <option value="pending"  {% if game.result == 'pending'  %}selected{% endif %}>Pending</option>
+                                <option value="home_win" {% if game.result == 'home_win' %}selected{% endif %}>{{ game.home_team }} Win</option>
+                                <option value="away_win" {% if game.result == 'away_win' %}selected{% endif %}>{{ game.away_team }} Win</option>
+                                <option value="draw"     {% if game.result == 'draw'     %}selected{% endif %}>Draw</option>
+                            </select>
+                            <button type="submit" class="btn btn-result">Save</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" onsubmit="return confirm('Delete this game?')">
+                            <input type="hidden" name="action" value="delete_game">
+                            <input type="hidden" name="game_id" value="{{ game_id }}">
+                            <button type="submit" class="btn btn-delete">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

@@ -1,28 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
 <div class="container py-4">
     <div class="header-section mb-4 px-2">
         <h2 class="fw-800 m-0">My Pools</h2>
         <p class="text-secondary small">2026 Season</p>
     </div>
 
-    <!-- <div class="row g-3 px-2">
+    <div class="row g-3 px-2">
         <div class="col-6">
-            <a href="/moonshot1" class="app-card-link">
-                <div class="app-card gradient-blue">
-                    <div class="icon-box">🚀</div>
-                    <span class="app-name">Moonshot 1</span>
+            <a href="{{ url_for('worldcup.hub') }}" class="app-card-link">
+                <div class="app-card gradient-green glow">
+                    <div class="icon-box">⚽</div>
+                    <span class="app-name">World Cup 2026</span>
+                    <div class="new-tag">NEW</div>
                 </div>
             </a>
         </div>
-        
-        <div class="col-6">
-            <a href="/moonshot2" class="app-card-link">
-                <div class="app-card gradient-purple">
-                    <div class="icon-box">🔭</div>
-                    <span class="app-name">Moonshot 2</span>
-                </div>
-            </a>
-        </div> -->
 
+        <!-- Inactive pools — hidden until next season
         <div class="col-6">
             <a href="{{ url_for('madness.dness_hub') }}" class="app-card-link">
                 <div class="app-card gradient-orange">
@@ -31,29 +26,23 @@
                 </div>
             </a>
         </div>
-
         <div class="col-6">
             <a href="{{ url_for('random_pool.random_pool_viewer') }}" class="app-card-link">
-                <div class="app-card gradient-green glow">
+                <div class="app-card gradient-purple">
                     <div class="icon-box">🎲</div>
                     <span class="app-name">Random</span>
-                    <div class="new-tag">NEW</div>
                 </div>
             </a>
         </div>
+        -->
     </div>
 
     <div class="mt-5 px-2">
         <h6 class="text-uppercase text-muted fw-bold small mb-3">Management</h6>
         <div class="admin-shelf p-3">
-             <a href="{{ url_for('madness.update_games') }}" class="admin-item">
+            <a href="{{ url_for('worldcup.admin') }}" class="admin-item">
                 <div class="admin-icon"><i class="bi bi-sliders"></i></div>
-                <span>SMTM Admin</span>
-            </a>
-            <div class="divider-v"></div>
-             <a href="{{ url_for('random_pool.admin_random_pool') }}" class="admin-item">
-                <div class="admin-icon"><i class="bi bi-cpu"></i></div>
-                <span>Random Pool Admin</span>
+                <span>World Cup Admin</span>
             </a>
         </div>
     </div>
@@ -66,8 +55,7 @@
 <style>
     body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
     .fw-800 { font-weight: 800; letter-spacing: -0.5px; }
-    
-    /* App Card Styling */
+
     .app-card {
         height: 140px;
         border-radius: 24px;
@@ -83,23 +71,20 @@
     }
     .app-card:active { transform: scale(0.92); }
     .app-card-link { text-decoration: none; }
-    
+
     .icon-box { font-size: 2rem; margin-bottom: 8px; }
     .app-name { font-weight: 700; font-size: 0.95rem; }
-    
-    /* Gradients */
-    .gradient-blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-    .gradient-purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
     .gradient-orange { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #633; }
     .gradient-green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-    
+    .gradient-purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
     .glow { box-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
-    .new-tag { 
+    .new-tag {
         position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9);
         color: #11998e; font-size: 0.6rem; font-weight: 900; padding: 2px 8px; border-radius: 10px;
     }
 
-    /* Admin Shelf Styling */
     .admin-shelf {
         background: white;
         border-radius: 20px;
@@ -119,5 +104,5 @@
         font-weight: 600;
     }
     .admin-icon { font-size: 1.2rem; color: #007bff; }
-    .divider-v { width: 1px; height: 30px; background: #eee; }
 </style>
+{% endblock %}

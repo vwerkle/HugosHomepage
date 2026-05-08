@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:      #f7f5f0;
+            --surface: #ffffff;
+            --text:    #1a1614;
+            --muted:   #7c756e;
+            --accent:  #a0341e;
+            --border:  #e2ddd7;
+            --radius:  14px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        nav { background: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .nav-logo { font-weight: 800; font-size: 1.2rem; text-decoration: none; color: var(--text); }
+        .nav-links a { text-decoration: none; color: var(--text); margin-left: 15px; font-size: 0.95rem; }
+        .nav-links a:hover { color: var(--accent); }
+
+        .page-header { text-align: center; padding: 56px 20px 36px; }
+        .page-header h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(4rem, 12vw, 9rem); font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
+        .page-header .tagline { margin-top: 10px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+        .header-rule { display: flex; align-items: center; gap: 14px; max-width: 280px; margin: 18px auto 0; }
+        .header-rule span { flex: 1; height: 1px; background: var(--border); }
+        .header-rule em { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--muted); font-size: 1.1rem; }
+
+        /* ── Controls ── */
+        .controls {
+            position: sticky; top: 0; z-index: 200;
+            background: rgba(247,245,240,0.93);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+        }
+        .controls-inner { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+
+        .search-wrap { position: relative; }
+        .search-wrap svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+        #search {
+            width: 100%; padding: 10px 16px 10px 40px; border-radius: 50px;
+            border: 1.5px solid var(--border); background: white;
+            font-size: 0.9rem; font-family: 'Inter', sans-serif; color: var(--text);
+            outline: none; transition: border-color 0.2s;
+        }
+        #search:focus { border-color: var(--accent); }
+        #search::placeholder { color: var(--muted); }
+
+        .filter-row { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+        .filter-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-right: 2px; white-space: nowrap; }
+        .filter-sep { color: var(--border); font-size: 1.1rem; line-height: 1; margin: 0 2px; user-select: none; }
+
+        .pill {
+            padding: 5px 14px; border-radius: 50px; border: 1.5px solid var(--border);
+            background: white; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            transition: all 0.18s; white-space: nowrap; color: var(--muted);
+            font-family: 'Inter', sans-serif; line-height: 1.4;
+        }
+        .pill:hover { border-color: var(--text); color: var(--text); }
+        .pill.active { background: var(--text); border-color: var(--text); color: white; }
+        .pill.cat-active { background: var(--accent); border-color: var(--accent); color: white; }
+
+        .star-pill { background: #fff8e1; border-color: #e8c848; color: #7a5800; }
+        .star-pill:hover { background: #fef3c7; border-color: #d4a800; }
+        .star-pill.active { background: #f0c040; border-color: #d4a800; color: #1a1614; }
+
+        /* meat pills get a subtle warm tint when active */
+        .meat-pill.active { background: #7d2a10; border-color: #7d2a10; color: white; }
+        /* occasion pills get a cool tint when active */
+        .occasion-pill.active { background: #1e4d6b; border-color: #1e4d6b; color: white; }
+
+        /* subcategory row: slides in when category selected */
+        .sub-row { overflow: hidden; max-height: 0; transition: max-height 0.3s ease, opacity 0.3s; opacity: 0; }
+        .sub-row.visible { max-height: 100px; opacity: 1; }
+
+        /* ── Meta bar ── */
+        .meta-bar { max-width: 1240px; margin: 14px auto 0; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .result-count { font-size: 0.8rem; color: var(--muted); }
+        .surprise-btn { font-size: 0.78rem; font-weight: 600; color: var(--accent); background: none; border: 1.5px solid var(--accent); border-radius: 50px; padding: 4px 12px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.18s; }
+        .surprise-btn:hover { background: var(--accent); color: white; }
+
+        /* ── Grid ── */
+        .grid { max-width: 1240px; margin: 20px auto 0; padding: 0 20px 80px; columns: 3 260px; column-gap: 18px; }
+
+        /* ── Card ── */
+        .recipe-card { break-inside: avoid; margin-bottom: 18px; background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 14px rgba(0,0,0,0.07); cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease; will-change: transform; }
+        .recipe-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.14); }
+        .recipe-card.hidden { display: none; }
+        .card-img-wrap { width: 100%; background: #ede9e3; overflow: hidden; }
+        .card-img-wrap img { width: 100%; height: auto; display: block; transition: transform 0.45s ease; }
+        .recipe-card:hover .card-img-wrap img { transform: scale(1.04); }
+        .card-body { padding: 15px 18px 18px; }
+        .card-crumb { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+        .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 700; line-height: 1.25; margin-bottom: 7px; }
+        .card-caption { font-size: 0.8rem; color: var(--muted); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-notes-full { display: none; }
+
+        /* ── Empty state ── */
+        .empty-state { max-width: 1240px; margin: 60px auto; padding: 0 20px; text-align: center; display: none; }
+        .empty-state p { color: var(--muted); }
+
+        /* ── Lightbox ── */
+        .lb-overlay { position: fixed; inset: 0; background: rgba(15,12,10,0.82); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.28s; }
+        .lb-overlay.open { opacity: 1; pointer-events: all; }
+        .lb-card { background: white; border-radius: 18px; overflow: hidden; max-width: 940px; width: 100%; max-height: 88vh; display: flex; overflow-y: auto; transform: scale(0.94) translateY(10px); transition: transform 0.28s ease; }
+        .lb-overlay.open .lb-card { transform: scale(1) translateY(0); }
+        .lb-img-col { flex: 1 1 55%; min-width: 0; background: #ede9e3; display: flex; align-items: center; }
+        .lb-img-col img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .lb-info-col { flex: 0 0 320px; padding: 44px 38px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+        .lb-crumb { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+        .lb-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; line-height: 1.15; margin-bottom: 18px; }
+        .lb-rule { width: 40px; height: 2px; background: var(--accent); margin-bottom: 18px; border-radius: 2px; }
+        .lb-notes { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+        .lb-close { position: fixed; top: 18px; right: 20px; width: 38px; height: 38px; background: white; border: none; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.25); z-index: 1001; transition: background 0.15s; color: var(--text); }
+        .lb-close:hover { background: var(--accent); color: white; }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .page-header { padding: 36px 16px 24px; }
+            .grid { columns: 1; padding: 0 14px 80px; }
+            .meta-bar { padding: 0 14px; }
+            .controls { padding: 10px 14px; }
+            .filter-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+            .filter-row::-webkit-scrollbar { display: none; }
+            .lb-card { flex-direction: column; max-height: 92vh; }
+            .lb-img-col { flex: 0 0 auto; min-height: 220px; max-height: 42vh; }
+            .lb-img-col img { object-fit: contain; }
+            .lb-info-col { flex: none; padding: 24px 22px 28px; }
+            .lb-title { font-size: 1.5rem; }
+        }
+        @media (min-width: 641px) and (max-width: 960px) { .grid { columns: 2; } }
+
+        @keyframes cardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .recipe-card { animation: cardIn 0.38s ease both; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="nav-logo">HUGO</a>
+    <div class="nav-links">
+        <a href="/recipes3">Recipes</a>
+        <a href="/restaurants">Restaurants</a>
+        <a href="/pools">Pools</a>
+    </div>
+</nav>
+
+<div class="page-header">
+    <h1>Recipes</h1>
+    <p class="tagline">Hugo's Kitchen</p>
+    <div class="header-rule"><span></span><em>&amp;</em><span></span></div>
+</div>
+
+<div class="controls">
+    <div class="controls-inner">
+
+        <div class="search-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search" placeholder="Search recipes…" autocomplete="off">
+        </div>
+
+        <!-- Row 1: categories + star -->
+        <div class="filter-row" id="cat-row">
+            <span class="filter-label">Filter</span>
+            <button class="pill active" data-cat="all">All</button>
+            {% for cat in cats %}
+            <button class="pill cat-pill" data-cat="{{ cat }}">{{ cat }}</button>
+            {% endfor %}
+            <span class="filter-sep">·</span>
+            <button class="pill star-pill" id="star-btn">★ Best</button>
+        </div>
+
+        <!-- Row 2: subcategories (slides in when category is selected) -->
+        {% for cat, subcats in cats.items() %}
+        <div class="filter-row sub-row" data-parent="{{ cat }}">
+            <span class="filter-label">{{ cat }}</span>
+            {% for sub in subcats %}
+            <button class="pill sub-pill" data-sub="{{ sub }}" data-parent="{{ cat }}">{{ sub }}</button>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <!-- Row 3: protein types (always visible) -->
+        <div class="filter-row">
+            <span class="filter-label">Protein</span>
+            <button class="pill meat-pill" data-tag="beef">Beef</button>
+            <button class="pill meat-pill" data-tag="lamb">Lamb</button>
+            <button class="pill meat-pill" data-tag="pork">Pork</button>
+            <button class="pill meat-pill" data-tag="poultry">Poultry</button>
+            <button class="pill meat-pill" data-tag="venison">Venison</button>
+            <button class="pill meat-pill" data-tag="fish">Fish</button>
+            <button class="pill meat-pill" data-tag="raw seafood">Raw Seafood</button>
+            <button class="pill meat-pill" data-tag="shellfish">Shellfish</button>
+            <button class="pill meat-pill" data-tag="vegetarian">Vegetarian</button>
+        </div>
+
+        <!-- Row 4: occasion (always visible) -->
+        <div class="filter-row">
+            <span class="filter-label">Occasion</span>
+            <button class="pill occasion-pill" data-tag="fancy">Fancy</button>
+            <button class="pill occasion-pill" data-tag="weeknight">Weeknight</button>
+            <button class="pill occasion-pill" data-tag="summer">Summer</button>
+            <button class="pill occasion-pill" data-tag="winter">Winter</button>
+        </div>
+
+    </div>
+</div>
+
+<div class="meta-bar">
+    <span class="result-count" id="result-count"></span>
+    <button class="surprise-btn" onclick="surpriseMe()">&#10024; Surprise me</button>
+</div>
+
+<div class="grid" id="grid">
+    {% for recipe in recipes %}
+    <div class="recipe-card"
+         data-cat="{{ recipe.category }}"
+         data-sub="{{ recipe.subcategory }}"
+         data-tier="{{ recipe.tier }}"
+         data-tags="{{ recipe.tags | join(',') }}"
+         data-title="{{ recipe.title | lower }}"
+         onclick="openLb(this)">
+        <div class="card-img-wrap">
+            <img src="{{ url_for('static', filename=recipe.image) }}" alt="{{ recipe.title }}" loading="lazy">
+        </div>
+        <div class="card-body">
+            <div class="card-crumb">{{ recipe.category }} &middot; {{ recipe.subcategory }}</div>
+            <div class="card-title">{{ recipe.title }}</div>
+            <div class="card-caption">{{ recipe.notes | striptags }}</div>
+        </div>
+        <div class="card-notes-full">{{ recipe.notes | safe }}</div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="empty-state" id="empty"><p>No recipes match.</p></div>
+
+<div class="lb-overlay" id="lb-overlay" onclick="closeLbOnBg(event)">
+    <button class="lb-close" onclick="closeLb()">&#10005;</button>
+    <div class="lb-card">
+        <div class="lb-img-col"><img id="lb-img" src="" alt=""></div>
+        <div class="lb-info-col">
+            <div class="lb-crumb" id="lb-crumb"></div>
+            <div class="lb-title" id="lb-title"></div>
+            <div class="lb-rule"></div>
+            <div class="lb-notes" id="lb-notes"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const cards   = Array.from(document.querySelectorAll('.recipe-card'));
+const countEl = document.getElementById('result-count');
+const emptyEl = document.getElementById('empty');
+const subRows = document.querySelectorAll('.sub-row');
+
+let activeCat        = 'all';
+let activeSub        = null;
+let activeMeatTags   = new Set();   // OR within row
+let activeOccasion   = new Set();   // OR within row
+let tierOneOnly      = false;
+let query            = '';
+
+function applyFilters() {
+    let n = 0;
+    cards.forEach(c => {
+        const cardTags = c.dataset.tags ? c.dataset.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+        const catOk    = activeCat === 'all' || c.dataset.cat === activeCat;
+        const subOk    = !activeSub || c.dataset.sub === activeSub;
+        const tierOk   = !tierOneOnly || c.dataset.tier === '1';
+        const meatOk   = activeMeatTags.size === 0 || [...activeMeatTags].some(t => cardTags.includes(t));
+        const ocsnOk   = activeOccasion.size === 0  || [...activeOccasion].some(t => cardTags.includes(t));
+        const qOk      = !query || c.dataset.title.includes(query) ||
+                         c.querySelector('.card-notes-full').textContent.toLowerCase().includes(query);
+        const show     = catOk && subOk && tierOk && meatOk && ocsnOk && qOk;
+        c.classList.toggle('hidden', !show);
+        if (show) n++;
+    });
+    countEl.textContent = n === 0 ? '' : `${n} recipe${n !== 1 ? 's' : ''}`;
+    emptyEl.style.display = n === 0 ? 'block' : 'none';
+}
+
+// Category pills
+document.querySelectorAll('#cat-row .pill:not(.star-pill)').forEach(pill => {
+    pill.addEventListener('click', () => {
+        document.querySelectorAll('#cat-row .pill:not(.star-pill)').forEach(p => p.classList.remove('active', 'cat-active'));
+        pill.classList.add(pill.dataset.cat === 'all' ? 'active' : 'cat-active');
+        activeCat = pill.dataset.cat;
+        activeSub = null;
+        document.querySelectorAll('.sub-pill').forEach(p => p.classList.remove('active'));
+        subRows.forEach(row => row.classList.toggle('visible', activeCat !== 'all' && row.dataset.parent === activeCat));
+        applyFilters();
+    });
+});
+
+// Star
+document.getElementById('star-btn').addEventListener('click', () => {
+    tierOneOnly = !tierOneOnly;
+    document.getElementById('star-btn').classList.toggle('active', tierOneOnly);
+    applyFilters();
+});
+
+// Subcategory pills
+document.querySelectorAll('.sub-pill').forEach(pill => {
+    pill.addEventListener('click', e => {
+        e.stopPropagation();
+        const wasActive = pill.classList.contains('active');
+        document.querySelectorAll('.sub-pill').forEach(p => p.classList.remove('active'));
+        activeSub = wasActive ? null : pill.dataset.sub;
+        if (!wasActive) pill.classList.add('active');
+        applyFilters();
+    });
+});
+
+// Meat pills (OR within group, AND with occasion)
+document.querySelectorAll('.meat-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+        const tag = pill.dataset.tag;
+        if (activeMeatTags.has(tag)) { activeMeatTags.delete(tag); pill.classList.remove('active'); }
+        else { activeMeatTags.add(tag); pill.classList.add('active'); }
+        applyFilters();
+    });
+});
+
+// Occasion pills (OR within group, AND with meat)
+document.querySelectorAll('.occasion-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+        const tag = pill.dataset.tag;
+        if (activeOccasion.has(tag)) { activeOccasion.delete(tag); pill.classList.remove('active'); }
+        else { activeOccasion.add(tag); pill.classList.add('active'); }
+        applyFilters();
+    });
+});
+
+// Search
+document.getElementById('search').addEventListener('input', e => {
+    query = e.target.value.toLowerCase().trim();
+    applyFilters();
+});
+
+// Lightbox
+function openLb(card) {
+    const img   = card.querySelector('img');
+    const crumb = card.querySelector('.card-crumb').textContent;
+    const title = card.querySelector('.card-title').textContent;
+    const notes = card.querySelector('.card-notes-full').innerHTML;
+    document.getElementById('lb-img').src           = img.src;
+    document.getElementById('lb-img').alt           = title;
+    document.getElementById('lb-crumb').textContent = crumb;
+    document.getElementById('lb-title').textContent = title;
+    document.getElementById('lb-notes').innerHTML   = notes;
+    document.getElementById('lb-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeLb() { document.getElementById('lb-overlay').classList.remove('open'); document.body.style.overflow = ''; }
+function closeLbOnBg(e) { if (e.target === document.getElementById('lb-overlay')) closeLb(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+
+function surpriseMe() {
+    const visible = cards.filter(c => !c.classList.contains('hidden'));
+    if (!visible.length) return;
+    openLb(visible[Math.floor(Math.random() * visible.length)]);
+}
+
+cards.forEach((c, i) => { c.style.animationDelay = Math.min(i * 0.035, 0.7) + 's'; });
+applyFilters();
+</script>
+</body>
+</html>

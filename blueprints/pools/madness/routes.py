@@ -62,6 +62,9 @@ def login():
             users = json.load(f)
         if name in users and users[name]['password'] == pw:
             session['user'] = name
+            next_url = request.args.get('next', '')
+            if next_url and next_url.startswith('/'):
+                return redirect(next_url)
             return redirect(url_for('madness.make_picks'))
         error = "Invalid username or password."
     return render_template('madness/login.html', error=error)

@@ -13,11 +13,13 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
+            margin: 0;
+        }
+        .page-center {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
+            min-height: calc(100vh - 64px);
         }
 
         .signup-container {
@@ -104,7 +106,15 @@
     </style>
 </head>
 <body>
-
+<nav style="background:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);font-family:'Inter',sans-serif;">
+    <a href="/" style="font-weight:800;font-size:1.2rem;text-decoration:none;color:#0f172a;">HUGO</a>
+    <div>
+        <a href="/recipes3" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Recipes</a>
+        <a href="/restaurants" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Restaurants</a>
+        <a href="/pools" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Pools</a>
+    </div>
+</nav>
+<div class="page-center">
 <div class="signup-container">
     <h2>Join the Bracket Challenge</h2>
     <p class="subtitle">Enter your details to start making picks</p>
@@ -131,6 +141,7 @@
     <div class="login-link">
         Already have an account? <a href="{{ url_for('madness.login') }}">Log In</a>
     </div>
+</div>
 </div>
 
 </body>

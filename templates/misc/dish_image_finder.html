@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    h1 { margin-bottom: 6px; }
+    .subtitle { color: #64748b; margin-top: 0; margin-bottom: 30px; }
+
+    .finder-form {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        max-width: 600px;
+        margin-bottom: 30px;
+    }
+    .finder-form label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: -6px;
+    }
+    .finder-form select,
+    .finder-form input[type="text"] {
+        padding: 10px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-family: inherit;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .finder-form select:focus,
+    .finder-form input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+    #search-btn {
+        padding: 12px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+    }
+    #search-btn:hover { background: #1d4ed8; }
+    #search-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    .location-row { display: flex; align-items: center; gap: 12px; }
+    #use-location-btn {
+        white-space: nowrap;
+        padding: 8px 14px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-family: inherit;
+    }
+    #use-location-btn:hover { border-color: var(--primary); }
+    #location-status { font-size: 0.85rem; color: #64748b; }
+
+    #loading {
+        text-align: center;
+        padding: 40px;
+        font-size: 1.1rem;
+        color: #64748b;
+    }
+
+    #results-title { margin-bottom: 16px; }
+    .results-section-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: #94a3b8;
+        letter-spacing: 0.05em;
+        margin: 24px 0 12px;
+    }
+
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+        margin-bottom: 10px;
+    }
+    .image-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        transition: transform 0.2s;
+    }
+    .image-card:hover { transform: translateY(-3px); }
+    .image-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        display: block;
+    }
+    .card-footer {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        color: #64748b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .card-footer a { color: var(--primary); text-decoration: none; }
+    .card-footer a:hover { text-decoration: underline; }
+
+    #no-results {
+        padding: 30px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 1rem;
+    }
+</style>
+
+<h1>Dish Finder</h1>
+<p class="subtitle">Find photos of a specific dish at a Philadelphia restaurant.</p>
+
+<div class="finder-form">
+    <label for="restaurant-input">Restaurant</label>
+    <input type="text" id="restaurant-input" placeholder="e.g. Zahav, Pizzeria Beddia, L'Angolo..." />
+
+    <label for="location-input">City</label>
+    <input type="text" id="location-input" placeholder="Detecting..." />
+
+    <label for="dish-input">Dish</label>
+    <input type="text" id="dish-input" placeholder="e.g. Burger, Tuna Crudo, Tacos..." />
+
+    <button id="search-btn">Find Photos</button>
+</div>
+
+<div id="loading" style="display:none">Searching...</div>
+
+<div id="results-section" style="display:none">
+    <h2 id="results-title"></h2>
+    <div id="google-results" class="image-grid"></div>
+
+    <div id="no-results" style="display:none">No images found — try a broader dish name.</div>
+</div>
+
+<script>
+// Auto-detect city on load, default to Philadelphia
+fetch('https://ipapi.co/city/')
+    .then(r => r.text())
+    .then(city => {
+        const input = document.getElementById('location-input');
+        input.value = city.trim() || 'Philadelphia';
+    })
+    .catch(() => {
+        document.getElementById('location-input').value = 'Philadelphia';
+    });
+
+function buildImageCard(url, title, sourcePage) {
+    const card = document.createElement('div');
+    card.className = 'image-card';
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = title;
+    img.loading = 'lazy';
+    img.onerror = () => { card.style.display = 'none'; };
+
+    const footer = document.createElement('div');
+    footer.className = 'card-footer';
+    if (sourcePage) {
+        const a = document.createElement('a');
+        a.href = sourcePage;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        try {
+            a.textContent = new URL(sourcePage).hostname.replace('www.', '');
+        } catch {
+            a.textContent = title || sourcePage;
+        }
+        footer.appendChild(a);
+    } else {
+        footer.textContent = title || '';
+    }
+
+    card.appendChild(img);
+    card.appendChild(footer);
+    return card;
+}
+
+async function doSearch() {
+    const restaurant = document.getElementById('restaurant-input').value.trim();
+    const dish = document.getElementById('dish-input').value.trim();
+    const location = document.getElementById('location-input').value.trim() || 'Philadelphia';
+
+    if (!restaurant || !dish) {
+        alert('Please enter a restaurant and a dish name.');
+        return;
+    }
+
+    const btn = document.getElementById('search-btn');
+    btn.disabled = true;
+    btn.textContent = 'Searching...';
+    document.getElementById('results-section').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+        const resp = await fetch('/api/dish-images', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ restaurant, dish, location }),
+        });
+        if (!resp.ok) throw new Error('Server error');
+        const data = await resp.json();
+
+        const googleGrid = document.getElementById('google-results');
+        googleGrid.innerHTML = '';
+        (data.google || []).forEach(item => {
+            googleGrid.appendChild(buildImageCard(item.url, item.title, item.source_page));
+        });
+
+        const hasAny = data.google && data.google.length > 0;
+        document.getElementById('no-results').style.display = hasAny ? 'none' : 'block';
+        document.getElementById('results-title').textContent = data.query;
+        document.getElementById('results-section').style.display = 'block';
+
+    } catch (err) {
+        document.getElementById('no-results').textContent = 'An error occurred. Try again.';
+        document.getElementById('no-results').style.display = 'block';
+        document.getElementById('results-section').style.display = 'block';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Find Photos';
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+
+document.getElementById('search-btn').addEventListener('click', doSearch);
+document.getElementById('restaurant-input').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+document.getElementById('location-input').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+document.getElementById('dish-input').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+</script>
+
+{% endblock %}

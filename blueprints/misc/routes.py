@@ -1,15 +1,92 @@
-from flask import Blueprint, render_template, json
+from flask import Blueprint, render_template, json, request, jsonify
 import os
+import random
+import requests as req
 
 misc_bp = Blueprint('misc', __name__)
 locations = {"Fairmount","Fishtown","Rittenhouse","Center City","West Philly","NoLibs","South Philly","Fitler Square"}
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, '..', '..', 'data', 'misc')
 
+# --- Dish Finder API Keys ---
+SERPER_API_KEY = "0464577025b6c548601b923324dce3b18c9edb6d"
+
+# Approximate center coordinates for each Philly neighborhood tag
+NEIGHBORHOOD_COORDS = {
+    "Fishtown":      (39.9727, -75.1337),
+    "Fairmount":     (39.9676, -75.1726),
+    "Center City":   (39.9526, -75.1652),
+    "Rittenhouse":   (39.9496, -75.1727),
+    "NoLibs":        (39.9609, -75.1410),
+    "South Philly":  (39.9179, -75.1635),
+    "West Philly":   (39.9526, -75.2090),
+    "Fitler Square": (39.9457, -75.1800),
+}
+
+@misc_bp.route("/dish-finder")
+def dish_finder():
+    return render_template('misc/dish_image_finder.html')
+
+@misc_bp.route("/api/dish-images", methods=["POST"])
+def dish_images():
+    data = request.get_json()
+    restaurant_name = data.get("restaurant", "").strip()
+    dish_query      = data.get("dish", "").strip()
+    location        = data.get("location", "Philadelphia").strip() or "Philadelphia"
+    if not restaurant_name or not dish_query:
+        return jsonify({"error": "Missing fields"}), 400
+    google_results = _search_images(restaurant_name, dish_query, location)
+    return jsonify({
+        "google": google_results,
+        "query":  f"{dish_query} at {restaurant_name}"
+    })
+
+def _search_images(restaurant_name, dish, location="Philadelphia"):
+    query = f'"{restaurant_name}" {dish} {location}'
+    resp = req.post(
+        "https://google.serper.dev/images",
+        headers={"X-API-KEY": SERPER_API_KEY, "Content-Type": "application/json"},
+        json={"q": query, "num": 10},
+        timeout=8
+    )
+    resp.raise_for_status()
+    return [
+        {
+            "url":         item.get("imageUrl", ""),
+            "title":       item.get("title", ""),
+            "source_page": item.get("link", ""),
+        }
+        for item in resp.json().get("images", [])
+    ]
+
+
 @misc_bp.route("/recipes")
 def recipes():
     recipesList = make_json_recipes()
     return render_template('misc/recipes2.html', recipes=recipesList)
+
+@misc_bp.route("/recipes3")
+def recipes3():
+    nested = make_json_recipes()
+
+    flat = []
+    for cat, subcats in nested.items():
+        for subcat, recipe_list in subcats.items():
+            for recipe in recipe_list:
+                flat.append({**recipe, 'category': cat, 'subcategory': subcat})
+
+    by_tier = {}
+    for r in flat:
+        by_tier.setdefault(r.get('tier', 3), []).append(r)
+    for bucket in by_tier.values():
+        random.shuffle(bucket)
+    sorted_recipes = by_tier.get(1, []) + by_tier.get(2, []) + by_tier.get(3, [])
+
+    cats = {cat: list(subcats.keys()) for cat, subcats in nested.items()}
+
+    return render_template('misc/recipes3.html',
+                           recipes=sorted_recipes,
+                           cats=cats)
 
 @misc_bp.route("/restaurants")
 def restaurants():
@@ -20,40 +97,56 @@ def restaurants():
 
 
 def make_json_recipes():
-    with open('data/misc/Recipes.txt','r') as file:
-        lines=file.readlines()
-        #print(lines)
+    with open('data/misc/Recipes.txt', 'r') as f:
+        lines = f.readlines()
+
     recipesList = {}
-    current_cat=""
-    current_subcat=""
-    current_rec={}
+    current_cat = ""
+    current_subcat = ""
+    current_rec = {}
 
-    for line in lines:
-        line=line.strip()
-        if line=="":
+    def flush():
+        if current_rec.get('title') and current_cat and current_subcat:
+            current_rec.setdefault('tags', [])
+            current_rec.setdefault('tier', 3)
+            recipesList[current_cat][current_subcat].append(dict(current_rec))
+            current_rec.clear()
+
+    for raw in lines:
+        line = raw.strip()
+        if not line:
             continue
-        elif line[0]=='-':
-            current_cat=line[1:]
-            recipesList[current_cat]={}
-            #print(current_cat)
-        elif line[0]=='+':
-            current_subcat=line[1:]
-            recipesList[current_cat][current_subcat]=[]
-        elif not current_rec:
-            current_rec['title']=line
-        elif 'notes'not in current_rec:
-            current_rec['notes']=line
+        if line.startswith('-'):
+            flush()
+            current_cat = line[1:].strip()
+            recipesList[current_cat] = {}
+        elif line.startswith('+'):
+            flush()
+            current_subcat = line[1:].strip()
+            recipesList[current_cat][current_subcat] = []
+        elif line.startswith('#'):
+            current_rec['tags'] = [t.strip() for t in line[1:].split(',') if t.strip()]
+        elif line.startswith('>'):
+            try:
+                current_rec['tier'] = int(line[1:].strip())
+            except ValueError:
+                current_rec['tier'] = 3
+        elif 'title' not in current_rec:
+            current_rec['title'] = line
+        elif 'notes' not in current_rec:
+            current_rec['notes'] = line
         elif 'image' not in current_rec:
-            current_rec['image']=line
-        elif 'date'not in current_rec:
-            current_rec['date']=line
-            recipesList[current_cat][current_subcat].append(current_rec)
-            current_rec={}
-    
-    recipes_json=json.dumps(recipesList, indent=4)
+            current_rec['image'] = line
+        elif 'date' not in current_rec:
+            current_rec['date'] = line
+        else:
+            flush()
+            current_rec['title'] = line
 
-    with open('data/misc/recipes.json','w') as jsonfile:
-        jsonfile.write(recipes_json)
+    flush()
+
+    with open('data/misc/recipes.json', 'w') as f:
+        f.write(json.dumps(recipesList, indent=4))
 
     return recipesList
 

@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="res-container">
+
+    <div class="res-header">
+        <h1>Reservations</h1>
+        <p>Auto-sniper for hard-to-get Philadelphia restaurants on Resy &amp; OpenTable.</p>
+    </div>
+
+    <!-- New Reservation Form -->
+    <div class="res-card">
+        <h2>Watch a Reservation</h2>
+        <form id="res-form" action="{{ url_for('reservations.add_reservation') }}" method="POST">
+
+            <!-- Platform filter -->
+            <div class="form-group">
+                <label>Platform</label>
+                <div class="platform-toggle">
+                    <button type="button" class="platform-btn active" data-platform="all">All</button>
+                    <button type="button" class="platform-btn" data-platform="resy">Resy</button>
+                    <button type="button" class="platform-btn" data-platform="opentable">OpenTable</button>
+                </div>
+                <input type="hidden" name="platform" id="selected-platform" value="">
+            </div>
+
+            <!-- Restaurant search -->
+            <div class="form-group">
+                <label for="venue-search">Restaurant</label>
+                <input
+                    type="text"
+                    id="venue-search"
+                    placeholder="Type to search Philadelphia restaurants..."
+                    autocomplete="off"
+                    class="res-input"
+                />
+                <input type="hidden" name="venue_id" id="venue-id-input" required />
+                <input type="hidden" name="venue_name" id="venue-name-input" />
+                <div id="venue-dropdown" class="venue-dropdown" style="display:none;"></div>
+                <div id="venue-loading" class="venue-hint" style="display:none;"><span class="spinner"></span> Loading restaurants (OpenTable may take ~60s)...</div>
+                <div id="venue-error" class="venue-hint error" style="display:none;"></div>
+                <div id="venue-refresh-wrap" style="display:none; margin-top:6px;">
+                    <button type="button" id="refresh-venues-btn" style="font-size:12px;padding:4px 10px;cursor:pointer;">↺ Retry</button>
+                </div>
+            </div>
+
+            <!-- Date, Party Size -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" min="{{ today }}" required class="res-input" />
+                </div>
+                <div class="form-group">
+                    <label for="party_size">Party Size</label>
+                    <select id="party_size" name="party_size" class="res-input">
+                        {% for n in range(1, 9) %}
+                        <option value="{{ n }}" {% if n == 2 %}selected{% endif %}>{{ n }} {{ 'person' if n == 1 else 'people' }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Time window -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="min_time">Earliest Time</label>
+                    <select id="min_time" name="min_time" class="res-input">
+                        {% for t in time_options %}
+                        <option value="{{ t.value }}" {% if t.value == '18:00' %}selected{% endif %}>{{ t.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="max_time">Latest Time</label>
+                    <select id="max_time" name="max_time" class="res-input">
+                        {% for t in time_options %}
+                        <option value="{{ t.value }}" {% if t.value == '21:00' %}selected{% endif %}>{{ t.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn" disabled>Start Watching</button>
+        </form>
+    </div>
+
+    <!-- Active Jobs -->
+    <div class="res-card">
+        <h2>Active Watches <span class="count-badge" id="active-count">{{ active_jobs|length }}</span></h2>
+        {% if active_jobs %}
+        <div class="table-wrap">
+            <table id="active-table">
+                <thead>
+                    <tr>
+                        <th>Restaurant</th>
+                        <th>Date</th>
+                        <th>Time Window</th>
+                        <th>Party</th>
+                        <th>Platform</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="active-tbody">
+                {% for job_id, job in active_jobs.items() %}
+                <tr data-job-id="{{ job_id }}">
+                    <td class="venue-cell">{{ job.venue_name }}</td>
+                    <td>{{ job.date }}</td>
+                    <td>{{ job.min_time }} – {{ job.max_time }}</td>
+                    <td>{{ job.party_size }}</td>
+                    <td><span class="platform-badge {{ job.platform }}">{{ job.platform|title }}</span></td>
+                    <td><span class="status-badge {{ job.status }}">{{ job.status|title }}</span>
+                        {% if job.booked_time %}<br><small>@ {{ job.booked_time }}</small>{% endif %}
+                    </td>
+                    <td>
+                        {% if job.status == 'watching' %}
+                        <form action="{{ url_for('reservations.cancel_reservation', job_id=job_id) }}" method="POST" style="margin:0">
+                            <button type="submit" class="cancel-btn">Cancel</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="empty-msg" id="no-active-msg">No active watches. Add one above.</p>
+        {% endif %}
+    </div>
+
+    <!-- History -->
+    {% if history %}
+    <div class="res-card">
+        <h2>Booking History</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Restaurant</th>
+                        <th>Date</th>
+                        <th>Time Booked</th>
+                        <th>Party</th>
+                        <th>Platform</th>
+                        <th>Booked At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for entry in history|reverse %}
+                <tr>
+                    <td>{{ entry.venue_name }}</td>
+                    <td>{{ entry.date }}</td>
+                    <td>{{ entry.booked_time }}</td>
+                    <td>{{ entry.party_size }}</td>
+                    <td><span class="platform-badge {{ entry.platform }}">{{ entry.platform|title }}</span></td>
+                    <td>{{ entry.booked_at[:16] if entry.booked_at else '' }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<style>
+.res-container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+.res-header { margin-bottom: 24px; }
+.res-header h1 { font-size: 2rem; margin-bottom: 6px; color: #0f172a; }
+.res-header p { color: #64748b; }
+
+.res-card {
+    background: white;
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.res-card h2 { font-size: 1.2rem; margin: 0 0 20px; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+
+/* Platform Toggle */
+.platform-toggle { display: flex; gap: 8px; margin-top: 6px; }
+.platform-btn {
+    padding: 7px 18px; border-radius: 20px; border: 1.5px solid #cbd5e1;
+    background: white; cursor: pointer; font-size: 14px; color: #475569;
+    transition: all 0.15s;
+}
+.platform-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+.platform-btn:hover:not(.active) { border-color: #94a3b8; }
+
+/* Form */
+.form-group { margin-bottom: 18px; position: relative; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.res-input {
+    width: 100%; padding: 9px 12px; border: 1.5px solid #d1d5db; border-radius: 8px;
+    font-size: 14px; box-sizing: border-box; outline: none; transition: border-color 0.15s;
+}
+.res-input:focus { border-color: #2563eb; }
+
+/* Venue search dropdown */
+.venue-dropdown {
+    position: absolute; width: 100%; background: white; border: 1.5px solid #d1d5db;
+    border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 100;
+    max-height: 260px; overflow-y: auto; top: calc(100% + 4px);
+}
+.venue-option {
+    padding: 10px 14px; cursor: pointer; font-size: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+}
+.venue-option:last-child { border-bottom: none; }
+.venue-option:hover { background: #f8fafc; }
+.venue-option .v-name { color: #1e293b; font-weight: 500; }
+.venue-option .v-meta { font-size: 12px; color: #94a3b8; }
+.venue-hint { font-size: 13px; margin-top: 6px; color: #94a3b8; }
+.venue-hint.error { color: #ef4444; }
+.ot-fallback { border-top: 1px dashed #e2e8f0; color: #374151; font-style: italic; }
+
+.submit-btn {
+    width: 100%; padding: 12px; background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s; margin-top: 4px;
+}
+.submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.submit-btn:hover:not(:disabled) { opacity: 0.9; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; padding: 10px 12px; background: #f8fafc; color: #64748b; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; }
+td { padding: 12px; border-bottom: 1px solid #f1f5f9; color: #1e293b; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+.venue-cell { font-weight: 500; }
+
+.platform-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.platform-badge.resy { background: #fef3c7; color: #92400e; }
+.platform-badge.opentable { background: #d1fae5; color: #065f46; }
+
+.status-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 11px; font-weight: 600;
+}
+.status-badge.watching { background: #dbeafe; color: #1d4ed8; }
+.status-badge.booked { background: #d1fae5; color: #065f46; }
+.status-badge.failed { background: #fee2e2; color: #991b1b; }
+.status-badge.expired { background: #f1f5f9; color: #64748b; }
+
+.cancel-btn {
+    padding: 5px 12px; background: white; border: 1.5px solid #e2e8f0;
+    border-radius: 6px; color: #64748b; font-size: 12px; cursor: pointer;
+    transition: all 0.15s;
+}
+.cancel-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+.count-badge {
+    background: #2563eb; color: white; border-radius: 12px;
+    font-size: 12px; padding: 2px 8px; font-weight: 700;
+}
+
+.empty-msg { color: #94a3b8; font-size: 14px; }
+
+.spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid #cbd5e1;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .platform-toggle { flex-wrap: wrap; }
+}
+</style>
+
+<script>
+(function () {
+    // ---- Venue data & filtering ----
+    let allVenues = [];
+    let selectedPlatform = 'all';
+    const searchInput = document.getElementById('venue-search');
+    const dropdown = document.getElementById('venue-dropdown');
+    const venueIdInput = document.getElementById('venue-id-input');
+    const venueNameInput = document.getElementById('venue-name-input');
+    const platformInput = document.getElementById('selected-platform');
+    const submitBtn = document.getElementById('submit-btn');
+    const loading = document.getElementById('venue-loading');
+    const errorEl = document.getElementById('venue-error');
+    const refreshWrap = document.getElementById('venue-refresh-wrap');
+
+    let _pollTimer = null;
+
+    function loadVenues() {
+        loading.style.display = 'block';
+        errorEl.style.display = 'none';
+        refreshWrap.style.display = 'none';
+
+        fetch('/reservations/restaurants')
+            .then(r => r.json())
+            .then(data => {
+                const venues = data.venues || [];
+                const isLoading = data.loading || false;
+                const errs = data.errors || {};
+
+                // Merge new venues into allVenues without duplicates
+                const existing = new Set(allVenues.map(v => v.venue_id));
+                venues.forEach(v => { if (!existing.has(v.venue_id)) allVenues.push(v); });
+
+                if (isLoading) {
+                    // Still loading in background — show spinner and keep polling
+                    const parts = [];
+                    if (allVenues.length) parts.push(`${allVenues.length} venues loaded`);
+                    parts.push('OpenTable still loading...');
+                    loading.querySelector ? null : null;
+                    loading.innerHTML = `<span class="spinner"></span> ${parts.join(' · ')}`;
+                    loading.style.display = 'block';
+                    schedulePoll(8000);
+                } else {
+                    loading.style.display = 'none';
+                    clearPoll();
+                    if (!allVenues.length) {
+                        const msgs = Object.entries(errs).map(([k, v]) => `<b>${k}:</b> ${v}`);
+                        errorEl.innerHTML = msgs.length
+                            ? 'Could not load restaurants:<br>' + msgs.join('<br>')
+                            : 'No restaurants returned.';
+                        errorEl.style.display = 'block';
+                        refreshWrap.style.display = 'block';
+                    }
+                }
+            })
+            .catch(() => {
+                loading.style.display = 'none';
+                clearPoll();
+                errorEl.innerHTML = 'Failed to reach server.';
+                errorEl.style.display = 'block';
+                refreshWrap.style.display = 'block';
+            });
+    }
+
+    function schedulePoll(ms) {
+        clearPoll();
+        _pollTimer = setTimeout(loadVenues, ms);
+    }
+
+    function clearPoll() {
+        if (_pollTimer) { clearTimeout(_pollTimer); _pollTimer = null; }
+    }
+
+    // Load venues from server on page load
+    loadVenues();
+
+    document.getElementById('refresh-venues-btn').addEventListener('click', function () {
+        allVenues = [];
+        this.disabled = true;
+        fetch('/reservations/refresh-venues', { method: 'POST' })
+            .then(() => {
+                loading.innerHTML = '<span class="spinner"></span> Reloading (Resy ~5s, OpenTable ~60s)...';
+                loading.style.display = 'block';
+                errorEl.style.display = 'none';
+                refreshWrap.style.display = 'none';
+                schedulePoll(5000);
+                setTimeout(() => { this.disabled = false; }, 3000);
+            })
+            .catch(() => { this.disabled = false; });
+    });
+
+    // Platform toggle
+    document.querySelectorAll('.platform-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            selectedPlatform = this.dataset.platform;
+            // If a venue is selected from wrong platform, clear it
+            if (venueIdInput.value) {
+                const currentPlatform = venueNameInput.dataset.platform;
+                if (selectedPlatform !== 'all' && currentPlatform !== selectedPlatform) {
+                    clearVenueSelection();
+                }
+            }
+            if (searchInput.value.trim()) showDropdown(searchInput.value.trim());
+        });
+    });
+
+    function clearVenueSelection() {
+        venueIdInput.value = '';
+        venueNameInput.value = '';
+        platformInput.value = '';
+        submitBtn.disabled = true;
+    }
+
+    function filteredVenues(query) {
+        const q = query.toLowerCase();
+        return allVenues.filter(v => {
+            const matchPlatform = selectedPlatform === 'all' || v.platform === selectedPlatform;
+            const matchName = v.name.toLowerCase().includes(q) ||
+                              (v.neighborhood || '').toLowerCase().includes(q);
+            return matchPlatform && matchName;
+        }).slice(0, 30);
+    }
+
+    function showDropdown(query) {
+        const results = filteredVenues(query);
+        const showOTFallback = selectedPlatform !== 'resy' && query.length >= 2;
+
+        if (!results.length && !showOTFallback) { dropdown.style.display = 'none'; return; }
+
+        const items = results.map(v => `
+            <div class="venue-option" data-id="${v.venue_id}" data-name="${v.name}" data-platform="${v.platform}">
+                <span class="v-name">${v.name}</span>
+                <span class="v-meta">
+                    ${v.neighborhood ? v.neighborhood + ' · ' : ''}
+                    <span class="platform-badge ${v.platform}">${v.platform === 'resy' ? 'Resy' : 'OpenTable'}</span>
+                </span>
+            </div>
+        `).join('');
+
+        const fallback = showOTFallback ? `
+            <div class="venue-option ot-fallback" data-id="name:${query.toLowerCase()}" data-name="${query}" data-platform="opentable">
+                <span class="v-name">Watch "<b>${query}</b>" on OpenTable</span>
+                <span class="v-meta"><span class="platform-badge opentable">OpenTable</span></span>
+            </div>
+        ` : '';
+
+        dropdown.innerHTML = items + fallback;
+        dropdown.style.display = 'block';
+
+        dropdown.querySelectorAll('.venue-option').forEach(opt => {
+            opt.addEventListener('click', function () {
+                const id = this.dataset.id;
+                const name = this.dataset.name;
+                const platform = this.dataset.platform;
+                searchInput.value = name;
+                venueIdInput.value = id;
+                venueNameInput.value = name;
+                venueNameInput.dataset.platform = platform;
+                platformInput.value = platform;
+                dropdown.style.display = 'none';
+                submitBtn.disabled = false;
+            });
+        });
+    }
+
+    searchInput.addEventListener('input', function () {
+        clearVenueSelection();
+        const q = this.value.trim();
+        if (q.length < 2) { dropdown.style.display = 'none'; return; }
+        showDropdown(q);
+    });
+
+    searchInput.addEventListener('blur', function () {
+        setTimeout(() => { dropdown.style.display = 'none'; }, 200);
+    });
+
+    searchInput.addEventListener('focus', function () {
+        if (this.value.trim().length >= 2) showDropdown(this.value.trim());
+    });
+
+    // ---- Live status refresh every 15 seconds ----
+    function refreshStatus() {
+        fetch('/reservations/status')
+            .then(r => r.json())
+            .then(jobs => {
+                const tbody = document.getElementById('active-tbody');
+                if (!tbody) return;
+                const count = Object.keys(jobs).length;
+                const countBadge = document.getElementById('active-count');
+                if (countBadge) countBadge.textContent = count;
+
+                Object.entries(jobs).forEach(([jobId, job]) => {
+                    const row = tbody.querySelector(`tr[data-job-id="${jobId}"]`);
+                    if (!row) return;
+                    const statusEl = row.querySelector('.status-badge');
+                    if (statusEl) {
+                        statusEl.className = `status-badge ${job.status}`;
+                        statusEl.textContent = job.status.charAt(0).toUpperCase() + job.status.slice(1);
+                    }
+                });
+            })
+            .catch(() => {});
+    }
+
+    setInterval(refreshStatus, 15000);
+})();
+</script>
+
+{% endblock %}

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | World Cup 2026</title>
+    <style>
+        :root { --win: #16a34a; --loss: #dc2626; --gold: #f59e0b; }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h2 { text-align: center; color: #1a2e1a; margin-bottom: 4px; }
+        .subtitle { text-align: center; color: #6c757d; font-size: 0.85rem; margin-bottom: 28px; }
+
+        /* Leaderboard cards */
+        .leaderboard-summary { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+        .leader-card {
+            background: white; padding: 14px 18px; border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; min-width: 110px;
+            border-bottom: 4px solid transparent;
+        }
+        .leader-card.gold { border-bottom-color: var(--gold); transform: translateY(-4px); }
+        .leader-name { font-size: 0.8rem; font-weight: 600; color: #7f8c8d; display: block; }
+        .leader-score { font-size: 1.7rem; font-weight: 800; color: #2c3e50; }
+        .leader-pts { font-size: 0.65rem; color: #bdc3c7; }
+
+        /* Table */
+        .table-wrapper {
+            background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
+        }
+        .grid-table { border-collapse: collapse; width: 100%; min-width: 500px; font-size: 12px; }
+        .grid-table thead { background: #1e3a1e; color: white; }
+        .grid-table th { padding: 13px 10px; font-weight: 600; }
+        .grid-table td { padding: 10px; border-bottom: 1px solid #edf2f7; text-align: center; }
+
+        .game-col { text-align: left; min-width: 160px; padding-left: 14px; font-weight: 600; color: #374151; position: sticky; left: 0; background: white; z-index: 2; border-right: 1px solid #e5e7eb; }
+        .game-col .kickoff { font-size: 0.65rem; color: #94a3b8; font-weight: 400; }
+        .game-col .knockout-badge { display: inline-block; background: #fef3c7; color: #92400e; font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 8px; margin-left: 4px; }
+
+        thead th:first-child { text-align: left; padding-left: 14px; position: sticky; left: 0; background: #1e3a1e; z-index: 3; }
+
+        .stage-separator { background: #2d4a2d; color: #a7f3d0; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .stage-separator td { padding: 5px 14px; }
+
+        .win-cell  { background: #dcfce7 !important; color: #15803d; font-weight: 700; }
+        .loss-cell { background: #fee2e2 !important; color: #991b1b; font-weight: 600; }
+        .hidden-cell { color: #d1d5db; font-style: italic; }
+        .leader-col { background: #f0fdf4 !important; }
+
+        .nav-back { display: inline-block; margin-top: 18px; color: #16a34a; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+<nav style="background:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <a href="/" style="font-weight:800;font-size:1.2rem;text-decoration:none;color:#0f172a;">HUGO</a>
+    <div>
+        <a href="/worldcup/picks" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Make Picks</a>
+        <a href="/pools" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Pools</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>⚽ World Cup 2026 — Leaderboard</h2>
+    <p class="subtitle">Group stage = 1 pt &bull; Knockout stages = 2 pts &bull; Picks hidden until kickoff</p>
+
+    <div class="leaderboard-summary">
+        {% for user, score in sorted_leaderboard %}
+        <div class="leader-card {% if user in leaders %}gold{% endif %}">
+            <span class="leader-name">{{ user }} {% if user in leaders %}👑{% endif %}</span>
+            <span class="leader-score">{{ score }}</span>
+            <div class="leader-pts">pts</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if table_rows %}
+    <div class="table-wrapper">
+        <table class="grid-table">
+            <thead>
+                <tr>
+                    <th>Match</th>
+                    {% for user in usernames %}
+                    <th {% if user in leaders %}style="background:#2a5a2a"{% endif %}>
+                        {{ user }} {% if user in leaders %}👑{% endif %}
+                        <br><small style="font-weight:normal;opacity:0.8;">{{ user_totals[user] }} pts</small>
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% set ns = namespace(last_stage='') %}
+                {% for row in table_rows %}
+                    {% if row.stage_label != ns.last_stage %}
+                        {% set ns.last_stage = row.stage_label %}
+                        <tr class="stage-separator">
+                            <td colspan="{{ usernames|length + 1 }}">
+                                {{ row.stage_label }}{% if row.pts == 2 %} — 2 pts each{% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td class="game-col">
+                            {{ row.game.away_team }} vs {{ row.game.home_team }}
+                            {% if row.pts == 2 %}<span class="knockout-badge">&times;2</span>{% endif %}
+                            <div class="kickoff">
+                                {{ row.game.kickoff_time[:10] }} {{ row.game.kickoff_time[11:16] }} UTC
+                                {% if row.game.result != 'pending' %}
+                                &bull; <strong>
+                                    {% if row.game.result == 'home_win' %}{{ row.game.home_team }} Win
+                                    {% elif row.game.result == 'away_win' %}{{ row.game.away_team }} Win
+                                    {% else %}Draw{% endif %}
+                                </strong>
+                                {% endif %}
+                            </div>
+                        </td>
+                        {% for user in usernames %}
+                            {% set cell = row.users[user] %}
+                            <td class="{% if cell.hidden %}hidden-cell{% elif cell.correct %}win-cell{% elif cell.wrong %}loss-cell{% endif %} {% if user in leaders %}leader-col{% endif %}">
+                                {% if cell.hidden %}🔒{% else %}{{ cell.pick or '—' }}{% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align:center;color:#94a3b8;padding:40px 0;">No picks yet — games will appear here once added.</p>
+    {% endif %}
+
+    <a href="{{ url_for('worldcup.hub') }}" class="nav-back">&larr; Back to Hub</a>
+</div>
+</body>
+</html>
