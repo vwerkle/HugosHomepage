@@ -173,6 +173,32 @@
     }
     @keyframes labelPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
 
+    /* ── birthday chip ── */
+    .bday-chip {
+      position: fixed; bottom: 28px; left: 28px; z-index: 10;
+      width: 38px; height: 38px; border-radius: 50%;
+      background: radial-gradient(circle at 38% 35%, #2a2318, #181208);
+      border: 2px solid rgba(201,162,39,0.30);
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.3),
+                  inset 0 0 0 5px rgba(201,162,39,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; cursor: pointer; text-decoration: none;
+      opacity: 0.22;
+      transition: opacity 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .bday-chip::before {
+      content: '';
+      position: absolute; inset: 3px; border-radius: 50%;
+      border: 1px dashed rgba(201,162,39,0.20);
+    }
+    .bday-chip:hover {
+      opacity: 0.85;
+      border-color: rgba(201,162,39,0.70);
+      box-shadow: 0 0 14px rgba(201,162,39,0.25),
+                  0 0 0 4px rgba(0,0,0,0.3),
+                  inset 0 0 0 5px rgba(201,162,39,0.10);
+    }
+
     /* fade veil */
     .fade-veil {
       position: fixed; inset: 0; z-index: 200;
@@ -247,6 +273,7 @@
   </div>
 
   <p class="choose-label">Choose your destination</p>
+  <a class="bday-chip" id="bdayChip" title="Birthdays">🎂</a>
   <div class="fade-veil" id="fadeVeil"></div>
 
   <script>window._FEAT = "{{ featured_image or '' }}";</script>
@@ -309,6 +336,11 @@
 
     setupCard(recipes, FAN_L, '/recipes3');
     setupCard(pools,   FAN_R, '/pools');
+
+    document.getElementById('bdayChip').addEventListener('click', () => {
+      veil.classList.add('on');
+      setTimeout(() => window.location.href = '/birthdays', 560);
+    });
 
     // clear veil when browser restores page from back-forward cache
     window.addEventListener('pageshow', e => {

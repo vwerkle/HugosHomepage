@@ -6,7 +6,7 @@
     <title>World Cup 2026</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; margin: 0; }
-        .page-center { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 64px); padding: 20px; }
+        .page-center { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 64px); padding: 20px; flex-direction: column; gap: 24px; }
         .hub-container { text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 340px; }
         .trophy { font-size: 3rem; margin-bottom: 10px; }
         h2 { color: #1a2e1a; margin: 0 0 5px; }
@@ -14,7 +14,7 @@
         .btn-group { display: flex; flex-direction: column; gap: 12px; }
         .hub-btn {
             padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: bold;
-            text-decoration: none; color: white; transition: opacity 0.2s, transform 0.2s; display: block;
+            text-decoration: none; color: white; transition: opacity 0.2s, transform 0.2s; display: block; cursor: pointer;
         }
         .hub-btn:active { transform: scale(0.97); }
         .hub-btn:hover { opacity: 0.88; }
@@ -22,9 +22,45 @@
         .btn-signup   { background: #16a34a; }
         .btn-picks    { background: #d97706; }
         .btn-results  { background: #7c3aed; }
+        .btn-admin    { background: #6b7280; }
         hr { border: 0; border-top: 1px solid #eee; margin: 25px 0; }
         .footer-links { margin-top: 10px; }
         .footer-links a { color: #bdc3c7; text-decoration: none; font-size: 0.85rem; }
+
+        /* ── Admin panel ── */
+        .admin-panel { width: 100%; max-width: 960px; display: none; }
+        .admin-panel.open { display: block; }
+        .a-card { background: white; border-radius: 14px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .a-card h3 { margin: 0 0 16px; color: #374151; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        .form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+        .form-group { display: flex; flex-direction: column; flex: 1; min-width: 200px; }
+        label { font-size: 0.78rem; font-weight: 600; color: #6b7280; margin-bottom: 5px; }
+        input[type="text"], select { padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; }
+        input:focus, select:focus { outline: none; border-color: #16a34a; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: white; white-space: nowrap; }
+        .btn-sync   { background: #16a34a; font-size: 1rem; padding: 12px 28px; }
+        .btn-save   { background: #2563eb; }
+        .btn-result { background: #2563eb; padding: 5px 12px; font-size: 0.78rem; }
+        .btn-delete { background: #dc2626; padding: 5px 12px; font-size: 0.78rem; }
+        .msg { padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-weight: 600; font-size: 0.9rem; }
+        .msg.success { background: #dcfce7; color: #15803d; }
+        .msg.error   { background: #fee2e2; color: #991b1b; }
+        .sync-banner { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .sync-info { font-size: 0.85rem; color: #6b7280; }
+        .api-hint { font-size: 0.78rem; color: #6b7280; margin-top: 6px; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        th { background: #1e3a1e; color: white; padding: 10px 12px; text-align: left; }
+        td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        tr:hover td { background: #f9fafb; }
+        .result-form { display: flex; gap: 8px; align-items: center; }
+        .result-form select { padding: 5px 8px; font-size: 0.8rem; }
+        .pending-badge { color: #94a3b8; font-style: italic; }
+        .home_win { color: #1d4ed8; font-weight: 600; }
+        .away_win { color: #991b1b; font-weight: 600; }
+        .draw { color: #374151; font-weight: 600; }
+        .knockout-tag { display: inline-block; background: #fef3c7; color: #92400e; font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 8px; }
+        .count-badge { background: #e0f2fe; color: #0369a1; font-size: 0.75rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; }
     </style>
 </head>
 <body>
@@ -51,8 +87,8 @@
             {% endif %}
             <a href="{{ url_for('worldcup.picks') }}" class="hub-btn btn-picks">Make Picks</a>
             <a href="{{ url_for('worldcup.results') }}" class="hub-btn btn-results">Leaderboard</a>
-            {% if username == 'hugo' %}
-                <a href="{{ url_for('worldcup.admin') }}" class="hub-btn" style="background:#6b7280;">Admin</a>
+            {% if admin %}
+                <button class="hub-btn btn-admin" onclick="toggleAdmin()">⚙ Admin</button>
             {% endif %}
         </div>
 
@@ -61,6 +97,114 @@
             <a href="{{ url_for('pools') }}">&larr; Back to Pools</a>
         </div>
     </div>
+
+    {% if admin %}
+    <div class="admin-panel" id="adminPanel">
+
+        {% if admin.message %}
+        <div class="msg {{ admin.message_type }}">{{ admin.message }}</div>
+        {% endif %}
+
+        <div class="a-card">
+            <h3>Sync Games &amp; Results from API</h3>
+            <div class="sync-banner">
+                <form method="POST">
+                    <input type="hidden" name="action" value="sync">
+                    <button type="submit" class="btn btn-sync">🔄 Sync Now</button>
+                </form>
+                <div class="sync-info">
+                    Pulls all World Cup 2026 fixtures and results from <strong>football-data.org</strong>.<br>
+                    New games are added; existing results are updated. Safe to run repeatedly.
+                </div>
+            </div>
+        </div>
+
+        <div class="a-card">
+            <h3>API Key (football-data.org)</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="save_api_key">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="text" name="api_key" value="{{ admin.api_key }}" placeholder="Paste your key here">
+                    </div>
+                    <button type="submit" class="btn btn-save">Save Key</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="a-card">
+            <h3>All Games <span class="count-badge">{{ admin.games|length }}</span></h3>
+            {% if not admin.games %}
+            <p style="color:#94a3b8;">No games yet — hit Sync to pull them in.</p>
+            {% else %}
+            <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kickoff (UTC)</th>
+                        <th>Match</th>
+                        <th>Stage</th>
+                        <th>Result</th>
+                        <th>Override</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for game_id, game in admin.games %}
+                    <tr>
+                        <td style="white-space:nowrap">{{ game.kickoff_time[:16].replace('T', ' ') }}</td>
+                        <td><strong>{{ game.away_team }}</strong> <span style="color:#94a3b8">vs</span> <strong>{{ game.home_team }}</strong></td>
+                        <td>
+                            {{ stage_labels.get(game.stage, game.stage) }}
+                            {% if game.stage != 'group' %}<span class="knockout-tag">&times;2</span>{% endif %}
+                        </td>
+                        <td class="{{ game.result }}">
+                            {% if game.result == 'pending' %}<span class="pending-badge">Pending</span>
+                            {% elif game.result == 'home_win' %}{{ game.home_team }} Win
+                            {% elif game.result == 'away_win' %}{{ game.away_team }} Win
+                            {% else %}Draw{% endif %}
+                        </td>
+                        <td>
+                            <form method="POST" class="result-form">
+                                <input type="hidden" name="action" value="update_result">
+                                <input type="hidden" name="game_id" value="{{ game_id }}">
+                                <select name="result">
+                                    <option value="pending"  {% if game.result == 'pending'  %}selected{% endif %}>Pending</option>
+                                    <option value="home_win" {% if game.result == 'home_win' %}selected{% endif %}>{{ game.home_team }} Win</option>
+                                    <option value="away_win" {% if game.result == 'away_win' %}selected{% endif %}>{{ game.away_team }} Win</option>
+                                    <option value="draw"     {% if game.result == 'draw'     %}selected{% endif %}>Draw</option>
+                                </select>
+                                <button type="submit" class="btn btn-result">Save</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="POST" onsubmit="return confirm('Delete this game?')">
+                                <input type="hidden" name="action" value="delete_game">
+                                <input type="hidden" name="game_id" value="{{ game_id }}">
+                                <button type="submit" class="btn btn-delete">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+<script>
+function toggleAdmin() {
+    const panel = document.getElementById('adminPanel');
+    panel.classList.toggle('open');
+}
+// Auto-open if there's a message (after a POST action)
+{% if admin and admin.message %}
+document.getElementById('adminPanel').classList.add('open');
+{% endif %}
+</script>
 </body>
 </html>

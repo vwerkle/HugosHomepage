@@ -9,6 +9,8 @@ from blueprints.pools.worldcup.routes import worldcup_bp
 from blueprints.reservations import reservations_bp
 from blueprints.reservations import scheduler as res_scheduler
 from blueprints.reservations.routes import preload_venues
+from blueprints.birthdays import birthdays_bp
+from blueprints.birthdays import scheduler as bday_scheduler
 
 app = Flask(__name__)
 app.secret_key = 'vincent'
@@ -21,13 +23,14 @@ app.register_blueprint(moonshot_bp)
 app.register_blueprint(moonshot_mike_bp)
 app.register_blueprint(worldcup_bp)
 app.register_blueprint(reservations_bp)
+app.register_blueprint(birthdays_bp)
 
 # Global constants (if needed across app)
 DATA_DIR = 'data/madness'
 
 def init_db():
     # Ensure data directories exist
-    for path in ['data/madness', 'data/misc', 'data/random', 'data/reservations', 'data/worldcup']:
+    for path in ['data/madness', 'data/misc', 'data/random', 'data/reservations', 'data/worldcup', 'data/birthdays']:
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -36,6 +39,20 @@ def init_db():
         if not os.path.exists(file):
             with open(file, 'w') as f:
                 json.dump({}, f)
+
+    # Initialize birthdays data and config files
+    bday_file = 'data/birthdays/birthdays.json'
+    if not os.path.exists(bday_file):
+        with open(bday_file, 'w') as f:
+            json.dump([], f)
+    bday_cfg = 'data/birthdays/config.json'
+    if not os.path.exists(bday_cfg):
+        with open(bday_cfg, 'w') as f:
+            json.dump({
+                'gmail_address': '',
+                'gmail_app_password': '',
+                'to_sms_email': '',
+            }, f, indent=4)
 
     # Initialize World Cup data files
     for wc_file in ['data/worldcup/users.json', 'data/worldcup/picks.json', 'data/worldcup/games.json']:
@@ -74,6 +91,7 @@ def pools():
 if __name__ == '__main__':
     init_db()
     res_scheduler.start_scheduler()
+    bday_scheduler.start_scheduler()
     preload_venues()  # kicks off background Resy + OT venue loading
     from waitress import serve
     print("Waitress is starting on port 5000...")

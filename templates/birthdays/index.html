@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% block title %}Birthdays{% endblock %}
+
+{% block styles %}
+<style>
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    .page-header h1 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin: 0 0 0.25rem;
+    }
+    .page-header p {
+        color: #64748b;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+    .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .card h2 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 1.2rem;
+        color: #0f172a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.8rem;
+    }
+    .add-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: flex-end;
+    }
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    .form-field label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #475569;
+    }
+    .form-field input,
+    .form-field select {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        background: #f8fafc;
+        color: #0f172a;
+        outline: none;
+        transition: border-color 0.15s;
+    }
+    .form-field input:focus,
+    .form-field select:focus {
+        border-color: #2563eb;
+        background: white;
+    }
+    .form-field input[name="name"] { width: 180px; }
+    .form-field select[name="month"] { width: 130px; }
+    .form-field select[name="day"] { width: 80px; }
+    .form-field input[name="alert_days"] { width: 120px; }
+    .btn-add {
+        padding: 0.55rem 1.25rem;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.15s;
+        white-space: nowrap;
+    }
+    .btn-add:hover { background: #1d4ed8; }
+
+    .bday-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .bday-table th {
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0 0.75rem 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .bday-table td {
+        padding: 0.85rem 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.95rem;
+        vertical-align: middle;
+    }
+    .bday-table tr:last-child td { border-bottom: none; }
+    .bday-table tr:hover td { background: #f8fafc; }
+
+    .name-cell { font-weight: 600; color: #0f172a; }
+    .date-cell { color: #334155; }
+    .alert-cell { color: #64748b; font-size: 0.88rem; }
+    .alert-form { display: flex; align-items: center; gap: 0.4rem; }
+    .alert-form input[type="text"] {
+        width: 100px; padding: 0.25rem 0.4rem; border: 1px solid #e2e8f0;
+        border-radius: 6px; font-size: 0.88rem; font-family: inherit;
+        background: #f8fafc;
+    }
+    .alert-form input[type="text"]:focus { border-color: #2563eb; outline: none; background: white; }
+    .btn-save {
+        padding: 0.25rem 0.6rem; background: #2563eb; color: white;
+        border: none; border-radius: 6px; font-size: 0.78rem; font-weight: 600;
+        cursor: pointer; font-family: inherit;
+    }
+    .btn-save:hover { background: #1d4ed8; }
+
+    .days-badge {
+        display: inline-block;
+        padding: 0.25rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+    .days-badge.today {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    .days-badge.soon {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+    .days-badge.normal {
+        background: #f0fdf4;
+        color: #166534;
+    }
+
+    .btn-delete {
+        background: none;
+        border: none;
+        color: #cbd5e1;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        transition: color 0.15s, background 0.15s;
+        line-height: 1;
+    }
+    .btn-delete:hover {
+        color: #ef4444;
+        background: #fef2f2;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2.5rem 1rem;
+        color: #94a3b8;
+    }
+    .empty-state .emoji { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Birthdays</h1>
+    <p>Track birthdays and get SMS reminders.</p>
+</div>
+
+<div class="card">
+    <h2>Add a Birthday</h2>
+    <form class="add-form" action="/birthdays/add" method="POST">
+        <div class="form-field">
+            <label>Name</label>
+            <input type="text" name="name" placeholder="e.g. Mom" required>
+        </div>
+        <div class="form-field">
+            <label>Month</label>
+            <select name="month">
+                {% for m in month_names %}
+                <option value="{{ loop.index }}">{{ m }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-field">
+            <label>Day</label>
+            <select name="day">
+                {% for d in range(1, 32) %}
+                <option value="{{ d }}">{{ d }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-field">
+            <label>Alert (days before, comma-separated)</label>
+            <input type="text" name="alert_days" value="7" placeholder="e.g. 7, 14, 30">
+        </div>
+        <button type="submit" class="btn-add">Add Birthday</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Upcoming Birthdays</h2>
+    {% if entries %}
+    <table class="bday-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Alert</th>
+                <th>Coming Up</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in entries %}
+            <tr>
+                <td class="name-cell">{{ e.name }}</td>
+                <td class="date-cell">{{ e.month_name }} {{ e.day }}</td>
+                <td class="alert-cell">
+                    <form class="alert-form" action="/birthdays/edit/{{ e.id }}" method="POST">
+                        <input type="text" name="alert_days" value="{{ e.alert_days_str }}" placeholder="7, 14">
+                        <span style="color:#94a3b8">days</span>
+                        <button class="btn-save" type="submit">Save</button>
+                    </form>
+                </td>
+                <td>
+                    {% if e.days_until == 0 %}
+                    <span class="days-badge today">🎂 TODAY!</span>
+                    {% elif e.days_until <= 14 %}
+                    <span class="days-badge soon">in {{ e.days_until }} days</span>
+                    {% else %}
+                    <span class="days-badge normal">in {{ e.days_until }} days</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form action="/birthdays/delete/{{ e.id }}" method="POST" style="margin:0">
+                        <button class="btn-delete" type="submit" title="Remove">✕</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <span class="emoji">🎂</span>
+        No birthdays yet — add one above!
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

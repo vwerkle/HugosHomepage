@@ -133,9 +133,69 @@ def sync_from_api(api_key):
     return added, results_updated, len(matches)
 
 
-@worldcup_bp.route('/')
+@worldcup_bp.route('/', methods=['GET', 'POST'])
 def hub():
-    return render_template('worldcup/hub.html', username=session.get('wc_user'))
+    username = session.get('wc_user')
+    admin_data = None
+    message = None
+    message_type = 'success'
+
+    if username == 'hugo':
+        config = load_json(CONFIG_FILE, {})
+        games = load_json(GAMES_FILE, {})
+
+        if request.method == 'POST':
+            action = request.form.get('action')
+
+            if action == 'save_api_key':
+                config['api_key'] = request.form.get('api_key', '').strip()
+                save_json(CONFIG_FILE, config)
+                message = "API key saved."
+
+            elif action == 'sync':
+                api_key = config.get('api_key', '')
+                if not api_key:
+                    message = "No API key set. Add one below first."
+                    message_type = 'error'
+                else:
+                    try:
+                        added, results_updated, total = sync_from_api(api_key)
+                        message = f"Sync complete: {total} matches found, {added} new, {results_updated} results updated."
+                    except http_requests.HTTPError as e:
+                        message = f"API error: {e.response.status_code} — {e.response.text[:200]}"
+                        message_type = 'error'
+                    except Exception as e:
+                        message = f"Sync failed: {e}"
+                        message_type = 'error'
+
+            elif action == 'update_result':
+                game_id = request.form.get('game_id')
+                result = request.form.get('result')
+                if game_id in games and result in ('home_win', 'away_win', 'draw', 'pending'):
+                    games[game_id]['result'] = result
+                    save_json(GAMES_FILE, games)
+                    message = "Result updated."
+
+            elif action == 'delete_game':
+                game_id = request.form.get('game_id')
+                if game_id in games:
+                    label = f"{games[game_id]['away_team']} vs {games[game_id]['home_team']}"
+                    del games[game_id]
+                    save_json(GAMES_FILE, games)
+                    message = f"Deleted: {label}"
+
+            games = load_json(GAMES_FILE, {})
+            config = load_json(CONFIG_FILE, {})
+
+        admin_data = {
+            'games': sorted(games.items(), key=lambda x: x[1]['kickoff_time']),
+            'api_key': config.get('api_key', ''),
+            'message': message,
+            'message_type': message_type,
+        }
+
+    return render_template('worldcup/hub.html', username=username,
+                           admin=admin_data, stage_labels=STAGE_LABELS)
 
 
 @worldcup_bp.route('/login', methods=['GET', 'POST'])
@@ -391,65 +451,6 @@ def results():
                            logged_in_user=logged_in_user)
 
 
-@worldcup_bp.route('/admin', methods=['GET', 'POST'])
+@worldcup_bp.route('/admin')
 def admin():
-    user = session.get('wc_user')
-    if user != 'hugo':
-        return "You are not permissioned to access this page.", 403
-
-    config = load_json(CONFIG_FILE, {})
-    games = load_json(GAMES_FILE, {})
-    message = None
-    message_type = 'success'
-
-    if request.method == 'POST':
-        action = request.form.get('action')
-
-        if action == 'save_api_key':
-            api_key = request.form.get('api_key', '').strip()
-            config['api_key'] = api_key
-            save_json(CONFIG_FILE, config)
-            message = "API key saved."
-
-        elif action == 'sync':
-            api_key = config.get('api_key', '')
-            if not api_key:
-                message = "No API key set. Add one below first."
-                message_type = 'error'
-            else:
-                try:
-                    added, results_updated, total = sync_from_api(api_key)
-                    message = f"Sync complete: {total} matches found, {added} new games added, {results_updated} results updated."
-                except http_requests.HTTPError as e:
-                    message = f"API error: {e.response.status_code} — {e.response.text[:200]}"
-                    message_type = 'error'
-                except Exception as e:
-                    message = f"Sync failed: {e}"
-                    message_type = 'error'
-
-        elif action == 'update_result':
-            game_id = request.form.get('game_id')
-            result = request.form.get('result')
-            if game_id in games and result in ('home_win', 'away_win', 'draw', 'pending'):
-                games[game_id]['result'] = result
-                save_json(GAMES_FILE, games)
-                message = f"Result updated."
-
-        elif action == 'delete_game':
-            game_id = request.form.get('game_id')
-            if game_id in games:
-                label = f"{games[game_id]['away_team']} vs {games[game_id]['home_team']}"
-                del games[game_id]
-                save_json(GAMES_FILE, games)
-                message = f"Deleted: {label}"
-
-        games = load_json(GAMES_FILE, {})
-        config = load_json(CONFIG_FILE, {})
-
-    sorted_games = sorted(games.items(), key=lambda x: x[1]['kickoff_time'])
-    return render_template('worldcup/admin.html',
-                           games=sorted_games,
-                           message=message,
-                           message_type=message_type,
-                           stage_labels=STAGE_LABELS,
-                           api_key=config.get('api_key', ''))
+    return redirect(url_for('worldcup.hub'))
