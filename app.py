@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 import os
 import json
 from blueprints.misc.routes import misc_bp
@@ -64,7 +64,8 @@ def init_db():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return redirect(url_for('misc.landing'))
+
 
 @app.route('/pools')
 def pools():

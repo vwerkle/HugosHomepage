@@ -65,8 +65,14 @@ def game_points(stage):
     return 2 if stage in KNOCKOUT_STAGES else 1
 
 
-def pick_label(pick):
-    return {'home_win': 'Home Win', 'away_win': 'Away Win', 'draw': 'Draw'}.get(pick, pick or '')
+def pick_label(pick, home_team=None, away_team=None):
+    if pick == 'home_win':
+        return f"{home_team} Win" if home_team else 'Home Win'
+    if pick == 'away_win':
+        return f"{away_team} Win" if away_team else 'Away Win'
+    if pick == 'draw':
+        return 'Draw'
+    return pick or ''
 
 
 def team_name(team_obj):
@@ -198,6 +204,25 @@ def picks():
         if not is_tbd(g)
     })
 
+    # Build per-date game index for the JS picks tray
+    dates_games = {}
+    for game_id, game in games.items():
+        if is_tbd(game):
+            continue
+        d = game['kickoff_time'][:10]
+        if d not in dates_games:
+            dates_games[d] = []
+        dates_games[d].append({
+            'id': game_id,
+            'home': game['home_team'],
+            'away': game['away_team'],
+            'stage': game['stage'],
+            'locked': is_locked(game['kickoff_time'], current_time),
+            'kickoff': game['kickoff_time'],
+        })
+    for d in dates_games:
+        dates_games[d].sort(key=lambda x: x['kickoff'])
+
     if not all_dates:
         return render_template('worldcup/picks.html',
                                username=username,
@@ -207,10 +232,22 @@ def picks():
                                prev_date=None,
                                next_date=None,
                                user_picks=user_picks,
-                               current_time=current_time)
+                               current_time=current_time,
+                               dates_games={})
 
-    # Default to today if it has games, otherwise the next upcoming date
-    default_date = today if today in all_dates else next((d for d in all_dates if d >= today), all_dates[0])
+    # Default to the first date with at least one unpicked non-locked game
+    default_date = None
+    for d in all_dates:
+        for game_id, game in games.items():
+            if is_tbd(game) or game['kickoff_time'][:10] != d:
+                continue
+            if not is_locked(game['kickoff_time'], current_time) and game_id not in user_picks:
+                default_date = d
+                break
+        if default_date:
+            break
+    if not default_date:
+        default_date = today if today in all_dates else next((d for d in all_dates if d >= today), all_dates[0])
     selected_date = request.args.get('date', default_date)
     if selected_date not in all_dates:
         selected_date = default_date
@@ -224,6 +261,8 @@ def picks():
             all_picks[username] = {}
 
         for game_id, game in games.items():
+            if game['kickoff_time'][:10] != selected_date:
+                continue
             if is_locked(game['kickoff_time'], current_time):
                 continue
             pick_val = request.form.get(f'pick_{game_id}', '')
@@ -256,7 +295,39 @@ def picks():
                            prev_date=prev_date,
                            next_date=next_date,
                            user_picks=user_picks,
-                           current_time=current_time)
+                           current_time=current_time,
+                           dates_games=dates_games)
+
+
+@worldcup_bp.route('/picks/submit', methods=['POST'])
+def submit_picks():
+    username = session.get('wc_user')
+    if not username:
+        return {'error': 'Not logged in'}, 401
+
+    data = request.get_json() or {}
+    picks_data = data.get('picks', {})
+
+    current_time = now_utc_str()
+    games = load_json(GAMES_FILE, {})
+    all_picks = load_json(PICKS_FILE, {})
+
+    if username not in all_picks:
+        all_picks[username] = {}
+
+    saved_count = 0
+    for game_id, pick_val in picks_data.items():
+        game = games.get(game_id)
+        if not game or is_tbd(game):
+            continue
+        if is_locked(game['kickoff_time'], current_time):
+            continue
+        if pick_val in ('home_win', 'away_win', 'draw'):
+            all_picks[username][game_id] = pick_val
+            saved_count += 1
+
+    save_json(PICKS_FILE, all_picks)
+    return {'ok': True, 'saved': saved_count}
 
 
 @worldcup_bp.route('/results')
@@ -294,14 +365,14 @@ def results():
             wrong = (pick is not None and game['result'] != 'pending' and pick != game['result'])
             if locked or is_own:
                 user_cells[user] = {
-                    'pick': pick_label(pick),
+                    'pick': pick_label(pick, game['home_team'], game['away_team']),
                     'hidden': False,
                     'correct': correct,
                     'wrong': wrong,
                     'result': game['result'],
                 }
             else:
-                user_cells[user] = {'pick': None, 'hidden': True, 'correct': False, 'wrong': False, 'result': game['result']}
+                user_cells[user] = {'pick': None, 'hidden': True, 'has_pick': pick is not None, 'correct': False, 'wrong': False, 'result': game['result']}
         table_rows.append({
             'game': game,
             'game_id': game_id,

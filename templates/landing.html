@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hugo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #070b07;
+      background-image: radial-gradient(ellipse 90% 70% at 50% 55%, #111c11 0%, #070b07 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    /* subtle felt grain */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Ccircle cx='1' cy='1' r='0.6' fill='%23ffffff'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+    }
+
+    /* ── nav ── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 36px;
+    }
+    .nav-logo {
+      font-weight: 800; font-size: 14px; letter-spacing: 0.28em;
+      text-transform: uppercase; color: rgba(255,255,255,0.75); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-link {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.15em;
+      text-transform: uppercase; color: rgba(255,255,255,0.28); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: rgba(255,255,255,0.7); }
+
+    /* ── card table ── */
+    .card-table {
+      position: relative; z-index: 1;
+      width: 620px; height: 430px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .card {
+      position: absolute;
+      width: 262px; height: 392px;
+      border-radius: 18px;
+      cursor: pointer;
+      will-change: transform;
+      transform: translateX(0) rotate(0deg);
+      /* fan-open transition (slow, spring-like) */
+      transition: transform 0.75s cubic-bezier(0.34, 1.26, 0.64, 1),
+                  opacity  0.4s ease,
+                  z-index  0s;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%; height: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 30px 26px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* outer glow ring */
+    .card-inner::after {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 18px;
+      box-shadow: inset 0 0 0 1px rgba(201,162,39,0.22);
+      pointer-events: none; z-index: 3;
+    }
+
+    /* inner gold frame */
+    .card-frame {
+      position: absolute; inset: 13px;
+      border: 1px solid rgba(201,162,39,0.32);
+      border-radius: 11px;
+      pointer-events: none; z-index: 2;
+    }
+
+    /* recipes */
+    .card-recipes .card-inner {
+      background-color: #1a3d2a;
+      background-image: linear-gradient(155deg, #20523a 0%, #1a3d2c 45%, #112a1d 100%);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.75), 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .card-recipes:hover .card-inner {
+      box-shadow: 0 36px 90px rgba(0,0,0,0.85), 0 0 50px rgba(20,80,45,0.35),
+                  0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    /* pools */
+    .card-pools .card-inner {
+      background-color: #12102a;
+      background-image: linear-gradient(155deg, #1c1535 0%, #130f27 45%, #0c0a1e 100%);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.75), 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .card-pools:hover .card-inner {
+      box-shadow: 0 36px 90px rgba(0,0,0,0.85), 0 0 50px rgba(60,40,120,0.25),
+                  0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    /* playing-card corner indices */
+    .corner {
+      position: absolute; z-index: 4;
+      font-family: 'Playfair Display', serif;
+      color: rgba(201,162,39,0.60);
+      font-size: 11px; line-height: 1.5;
+      font-style: italic;
+    }
+    .corner.tl { top: 20px; left: 19px; text-align: center; }
+    .corner.br { bottom: 20px; right: 19px; text-align: center; transform: rotate(180deg); }
+
+    /* center content */
+    .card-eyebrow {
+      font-size: 8px; font-weight: 600; letter-spacing: 0.35em;
+      text-transform: uppercase; color: rgba(201,162,39,0.60);
+      margin-bottom: 18px; z-index: 4; position: relative;
+    }
+    .card-suit {
+      font-size: 34px; color: rgba(201,162,39,0.40);
+      margin-bottom: 14px; z-index: 4; position: relative;
+      line-height: 1;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-style: italic; font-weight: 700;
+      font-size: 38px; line-height: 1;
+      color: rgba(255,255,255,0.92);
+      margin-bottom: 20px; z-index: 4; position: relative;
+    }
+    .card-rule {
+      width: 32px; height: 1px;
+      background: rgba(201,162,39,0.40);
+      margin-bottom: 16px; z-index: 4;
+    }
+    .card-sub {
+      font-size: 8px; font-weight: 600; letter-spacing: 0.22em;
+      text-transform: uppercase; color: rgba(255,255,255,0.30);
+      z-index: 4; position: relative;
+    }
+
+    /* sibling dims when one card is active */
+    .card-table.hovered .card:not(.card-active) { opacity: 0.38; }
+
+    /* label */
+    .choose-label {
+      position: relative; z-index: 1;
+      margin-top: 42px;
+      font-size: 8px; font-weight: 600; letter-spacing: 0.32em;
+      text-transform: uppercase; color: rgba(255,255,255,0.16);
+      animation: labelPulse 4s ease-in-out infinite;
+    }
+    @keyframes labelPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+
+    /* fade veil */
+    .fade-veil {
+      position: fixed; inset: 0; z-index: 200;
+      background: #070b07;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.55s ease;
+    }
+    .fade-veil.on { opacity: 1; pointer-events: all; }
+
+    /* ── mobile ── */
+    @media (max-width: 700px) {
+      .card-table {
+        width: 100vw;
+        height: 72vw;
+        flex-direction: row;
+        gap: 3vw;
+      }
+      .card {
+        position: relative;
+        width: 44vw; height: 66vw;
+        border-radius: 12px;
+      }
+      .card-inner { border-radius: 12px; padding: 18px 12px; }
+      .card-inner::after { border-radius: 12px; }
+      .card-frame { inset: 9px; border-radius: 8px; }
+      .card-title { font-size: 22px; margin-bottom: 12px; }
+      .card-eyebrow { font-size: 7px; margin-bottom: 12px; }
+      .card-suit { font-size: 22px; margin-bottom: 10px; }
+      .card-sub { font-size: 7px; }
+      .corner { font-size: 9px; }
+      .corner.tl { top: 12px; left: 12px; }
+      .corner.br { bottom: 12px; right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/"  class="nav-logo">Hugo</a>
+    <div class="nav-links">
+      <a href="/restaurants" class="nav-link">Restaurants</a>
+    </div>
+  </nav>
+
+  <div class="card-table" id="cardTable">
+    <!-- Recipes card -->
+    <div class="card card-recipes" id="cardRecipes">
+      <div class="card-inner" id="recipesInner">
+        <div class="card-frame"></div>
+        <div class="corner tl">H<br>♦<br>K</div>
+        <div class="corner br">H<br>♦<br>K</div>
+        <div class="card-eyebrow">Hugo's</div>
+        <div class="card-suit">♥</div>
+        <div class="card-title">Kitchen</div>
+        <div class="card-rule"></div>
+        <div class="card-sub">Recipes</div>
+      </div>
+    </div>
+
+    <!-- Pools card -->
+    <div class="card card-pools" id="cardPools">
+      <div class="card-inner">
+        <div class="card-frame"></div>
+        <div class="corner tl">H<br>♠<br>P</div>
+        <div class="corner br">H<br>♠<br>P</div>
+        <div class="card-eyebrow">Hugo's</div>
+        <div class="card-suit">♠</div>
+        <div class="card-title">Pools</div>
+        <div class="card-rule"></div>
+        <div class="card-sub">Pick'em &middot; MLB &middot; World Cup</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="choose-label">Choose your destination</p>
+  <div class="fade-veil" id="fadeVeil"></div>
+
+  <script>window._FEAT = "{{ featured_image or '' }}";</script>
+  <script>
+    const table   = document.getElementById('cardTable');
+    const recipes = document.getElementById('cardRecipes');
+    const pools   = document.getElementById('cardPools');
+    const veil    = document.getElementById('fadeVeil');
+
+    // apply featured image as subtle overlay on recipes card
+    if (window._FEAT) {
+      const inner = document.getElementById('recipesInner');
+      inner.style.backgroundImage =
+        `linear-gradient(155deg, rgba(28,70,48,0.94) 0%, rgba(22,55,36,0.93) 45%, rgba(14,36,24,0.96) 100%), url('${window._FEAT}')`;
+    }
+
+    const isMobile = window.innerWidth <= 700;
+    // Mobile: CSS flex-row handles placement; JS just applies a gentle tilt
+    // Desktop: absolute positioning fanned out via translateX
+    const FAN_L = isMobile ? 'rotate(-6deg)'  : 'translateX(-158px) rotate(-13deg)';
+    const FAN_R = isMobile ? 'rotate( 6deg)'  : 'translateX( 158px) rotate( 13deg)';
+
+    // fan open on load (slight delay so transition is visible)
+    setTimeout(() => {
+      recipes.style.transform = FAN_L;
+      pools.style.transform   = FAN_R;
+    }, 140);
+
+    function setupCard(card, fanPos, url) {
+      card.addEventListener('mouseenter', () => {
+        table.classList.add('hovered');
+        card.classList.add('card-active');
+        card.style.zIndex = '10';
+        // fast transition for tilt tracking
+        card.style.transition = 'transform 0.12s ease, opacity 0.35s ease, box-shadow 0.35s ease';
+      });
+
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width  - 0.5;
+        const y = (e.clientY - r.top)  / r.height - 0.5;
+        card.style.transform =
+          `${fanPos} translateY(-22px) scale(1.055) perspective(700px) rotateX(${y * -13}deg) rotateY(${x * 13}deg)`;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        table.classList.remove('hovered');
+        card.classList.remove('card-active');
+        card.style.zIndex = '';
+        // slow spring-back
+        card.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.35s ease';
+        card.style.transform = fanPos;
+      });
+
+      card.addEventListener('click', () => {
+        veil.classList.add('on');
+        setTimeout(() => window.location.href = url, 560);
+      });
+    }
+
+    setupCard(recipes, FAN_L, '/recipes3');
+    setupCard(pools,   FAN_R, '/pools');
+
+    // clear veil when browser restores page from back-forward cache
+    window.addEventListener('pageshow', e => {
+      if (e.persisted) veil.classList.remove('on');
+    });
+
+    // re-fan on resize
+    window.addEventListener('resize', () => {
+      const m = window.innerWidth <= 700;
+      const l = m ? 'rotate(-6deg)'  : 'translateX(-158px) rotate(-13deg)';
+      const r = m ? 'rotate( 6deg)'  : 'translateX( 158px) rotate( 13deg)';
+      recipes.style.transform = l;
+      pools.style.transform   = r;
+    });
+  </script>
+</body>
+</html>

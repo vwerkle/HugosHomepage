@@ -85,10 +85,11 @@
         .surprise-btn:hover { background: var(--accent); color: white; }
 
         /* ── Grid ── */
-        .grid { max-width: 1240px; margin: 20px auto 0; padding: 0 20px 80px; columns: 3 260px; column-gap: 18px; }
+        .grid { max-width: 1240px; margin: 20px auto 0; padding: 0 20px 80px; display: flex; gap: 18px; align-items: flex-start; }
+        .masonry-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
 
         /* ── Card ── */
-        .recipe-card { break-inside: avoid; margin-bottom: 18px; background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 14px rgba(0,0,0,0.07); cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease; will-change: transform; }
+        .recipe-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 14px rgba(0,0,0,0.07); cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease; will-change: transform; }
         .recipe-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.14); }
         .recipe-card.hidden { display: none; }
         .card-img-wrap { width: 100%; background: #ede9e3; overflow: hidden; }
@@ -122,7 +123,7 @@
         /* ── Responsive ── */
         @media (max-width: 640px) {
             .page-header { padding: 36px 16px 24px; }
-            .grid { columns: 1; padding: 0 14px 80px; }
+            .grid { padding: 0 14px 80px; }
             .meta-bar { padding: 0 14px; }
             .controls { padding: 10px 14px; }
             .filter-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
@@ -133,10 +134,8 @@
             .lb-info-col { flex: none; padding: 24px 22px 28px; }
             .lb-title { font-size: 1.5rem; }
         }
-        @media (min-width: 641px) and (max-width: 960px) { .grid { columns: 2; } }
 
         @keyframes cardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        .recipe-card { animation: cardIn 0.38s ease both; }
     </style>
 </head>
 <body>
@@ -255,9 +254,35 @@
 
 <script>
 const cards   = Array.from(document.querySelectorAll('.recipe-card'));
+const grid    = document.getElementById('grid');
 const countEl = document.getElementById('result-count');
 const emptyEl = document.getElementById('empty');
 const subRows = document.querySelectorAll('.sub-row');
+
+function getColCount() {
+    if (window.innerWidth <= 640) return 1;
+    if (window.innerWidth <= 960) return 2;
+    return 3;
+}
+
+function redistributeCards() {
+    const n = getColCount();
+    let cols = Array.from(grid.querySelectorAll(':scope > .masonry-col'));
+    if (cols.length !== n) {
+        cols.forEach(c => c.remove());
+        cols = [];
+        for (let i = 0; i < n; i++) {
+            const col = document.createElement('div');
+            col.className = 'masonry-col';
+            grid.appendChild(col);
+            cols.push(col);
+        }
+    }
+    // Move all cards back to grid root, then redistribute
+    cols.forEach(col => Array.from(col.children).forEach(c => grid.appendChild(c)));
+    const visible = cards.filter(c => !c.classList.contains('hidden'));
+    visible.forEach((c, i) => cols[i % n].appendChild(c));
+}
 
 let activeCat        = 'all';
 let activeSub        = null;
@@ -283,6 +308,7 @@ function applyFilters() {
     });
     countEl.textContent = n === 0 ? '' : `${n} recipe${n !== 1 ? 's' : ''}`;
     emptyEl.style.display = n === 0 ? 'block' : 'none';
+    redistributeCards();
 }
 
 // Category pills
@@ -367,8 +393,8 @@ function surpriseMe() {
     openLb(visible[Math.floor(Math.random() * visible.length)]);
 }
 
-cards.forEach((c, i) => { c.style.animationDelay = Math.min(i * 0.035, 0.7) + 's'; });
 applyFilters();
+window.addEventListener('resize', redistributeCards);
 </script>
 </body>
 </html>

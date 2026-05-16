@@ -6,7 +6,11 @@
     <title>Make Picks | World Cup 2026</title>
     <style>
         :root { --green: #16a34a; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; margin: 0; padding: 20px; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif; background: #f0f4f8;
+            margin: 0; padding: 16px; padding-bottom: 160px;
+        }
         .container { max-width: 650px; margin: 0 auto; }
 
         .page-header { text-align: center; margin-bottom: 20px; }
@@ -17,11 +21,11 @@
         .date-nav {
             display: flex; align-items: center; justify-content: space-between;
             background: white; border-radius: 14px; padding: 14px 18px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px;
         }
         .date-nav-arrow {
-            text-decoration: none; font-size: 1.3rem; color: #374151;
-            padding: 4px 10px; border-radius: 8px; transition: background 0.15s;
+            text-decoration: none; font-size: 1.4rem; color: #374151;
+            padding: 4px 12px; border-radius: 8px; transition: background 0.15s;
         }
         .date-nav-arrow:hover { background: #f1f5f9; }
         .date-nav-arrow.disabled { color: #d1d5db; pointer-events: none; }
@@ -31,36 +35,58 @@
 
         /* Game cards */
         .game-card {
-            background: white; border-radius: 14px; padding: 16px 20px; margin-bottom: 10px;
+            background: white; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #e2e8f0;
         }
         .game-card.knockout { border-left-color: #f59e0b; }
-        .game-card.locked { background: #f9fafb; opacity: 0.82; }
+        .game-card.locked   { background: #f9fafb; opacity: 0.85; }
 
-        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .teams { font-size: 0.95rem; font-weight: 700; color: #1e293b; }
-        .teams .vs { color: #94a3b8; font-weight: 400; margin: 0 6px; }
-        .meta { font-size: 0.72rem; color: #94a3b8; text-align: right; line-height: 1.5; }
+        .game-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 12px; gap: 8px;
+        }
+        .teams { font-size: 0.92rem; font-weight: 700; color: #1e293b; line-height: 1.4; }
+        .teams .vs { color: #94a3b8; font-weight: 400; margin: 0 5px; }
+        .meta { font-size: 0.7rem; color: #94a3b8; text-align: right; line-height: 1.5; flex-shrink: 0; }
         .knockout-badge {
             display: inline-block; background: #fef3c7; color: #92400e;
-            font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-left: 6px;
+            font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: 5px;
         }
-        .lock-icon { font-size: 0.72rem; color: #e74c3c; margin-left: 5px; }
 
-        .pick-options { display: flex; gap: 8px; }
-        .pick-option { flex: 1; }
+
+        /* Pick options (radio buttons) */
+        .pick-options { display: flex; gap: 7px; }
+        .pick-option { flex: 1; min-width: 0; }
         .pick-option input[type="radio"] { display: none; }
         .pick-option label {
-            display: block; text-align: center; padding: 9px 4px; border-radius: 9px;
-            border: 2px solid #e2e8f0; font-size: 0.8rem; font-weight: 600; color: #475569;
+            display: block; text-align: center; padding: 10px 4px; border-radius: 9px;
+            border: 2px solid #e2e8f0; font-size: 0.78rem; font-weight: 600; color: #475569;
             cursor: pointer; transition: all 0.15s; user-select: none;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .pick-option input:checked + label { background: var(--green); color: white; border-color: var(--green); }
         .pick-option label:hover { border-color: var(--green); color: var(--green); }
-        .locked-pick .pick-option label { cursor: default; }
-        .locked-pick .pick-option label:hover { border-color: #e2e8f0; color: #475569; }
-        .locked-pick .pick-option input:checked + label { background: #64748b; border-color: #64748b; }
 
+        /* State 2: unlocked + picked → ball overlay */
+        .pick-wrapper { position: relative; }
+        .ball-cover {
+            display: none; /* shown via JS when pick exists */
+            align-items: center; justify-content: center;
+            padding: 10px; background: #f0fdf4; border-radius: 9px;
+            border: 2px solid #bbf7d0; font-size: 1.8rem; line-height: 1;
+            cursor: pointer;
+        }
+        .ball-cover:active { opacity: 0.7; }
+
+        /* State 3: locked + picked → pick text */
+        .submitted-pick {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 14px; background: #f8fafc; border-radius: 9px;
+            border: 2px solid #e2e8f0; font-weight: 600; color: #475569; font-size: 0.85rem;
+        }
+        .submitted-pick .check { color: #16a34a; font-size: 1rem; }
+
+        /* Result badge */
         .result-badge {
             display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
             border-radius: 10px; margin-top: 8px;
@@ -69,118 +95,414 @@
         .result-badge.away_win { background: #fee2e2; color: #991b1b; }
         .result-badge.draw     { background: #f3f4f6; color: #374151; }
 
-        .save-btn {
-            width: 100%; padding: 15px; background: var(--green); color: white; border: none;
-            border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 18px;
-            box-shadow: 0 4px 14px rgba(22,163,74,0.3); transition: transform 0.15s;
-        }
-        .save-btn:active { transform: scale(0.98); }
-
         .empty-msg { text-align: center; color: #94a3b8; padding: 50px 0; font-size: 0.95rem; }
-        .nav-back { display: block; text-align: center; margin-top: 24px; color: #94a3b8; text-decoration: none; font-size: 14px; }
+        .nav-back  { display: block; text-align: center; margin-top: 24px; color: #94a3b8; text-decoration: none; font-size: 14px; }
+
+        /* All-done banner */
+        #all-done-banner {
+            display: none; background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white; border-radius: 14px; padding: 18px 20px; margin-top: 14px;
+            text-align: center; animation: fadeUp 0.3s ease;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        #all-done-banner h3 { margin: 0 0 5px; font-size: 1rem; }
+        #all-done-banner p  { margin: 0 0 12px; font-size: 0.82rem; opacity: 0.9; }
+        .banner-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .banner-go-btn {
+            background: white; color: #16a34a; padding: 8px 22px; border-radius: 20px;
+            font-weight: 700; font-size: 0.85rem; text-decoration: none; border: none; cursor: pointer;
+        }
+        .banner-stay-btn {
+            background: rgba(255,255,255,0.15); color: white;
+            border: 2px solid rgba(255,255,255,0.4); padding: 8px 16px;
+            border-radius: 20px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
+        }
+
+        /* Sticky tray */
+        #picks-tray {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #0f172a; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); z-index: 100;
+        }
+        .tray-chips-row {
+            display: flex; align-items: center; gap: 7px;
+            overflow-x: auto; padding: 10px 14px 8px; scrollbar-width: none;
+        }
+        .tray-chips-row::-webkit-scrollbar { display: none; }
+        .day-chip {
+            flex-shrink: 0; padding: 5px 11px; border-radius: 20px;
+            font-size: 0.72rem; font-weight: 700; cursor: pointer;
+            text-decoration: none; white-space: nowrap; transition: opacity 0.15s;
+        }
+        .day-chip.complete { background: #16a34a; color: white; }
+        .day-chip.partial  { background: #d97706; color: white; }
+        .day-chip.empty    { background: #1e293b; color: #64748b; }
+        .day-chip.current  { outline: 2px solid white; outline-offset: 2px; }
+        .day-chip:hover    { opacity: 0.8; }
+        .tray-bottom-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 4px 14px 14px; gap: 10px;
+        }
+        .tray-count { color: #64748b; font-size: 0.78rem; flex-shrink: 0; }
+        .tray-count strong { color: #cbd5e1; }
+        .submit-all-btn {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white; border: none; padding: 11px 18px; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 700; cursor: pointer;
+            transition: transform 0.1s, opacity 0.15s; white-space: nowrap; flex-shrink: 0;
+        }
+        .submit-all-btn:active   { transform: scale(0.97); }
+        .submit-all-btn:disabled { opacity: 0.4; cursor: default; }
+
+        /* Toast */
+        #toast {
+            display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #16a34a; color: white; padding: 11px 22px; border-radius: 10px;
+            font-weight: 600; font-size: 0.9rem; z-index: 200; animation: fadeUp 0.3s ease;
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            body { padding: 10px; padding-bottom: 160px; }
+            .pick-option label { font-size: 0.7rem; padding: 9px 2px; }
+            .game-card { padding: 12px; }
+            .teams { font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
-<nav style="background:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-    <a href="/" style="font-weight:800;font-size:1.2rem;text-decoration:none;color:#0f172a;">HUGO</a>
+
+<nav style="background:white;padding:0.85rem 1.2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <a href="/" style="font-weight:800;font-size:1.1rem;text-decoration:none;color:#0f172a;">HUGO</a>
     <div>
-        <a href="/worldcup/results" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Leaderboard</a>
-        <a href="/worldcup/logout" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Log Out ({{ username }})</a>
+        <a href="/worldcup/results" style="text-decoration:none;color:#0f172a;margin-left:12px;font-size:0.9rem;">Leaderboard</a>
+        <a href="/worldcup/logout" style="text-decoration:none;color:#0f172a;margin-left:12px;font-size:0.9rem;">Log Out ({{ username }})</a>
     </div>
 </nav>
+
+<div id="toast">✓ Picks saved!</div>
 
 <div class="container">
     <div class="page-header">
         <h2>⚽ World Cup 2026</h2>
-        <p>Group stage = 1 pt &bull; Knockout = 2 pts &bull; Picks lock at kickoff</p>
+        <p>Group = 1 pt &bull; Knockout = 2 pts &bull; Picks lock at kickoff</p>
     </div>
 
     {% if not all_dates %}
-        <div class="empty-msg">No games have been added yet. Check back soon!</div>
+        <div class="empty-msg">No games have been added yet.</div>
     {% else %}
 
-    <!-- Date navigation -->
     <div class="date-nav">
         <a href="{{ url_for('worldcup.picks', date=prev_date) if prev_date else '#' }}"
            class="date-nav-arrow {% if not prev_date %}disabled{% endif %}">&#8592;</a>
         <div class="date-nav-center">
             <div class="date-display">{{ selected_date }}</div>
-            <div class="date-progress">
-                Day {{ all_dates.index(selected_date) + 1 }} of {{ all_dates|length }}
-            </div>
+            <div class="date-progress">Day {{ all_dates.index(selected_date) + 1 }} of {{ all_dates|length }}</div>
         </div>
         <a href="{{ url_for('worldcup.picks', date=next_date) if next_date else '#' }}"
            class="date-nav-arrow {% if not next_date %}disabled{% endif %}">&#8594;</a>
     </div>
 
     {% if not games_today %}
-        <div class="empty-msg">No pickable games on this date.</div>
+        <div class="empty-msg">No games on this date.</div>
     {% else %}
-    <form method="POST" action="{{ url_for('worldcup.picks', date=selected_date) }}">
-        {% for game in games_today %}
-        <div class="game-card {% if game.stage != 'group' %}knockout{% endif %} {% if game.locked %}locked{% endif %}">
-            <div class="game-header">
-                <div class="teams">
-                    {{ game.away_team }}
-                    <span class="vs">vs</span>
-                    {{ game.home_team }}
-                    {% if game.stage != 'group' %}
-                        <span class="knockout-badge">{{ game.stage_label }} &times;2</span>
-                    {% endif %}
-                    {% if game.locked %}<span class="lock-icon">🔒</span>{% endif %}
-                </div>
-                <div class="meta">
-                    {{ game.kickoff_time[11:16] }} UTC
-                    {% if game.group %}<br>{{ game.group }}{% endif %}
-                </div>
-            </div>
+    <div id="games-container">
+    {% for game in games_today %}
+    {% set cur = user_picks.get(game.id, '') %}
+    <div class="game-card {% if game.stage != 'group' %}knockout{% endif %} {% if game.locked %}locked{% endif %}">
 
-            {% set cur = user_picks.get(game.id, '') %}
-            <div class="pick-options {% if game.locked %}locked-pick{% endif %}">
-                <div class="pick-option">
-                    <input type="radio" name="pick_{{ game.id }}" id="away_{{ game.id }}" value="away_win"
-                        {% if cur == 'away_win' %}checked{% endif %}
-                        {% if game.locked %}disabled{% endif %}>
-                    <label for="away_{{ game.id }}">{{ game.away_team }} Win</label>
-                </div>
-                <div class="pick-option">
-                    <input type="radio" name="pick_{{ game.id }}" id="draw_{{ game.id }}" value="draw"
-                        {% if cur == 'draw' %}checked{% endif %}
-                        {% if game.locked %}disabled{% endif %}>
-                    <label for="draw_{{ game.id }}">Draw</label>
-                </div>
-                <div class="pick-option">
-                    <input type="radio" name="pick_{{ game.id }}" id="home_{{ game.id }}" value="home_win"
-                        {% if cur == 'home_win' %}checked{% endif %}
-                        {% if game.locked %}disabled{% endif %}>
-                    <label for="home_{{ game.id }}">{{ game.home_team }} Win</label>
-                </div>
+        <div class="game-header">
+            <div class="teams">
+                {{ game.away_team }}
+                <span class="vs">vs</span>
+                {{ game.home_team }}
+                {% if game.stage != 'group' %}
+                    <span class="knockout-badge">{{ game.stage_label }} &times;2</span>
+                {% endif %}
             </div>
-
-            {% if game.result != 'pending' %}
-            <div>
-                <span class="result-badge {{ game.result }}">
-                    Result:
-                    {% if game.result == 'home_win' %}{{ game.home_team }} Win
-                    {% elif game.result == 'away_win' %}{{ game.away_team }} Win
-                    {% else %}Draw{% endif %}
-                </span>
+            <div class="meta">
+                {{ game.kickoff_time[11:16] }} UTC
+                {% if game.group %}<br>{{ game.group }}{% endif %}
             </div>
-            {% endif %}
-
-            {% if game.locked %}
-                <input type="hidden" name="pick_{{ game.id }}" value="{{ cur }}">
-            {% endif %}
         </div>
-        {% endfor %}
 
-        <button type="submit" class="save-btn">Save Picks for {{ selected_date }}</button>
-    </form>
+        {# State 3: locked + picked → show pick label #}
+        {% if game.locked and cur %}
+            <div class="submitted-pick">
+                <span class="check">✓</span>
+                {% if cur == 'home_win' %}{{ game.home_team }} Win
+                {% elif cur == 'away_win' %}{{ game.away_team }} Win
+                {% else %}Draw{% endif %}
+            </div>
+
+        {# State 1: locked + no pick → show nothing #}
+        {% elif game.locked %}
+            {# intentionally empty #}
+
+        {# States 1 & 2: unlocked → radio buttons (JS adds ball cover if picked) #}
+        {% else %}
+            <div class="pick-wrapper" data-game-id="{{ game.id }}">
+                <div class="ball-cover" title="Tap to change pick">⚽</div>
+                <div class="pick-options">
+                    <div class="pick-option">
+                        <input type="radio" class="pick-radio"
+                               name="pick_{{ game.id }}" id="away_{{ game.id }}" value="away_win"
+                               data-game-id="{{ game.id }}">
+                        <label for="away_{{ game.id }}">{{ game.away_team }} Win</label>
+                    </div>
+                    <div class="pick-option">
+                        <input type="radio" class="pick-radio"
+                               name="pick_{{ game.id }}" id="draw_{{ game.id }}" value="draw"
+                               data-game-id="{{ game.id }}">
+                        <label for="draw_{{ game.id }}">Draw</label>
+                    </div>
+                    <div class="pick-option">
+                        <input type="radio" class="pick-radio"
+                               name="pick_{{ game.id }}" id="home_{{ game.id }}" value="home_win"
+                               data-game-id="{{ game.id }}">
+                        <label for="home_{{ game.id }}">{{ game.home_team }} Win</label>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if game.result != 'pending' %}
+        <div>
+            <span class="result-badge {{ game.result }}">
+                Result:
+                {% if game.result == 'home_win' %}{{ game.home_team }} Win
+                {% elif game.result == 'away_win' %}{{ game.away_team }} Win
+                {% else %}Draw{% endif %}
+            </span>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    </div>
+
+    <div id="all-done-banner">
+        <h3>✓ All games picked for today!</h3>
+        {% if next_date %}
+        <p>Moving to {{ next_date }} in <span id="countdown">1</span>s&hellip;</p>
+        <div class="banner-btns">
+            <a href="{{ url_for('worldcup.picks', date=next_date) }}" class="banner-go-btn">Go Now &rarr;</a>
+            <button class="banner-stay-btn" onclick="cancelAdvance()">Stay Here</button>
+        </div>
+        {% else %}
+        <p>All available games picked &mdash; hit <strong>Submit All Picks</strong> below!</p>
+        {% endif %}
+    </div>
     {% endif %}
 
     {% endif %}
 
     <a href="{{ url_for('worldcup.hub') }}" class="nav-back">&larr; Back to Hub</a>
 </div>
+
+<!-- Sticky tray -->
+<div id="picks-tray">
+    <div class="tray-chips-row" id="tray-chips"></div>
+    <div class="tray-bottom-row">
+        <div class="tray-count" id="tray-count"></div>
+        <button class="submit-all-btn" id="submit-btn" onclick="submitAll()">Submit All Picks</button>
+    </div>
+</div>
+
+<script>
+const SERVER_PICKS = {{ user_picks | tojson }};
+const DATES_GAMES  = {{ dates_games | tojson }};
+const ALL_DATES    = {{ all_dates | tojson }};
+const SELECTED     = "{{ selected_date }}";
+const NEXT_DATE    = {{ next_date | tojson }};
+const PICKS_BASE   = "{{ url_for('worldcup.picks') }}";
+const LS_KEY       = 'wc_picks_2026';
+
+let advanceInterval    = null;
+let dayCompleteAtLoad  = false;
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+function loadPicks() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function savePicks(p) { localStorage.setItem(LS_KEY, JSON.stringify(p)); }
+
+function seedFromServer() {
+    const p = loadPicks();
+    let changed = false;
+    for (const [gid, val] of Object.entries(SERVER_PICKS)) {
+        if (!(gid in p)) { p[gid] = val; changed = true; }
+    }
+    if (changed) savePicks(p);
+}
+
+// ── Pick covers (state 2: unlocked + picked → ball) ───────────────────────────
+
+function applyBallCovers(picks) {
+    document.querySelectorAll('.pick-wrapper').forEach(wrapper => {
+        const gameId   = wrapper.dataset.gameId;
+        const hasPick  = !!picks[gameId];
+        const ball     = wrapper.querySelector('.ball-cover');
+        const options  = wrapper.querySelector('.pick-options');
+        ball.style.display    = hasPick ? 'flex' : 'none';
+        options.style.display = hasPick ? 'none' : 'flex';
+    });
+}
+
+function initBallCovers() {
+    document.querySelectorAll('.ball-cover').forEach(ball => {
+        ball.addEventListener('click', function() {
+            // Reveal radios so user can change pick
+            this.style.display = 'none';
+            this.nextElementSibling.style.display = 'flex';
+        });
+    });
+}
+
+// ── Radios ────────────────────────────────────────────────────────────────────
+
+function initRadios() {
+    const picks = loadPicks();
+    document.querySelectorAll('.pick-radio').forEach(radio => {
+        if (picks[radio.dataset.gameId] === radio.value) radio.checked = true;
+        radio.addEventListener('change', function() {
+            const p = loadPicks();
+            p[this.dataset.gameId] = this.value;
+            savePicks(p);
+            updateUI();
+        });
+    });
+}
+
+// ── Tray ──────────────────────────────────────────────────────────────────────
+
+function fmtDate(d) {
+    const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const [,m,day] = d.split('-');
+    return mo[+m-1] + ' ' + +day;
+}
+
+function updateTray(picks) {
+    const chipsEl   = document.getElementById('tray-chips');
+    const countEl   = document.getElementById('tray-count');
+    const submitBtn = document.getElementById('submit-btn');
+
+    let totalPicks = 0, totalPickable = 0, html = '';
+
+    for (const date of ALL_DATES) {
+        const dayGames  = DATES_GAMES[date] || [];
+        const pickable  = dayGames.filter(g => !g.locked);
+        const picked    = pickable.filter(g => picks[g.id]);
+        totalPickable  += pickable.length;
+        totalPicks     += picked.length;
+
+        let cls = 'empty';
+        if (pickable.length > 0) {
+            if (picked.length === pickable.length) cls = 'complete';
+            else if (picked.length > 0)            cls = 'partial';
+        }
+        const countStr = pickable.length > 0 ? ` ${picked.length}/${pickable.length}` : '';
+        const cur      = date === SELECTED ? ' current' : '';
+        html += `<a class="day-chip ${cls}${cur}" href="${PICKS_BASE}?date=${date}">${fmtDate(date)}${countStr}</a>`;
+    }
+
+    chipsEl.innerHTML = html;
+    const curChip = chipsEl.querySelector('.current');
+    if (curChip) curChip.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'instant' });
+
+    countEl.innerHTML = `<strong>${totalPicks}</strong>&nbsp;of ${totalPickable} picks made`;
+    submitBtn.textContent = `Submit All Picks (${totalPicks})`;
+    submitBtn.disabled = (totalPicks === 0);
+}
+
+// ── Auto-advance ──────────────────────────────────────────────────────────────
+
+function checkAllDone(picks) {
+    if (dayCompleteAtLoad) return;
+    const pickable = (DATES_GAMES[SELECTED] || []).filter(g => !g.locked);
+    if (pickable.length === 0) return;
+
+    const allDone = pickable.every(g => picks[g.id]);
+    const banner  = document.getElementById('all-done-banner');
+
+    if (allDone && !advanceInterval) {
+        banner.style.display = 'block';
+        if (NEXT_DATE) startAdvance();
+    } else if (!allDone && advanceInterval) {
+        cancelAdvance();
+        banner.style.display = 'none';
+    }
+}
+
+function startAdvance() {
+    const cdEl = document.getElementById('countdown');
+    if (cdEl) cdEl.textContent = 1;
+    advanceInterval = setTimeout(() => {
+        advanceInterval = null;
+        window.location.href = PICKS_BASE + '?date=' + NEXT_DATE;
+    }, 1000);
+}
+
+function cancelAdvance() {
+    clearTimeout(advanceInterval);
+    advanceInterval = null;
+    const banner = document.getElementById('all-done-banner');
+    if (banner) banner.style.display = 'none';
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+
+async function submitAll() {
+    const picks = loadPicks();
+    const btn   = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    try {
+        const resp = await fetch('/worldcup/picks/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ picks })
+        });
+        const data = await resp.json();
+        if (data.ok) {
+            localStorage.removeItem(LS_KEY);
+            document.getElementById('toast').style.display = 'block';
+            setTimeout(() => { window.location.href = '/worldcup/results'; }, 1500);
+        } else {
+            btn.disabled = false;
+            btn.textContent = 'Submit All Picks';
+            alert('Error saving picks. Please try again.');
+        }
+    } catch(e) {
+        btn.disabled = false;
+        btn.textContent = 'Submit All Picks';
+        alert('Network error. Please try again.');
+    }
+}
+
+// ── updateUI ──────────────────────────────────────────────────────────────────
+
+function updateUI() {
+    const picks = loadPicks();
+    applyBallCovers(picks);
+    updateTray(picks);
+    checkAllDone(picks);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+seedFromServer();
+initRadios();
+initBallCovers();
+
+const _p = loadPicks();
+const _pickable = (DATES_GAMES[SELECTED] || []).filter(g => !g.locked);
+dayCompleteAtLoad = _pickable.length > 0 && _pickable.every(g => _p[g.id]);
+
+updateUI();
+</script>
 </body>
 </html>

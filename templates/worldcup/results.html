@@ -26,25 +26,25 @@
         /* Table */
         .table-wrapper {
             background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.07);
-            overflow-x: auto; -webkit-overflow-scrolling: touch;
+            overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 0;
         }
-        .grid-table { border-collapse: collapse; width: 100%; min-width: 500px; font-size: 12px; }
-        .grid-table thead { background: #1e3a1e; color: white; }
+        .grid-table { border-collapse: collapse; width: 100%; min-width: 600px; font-size: 13px; }
+        .grid-table thead { position: sticky; top: 0; z-index: 10; background: #1e3a1e; color: white; }
         .grid-table th { padding: 13px 10px; font-weight: 600; }
-        .grid-table td { padding: 10px; border-bottom: 1px solid #edf2f7; text-align: center; }
+        .grid-table td { padding: 11px 10px; border-bottom: 1px solid #edf2f7; text-align: center; }
 
-        .game-col { text-align: left; min-width: 160px; padding-left: 14px; font-weight: 600; color: #374151; position: sticky; left: 0; background: white; z-index: 2; border-right: 1px solid #e5e7eb; }
+        .game-col { text-align: left; min-width: 180px; padding-left: 14px !important; font-weight: 600; color: #374151; background: #f8f9fa; border-right: 2px solid #dee2e6; }
         .game-col .kickoff { font-size: 0.65rem; color: #94a3b8; font-weight: 400; }
         .game-col .knockout-badge { display: inline-block; background: #fef3c7; color: #92400e; font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 8px; margin-left: 4px; }
 
-        thead th:first-child { text-align: left; padding-left: 14px; position: sticky; left: 0; background: #1e3a1e; z-index: 3; }
+        thead th:first-child { text-align: left; padding-left: 14px; }
 
-        .stage-separator { background: #2d4a2d; color: #a7f3d0; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .stage-separator { background: #34495e; color: white; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
         .stage-separator td { padding: 5px 14px; }
 
         .win-cell  { background: #dcfce7 !important; color: #15803d; font-weight: 700; }
         .loss-cell { background: #fee2e2 !important; color: #991b1b; font-weight: 600; }
-        .hidden-cell { color: #d1d5db; font-style: italic; }
+        .hidden-cell { color: #d1d5db; }
         .leader-col { background: #f0fdf4 !important; }
 
         .nav-back { display: inline-block; margin-top: 18px; color: #16a34a; text-decoration: none; font-weight: 600; }
@@ -61,7 +61,7 @@
 
 <div class="container">
     <h2>⚽ World Cup 2026 — Leaderboard</h2>
-    <p class="subtitle">Group stage = 1 pt &bull; Knockout stages = 2 pts &bull; Picks hidden until kickoff</p>
+    <p class="subtitle">Group stage = 1 pt &bull; Knockout stages = 2 pts &bull; ⚽ = pick made, hidden until kickoff</p>
 
     <div class="leaderboard-summary">
         {% for user, score in sorted_leaderboard %}
@@ -116,7 +116,7 @@
                         {% for user in usernames %}
                             {% set cell = row.users[user] %}
                             <td class="{% if cell.hidden %}hidden-cell{% elif cell.correct %}win-cell{% elif cell.wrong %}loss-cell{% endif %} {% if user in leaders %}leader-col{% endif %}">
-                                {% if cell.hidden %}🔒{% else %}{{ cell.pick or '—' }}{% endif %}
+                                {% if cell.hidden %}{% if cell.has_pick %}⚽{% endif %}{% else %}{{ cell.pick or '' }}{% endif %}
                             </td>
                         {% endfor %}
                     </tr>

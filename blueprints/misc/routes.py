@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, json, request, jsonify
+from flask import Blueprint, render_template, json, request, jsonify, url_for
 import os
 import random
 import requests as req
@@ -58,6 +58,23 @@ def _search_images(restaurant_name, dish, location="Philadelphia"):
         }
         for item in resp.json().get("images", [])
     ]
+
+
+@misc_bp.route("/landing")
+def landing():
+    nested = make_json_recipes()
+    flat = []
+    for cat, subcats in nested.items():
+        for subcat, recipe_list in subcats.items():
+            for recipe in recipe_list:
+                flat.append({**recipe, 'category': cat, 'subcategory': subcat})
+    tier1 = [r for r in flat if r.get('tier') == 1 and r.get('image')]
+    pool = tier1 if tier1 else [r for r in flat if r.get('image')]
+    featured_image = ''
+    if pool:
+        pick = random.choice(pool)
+        featured_image = url_for('static', filename=pick['image'])
+    return render_template('landing.html', featured_image=featured_image)
 
 
 @misc_bp.route("/recipes")
