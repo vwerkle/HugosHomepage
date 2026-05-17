@@ -1,0 +1,689 @@
+{% extends "base.html" %}
+{% block title %}Travels — Hugo's{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --accent:  #2563eb;
+    --accent2: #1d4ed8;
+    --gold:    #c9a227;
+    --border:  #e2e8f0;
+    --muted:   #64748b;
+    --radius:  12px;
+  }
+
+  /* ── page header ── */
+  .v-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 2.5rem 0 1.5rem;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 2rem;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .v-header h1 {
+    font-size: 2rem; font-weight: 800; color: var(--dark);
+    letter-spacing: -0.02em;
+  }
+  .v-count {
+    font-size: 0.82rem; font-weight: 600; color: var(--muted);
+    background: #f1f5f9; padding: 4px 12px; border-radius: 50px;
+  }
+
+  /* ── admin bar ── */
+  .admin-bar { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+  .btn-admin {
+    font-size: 0.8rem; font-weight: 600; border: 1.5px solid var(--border);
+    background: white; color: var(--muted); padding: 7px 18px; border-radius: var(--radius);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-admin:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── search + map bar ── */
+  .search-row { display: flex; gap: 10px; align-items: center; margin-bottom: 1.2rem; }
+  .search-wrap { position: relative; flex: 1; }
+  .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; width: 16px; height: 16px; }
+  .search-input {
+    width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid var(--border); border-radius: 50px;
+    font-family: 'Inter', sans-serif; font-size: 0.875rem; color: var(--dark);
+    background: white; outline: none; transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .btn-map {
+    padding: 9px 18px; border-radius: 50px; border: 1.5px solid var(--border);
+    background: white; font-size: 0.8rem; font-weight: 600; color: var(--muted);
+    cursor: pointer; white-space: nowrap; transition: all 0.15s; margin-left: auto;
+  }
+  .btn-map:hover, .btn-map.active { border-color: var(--accent); color: var(--accent); }
+  #mapContainer {
+    display: none; height: 560px; border-radius: var(--radius); overflow: hidden;
+    border: 1.5px solid var(--border); margin-bottom: 2rem;
+  }
+  .map-popup-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 3px; }
+  .map-popup-meta  { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
+  .map-popup-btn   { background: var(--accent); color: white; border: none; padding: 5px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; }
+
+  /* ── filter pills ── */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; align-items: center; }
+  .pill {
+    padding: 6px 16px; border-radius: var(--radius); border: 1.5px solid var(--border);
+    background: white; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    color: var(--muted); transition: all 0.15s;
+  }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .pill:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+  /* ── trip list ── */
+  .trip-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 4rem; }
+  .trip-row {
+    display: flex; gap: 0; border: 1.5px solid var(--border);
+    border-radius: var(--radius); background: white; overflow: hidden;
+    cursor: pointer; transition: box-shadow 0.2s, border-color 0.2s;
+    margin-bottom: 12px;
+  }
+  .trip-row:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(37,99,235,0.08); }
+
+  .trip-thumb {
+    width: 200px; flex-shrink: 0;
+    object-fit: cover; display: block;
+  }
+  .trip-thumb-placeholder {
+    width: 200px; flex-shrink: 0;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; min-height: 140px;
+  }
+
+  .trip-body { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; justify-content: center; }
+  .trip-title { font-size: 1.25rem; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+  .trip-meta { font-size: 0.8rem; color: var(--muted); font-weight: 500; margin-bottom: 10px; }
+  .trip-desc { font-size: 0.875rem; color: #475569; line-height: 1.5; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .trip-badges { display: flex; gap: 12px; }
+  .trip-badge {
+    font-size: 0.75rem; font-weight: 600; color: var(--muted);
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .trip-actions { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; padding: 16px; }
+  .btn-view {
+    background: var(--accent); color: white; border: none;
+    padding: 8px 18px; border-radius: 8px; font-size: 0.8rem;
+    font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.15s;
+  }
+  .btn-view:hover { background: var(--accent2); }
+  .card-edit-btn {
+    background: none; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 6px 10px; cursor: pointer; font-size: 14px; color: var(--muted);
+    transition: all 0.15s;
+  }
+  .card-edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* expandable detail panel */
+  .trip-detail {
+    display: none; border-top: 1.5px solid var(--border); background: #f8fafc;
+    padding: 24px;
+  }
+  .trip-detail.open { display: block; }
+
+  /* hero inside detail */
+  .detail-hero { width: 100%; height: 260px; object-fit: cover; border-radius: 10px; margin-bottom: 20px; display: block; }
+  .thumb-strip {
+    display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px;
+  }
+  .thumb {
+    width: 64px; height: 46px; object-fit: cover; border-radius: 6px;
+    cursor: pointer; opacity: 0.6; flex-shrink: 0; border: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .thumb:hover, .thumb.active { opacity: 1; border-color: var(--accent); }
+
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .detail-section h4 {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--accent); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border);
+  }
+  .section-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .section-item:last-child { border-bottom: none; }
+  .item-info { flex: 1; }
+  .item-name { font-weight: 600; font-size: 0.875rem; color: var(--dark); margin-bottom: 2px; }
+  .item-notes { font-size: 0.78rem; color: var(--muted); }
+  .stars { display: flex; gap: 1px; flex-shrink: 0; }
+  .stars .filled { color: var(--gold); font-size: 13px; }
+  .stars .empty  { color: #cbd5e1; font-size: 13px; }
+
+  .detail-notes {
+    margin-top: 20px; padding: 16px; background: white;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    font-size: 0.875rem; color: #475569; line-height: 1.7; white-space: pre-wrap;
+  }
+  .detail-notes-label {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px;
+  }
+
+  /* empty */
+  .empty-state { text-align: center; padding: 5rem 2rem; color: var(--muted); }
+
+  /* ── admin panel ── */
+  .admin-panel {
+    display: none; background: white; border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 28px; margin-bottom: 2rem;
+  }
+  .admin-panel.open { display: block; }
+  .admin-panel h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: var(--dark); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .form-group input, .form-group textarea, .form-group select {
+    padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-size: 0.875rem; color: var(--dark);
+    background: #f8fafc; outline: none; transition: border-color 0.15s;
+  }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); background: white; }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  .btn-primary {
+    background: var(--accent); color: white; border: none; padding: 10px 24px;
+    border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-danger {
+    background: white; color: #dc2626; border: 1.5px solid #fecaca;
+    padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer;
+  }
+  .btn-danger:hover { background: #fef2f2; }
+
+  .items-editor { margin-top: 12px; }
+  .items-editor-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; display: block; }
+  .item-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+  .item-row input { flex: 1; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.875rem; background: #f8fafc; }
+  .star-picker { display: flex; gap: 2px; align-items: center; padding-top: 8px; }
+  .star-picker span { font-size: 20px; cursor: pointer; color: #cbd5e1; transition: color 0.1s; }
+  .star-picker span.lit { color: var(--gold); }
+  .remove-item-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 8px 4px; }
+  .remove-item-btn:hover { color: #dc2626; }
+  .add-item-btn { font-size: 0.78rem; font-weight: 600; color: var(--accent); background: none; border: none; cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* edit modal */
+  .edit-modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.5); display: flex; align-items: flex-start;
+    justify-content: center; overflow-y: auto; padding: 40px 20px;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .edit-modal-overlay.open { opacity: 1; pointer-events: all; }
+  .edit-modal {
+    background: white; border-radius: 16px; max-width: 700px; width: 100%;
+    padding: 32px; position: relative; transform: translateY(16px); transition: transform 0.2s;
+  }
+  .edit-modal-overlay.open .edit-modal { transform: translateY(0); }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px; width: 32px; height: 32px;
+    border-radius: 8px; background: #f1f5f9; border: 1.5px solid var(--border);
+    font-size: 16px; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; color: var(--muted); transition: all 0.15s;
+  }
+  .modal-close:hover { border-color: var(--accent); color: var(--accent); }
+
+  .thumb-upload-btn {
+    width: 64px; height: 46px; border-radius: 6px; border: 2px dashed var(--border);
+    background: #f8fafc; cursor: pointer; display: inline-flex; align-items: center;
+    justify-content: center; font-size: 20px; color: var(--muted); transition: all 0.15s;
+  }
+  .thumb-upload-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  @media (max-width: 700px) {
+    .trip-row { flex-direction: column; }
+    .trip-thumb, .trip-thumb-placeholder { width: 100%; height: 160px; }
+    .detail-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .trip-actions { flex-direction: row; padding: 12px 16px; border-top: 1.5px solid var(--border); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="v-header">
+  <h1>Travels</h1>
+  <span class="v-count">{{ trips|length }} trip{{ 's' if trips|length != 1 else '' }}</span>
+</div>
+
+{% if is_admin %}
+<div class="admin-bar">
+  <button class="btn-admin" id="adminToggle">⚙ Admin</button>
+</div>
+<div class="admin-panel" id="adminPanel">
+  <h3>Add a New Trip</h3>
+  <div class="form-grid">
+    <div class="form-group"><label>Title</label><input type="text" id="newTitle" placeholder="e.g. Paris"></div>
+    <div class="form-group"><label>Country</label><input type="text" id="newCountry" placeholder="e.g. France"></div>
+    <div class="form-group">
+      <label>Region</label>
+      <select id="newRegion">
+        <option value="">— Select region —</option>
+        <option>Europe</option><option>Americas</option><option>Asia</option>
+        <option>Africa</option><option>Oceania</option><option>Middle East</option><option>Caribbean</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Dates</label><input type="text" id="newDates" placeholder="e.g. June 2024"></div>
+    <div class="form-group"><label>Latitude</label><input type="text" id="newLat" placeholder="48.8566"></div>
+    <div class="form-group"><label>Longitude</label><input type="text" id="newLng" placeholder="2.3522"></div>
+  </div>
+  <div class="form-grid full">
+    <div class="form-group"><label>Description</label><textarea id="newDesc" placeholder="Short description…"></textarea></div>
+    <div class="form-group"><label>Notes</label><textarea id="newNotes" placeholder="Free-form notes…"></textarea></div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:8px;">
+    <button class="btn-primary" onclick="submitNewTrip()">Add Trip</button>
+  </div>
+</div>
+{% endif %}
+
+<div class="search-row">
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="search-input" id="searchInput" type="text" placeholder="Search trips…" oninput="filterTrips()">
+  </div>
+</div>
+
+<div class="pills" id="pills">
+  <button class="pill active" data-region="all">All</button>
+  {% for r in regions %}<button class="pill" data-region="{{ r }}">{{ r }}</button>{% endfor %}
+  <button class="btn-map" id="mapToggle" onclick="toggleMapView()">🗺 Map</button>
+</div>
+
+<div id="mapContainer"></div>
+
+{% if trips %}
+<div class="trip-list" id="tripList">
+  {% for trip in trips %}
+  <div>
+    <div class="trip-row" data-region="{{ trip.region }}" data-id="{{ trip.id }}">
+      {% if trip.main_image %}
+      <img class="trip-thumb" src="{{ url_for('static', filename='vacation/' ~ trip.id ~ '/' ~ trip.main_image) }}" alt="{{ trip.title }}">
+      {% else %}
+      <div class="trip-thumb-placeholder">🌍</div>
+      {% endif %}
+      <div class="trip-body">
+        <div class="trip-title">{{ trip.title }}</div>
+        <div class="trip-meta">{{ trip.flag }} {{ trip.country }}{% if trip.dates %} · {{ trip.dates }}{% endif %}{% if trip.region %} · {{ trip.region }}{% endif %}</div>
+        {% if trip.description %}<div class="trip-desc">{{ trip.description }}</div>{% endif %}
+        <div class="trip-badges">
+          {% if trip.things_to_do %}<span class="trip-badge">📍 {{ trip.things_to_do|length }} to do</span>{% endif %}
+          {% if trip.restaurants %}<span class="trip-badge">🍽 {{ trip.restaurants|length }} restaurants</span>{% endif %}
+          {% if trip.hotels %}<span class="trip-badge">🏨 {{ trip.hotels|length }} hotels</span>{% endif %}
+        </div>
+      </div>
+      <div class="trip-actions">
+        <button class="btn-view" onclick="toggleDetail('{{ trip.id }}', this)">View ▾</button>
+        {% if is_admin %}
+        <button class="card-edit-btn" onclick="toggleInlineEdit('{{ trip.id }}')" title="Edit trip details">⚙</button>
+        {% endif %}
+      </div>
+    </div>
+    <div class="trip-detail" id="detail-{{ trip.id }}">
+      {% if is_admin %}
+      <div class="inline-edit-panel" id="ie-{{ trip.id }}" style="display:none;background:#f1f5f9;border:1.5px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;">
+        <div class="form-grid">
+          <div class="form-group"><label>Title</label><input type="text" class="ie-title"></div>
+          <div class="form-group"><label>Country</label><input type="text" class="ie-country"></div>
+          <div class="form-group"><label>Region</label>
+            <select class="ie-region"><option value="">— Select —</option>
+              <option>Europe</option><option>Americas</option><option>Asia</option>
+              <option>Africa</option><option>Oceania</option><option>Middle East</option><option>Caribbean</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Dates</label><input type="text" class="ie-dates"></div>
+          <div class="form-group"><label>Latitude</label><input type="text" class="ie-lat"></div>
+          <div class="form-group"><label>Longitude</label><input type="text" class="ie-lng"></div>
+        </div>
+        <div class="form-grid full" style="margin-top:0">
+          <div class="form-group"><label>Description</label><textarea class="ie-desc"></textarea></div>
+          <div class="form-group"><label>Notes</label><textarea class="ie-notes"></textarea></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <button class="btn-primary" onclick="saveInlineEdit('{{ trip.id }}')">Save</button>
+          <button class="btn-secondary" onclick="toggleInlineEdit('{{ trip.id }}')">Cancel</button>
+        </div>
+      </div>
+      {% endif %}
+      {% if trip.main_image %}
+      <img class="detail-hero" id="hero-{{ trip.id }}" src="{{ url_for('static', filename='vacation/' ~ trip.id ~ '/' ~ trip.main_image) }}" alt="{{ trip.title }}">
+      {% endif %}
+      {% if trip.images|length > 1 %}
+      <div class="thumb-strip">
+        {% for img in trip.images %}
+        <img class="thumb{{ ' active' if img == trip.main_image else '' }}"
+             src="{{ url_for('static', filename='vacation/' ~ trip.id ~ '/' ~ img) }}"
+             onclick="swapHero('{{ trip.id }}', '{{ url_for('static', filename='vacation/' ~ trip.id ~ '/' ~ img) }}', this)">
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="detail-grid">
+        <div class="detail-section">
+          <h4>📍 Things To Do</h4>
+          {% if trip.things_to_do %}
+            {% for item in trip.things_to_do %}
+            <div class="section-item">
+              <div class="item-info">
+                <div class="item-name">{{ item.name }}</div>
+                {% if item.notes %}<div class="item-notes">{{ item.notes }}</div>{% endif %}
+              </div>
+              <span class="stars">
+                {% for i in range(1, 4) %}<span class="{{ 'filled' if i <= item.stars else 'empty' }}">★</span>{% endfor %}
+              </span>
+            </div>
+            {% endfor %}
+          {% else %}<p style="color:var(--muted);font-size:0.85rem">None added yet.</p>{% endif %}
+        </div>
+        <div class="detail-section">
+          <h4>🍽 Restaurants</h4>
+          {% if trip.restaurants %}
+            {% for item in trip.restaurants %}
+            <div class="section-item">
+              <div class="item-info">
+                <div class="item-name">{{ item.name }}</div>
+                {% if item.notes %}<div class="item-notes">{{ item.notes }}</div>{% endif %}
+              </div>
+              <span class="stars">
+                {% for i in range(1, 4) %}<span class="{{ 'filled' if i <= item.stars else 'empty' }}">★</span>{% endfor %}
+              </span>
+            </div>
+            {% endfor %}
+          {% else %}<p style="color:var(--muted);font-size:0.85rem">None added yet.</p>{% endif %}
+        </div>
+        <div class="detail-section">
+          <h4>🏨 Hotels</h4>
+          {% if trip.hotels %}
+            {% for item in trip.hotels %}
+            <div class="section-item">
+              <div class="item-info">
+                <div class="item-name">{{ item.name }}</div>
+                {% if item.notes %}<div class="item-notes">{{ item.notes }}</div>{% endif %}
+              </div>
+              <span class="stars">
+                {% for i in range(1, 4) %}<span class="{{ 'filled' if i <= item.stars else 'empty' }}">★</span>{% endfor %}
+              </span>
+            </div>
+            {% endfor %}
+          {% else %}<p style="color:var(--muted);font-size:0.85rem">None added yet.</p>{% endif %}
+        </div>
+      </div>
+      {% if trip.notes %}
+      <div class="detail-notes-label" style="margin-top:20px">Notes</div>
+      <div class="detail-notes">{{ trip.notes }}</div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div style="font-size:3rem">🌍</div>
+  <p style="margin-top:0.5rem">No trips yet.{% if is_admin %} Add one above!{% endif %}</p>
+</div>
+{% endif %}
+
+{% if is_admin %}
+<div class="edit-modal-overlay" id="editOverlay">
+  <div class="edit-modal">
+    <button class="modal-close" onclick="closeEditModal()">✕</button>
+    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:20px">Edit Trip</h3>
+    <input type="hidden" id="editId">
+    <div class="form-grid">
+      <div class="form-group"><label>Title</label><input type="text" id="editTitle"></div>
+      <div class="form-group"><label>Country</label><input type="text" id="editCountry"></div>
+      <div class="form-group"><label>Region</label>
+        <select id="editRegion"><option value="">— Select —</option>
+          <option>Europe</option><option>Americas</option><option>Asia</option>
+          <option>Africa</option><option>Oceania</option><option>Middle East</option><option>Caribbean</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Dates</label><input type="text" id="editDates"></div>
+      <div class="form-group"><label>Latitude</label><input type="text" id="editLat"></div>
+      <div class="form-group"><label>Longitude</label><input type="text" id="editLng"></div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-group"><label>Description</label><textarea id="editDesc"></textarea></div>
+      <div class="form-group"><label>Notes</label><textarea id="editNotes"></textarea></div>
+    </div>
+    <div style="margin:16px 0 20px;">
+      <span class="items-editor-label">Images</span>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <label style="cursor:pointer;">
+          <span class="thumb-upload-btn" style="display:inline-flex">+</span>
+          <input type="file" accept="image/*" id="uploadMain" style="display:none" multiple onchange="uploadImage(this)">
+        </label>
+        <small style="color:var(--muted);font-size:0.78rem;">First upload = main image.</small>
+      </div>
+      <div id="editThumbStrip" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"></div>
+    </div>
+    <div class="items-editor">
+      <span class="items-editor-label">📍 Things To Do</span>
+      <div id="todoRows"></div>
+      <button class="add-item-btn" onclick="addItemRow('todo')">+ Add item</button>
+    </div>
+    <div class="items-editor" style="margin-top:16px">
+      <span class="items-editor-label">🍽 Restaurants</span>
+      <div id="restRows"></div>
+      <button class="add-item-btn" onclick="addItemRow('rest')">+ Add item</button>
+    </div>
+    <div class="items-editor" style="margin-top:16px">
+      <span class="items-editor-label">🏨 Hotels</span>
+      <div id="hotelRows"></div>
+      <button class="add-item-btn" onclick="addItemRow('hotel')">+ Add item</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;">
+      <button class="btn-primary" onclick="saveEdit()">Save Changes</button>
+      <button class="btn-danger" onclick="deleteTrip()">Delete Trip</button>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+  const TRIPS = {{ trips | tojson }};
+  let editTrip = null;
+
+  function filterTrips() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const region = document.querySelector('.pill.active')?.dataset.region || 'all';
+    document.querySelectorAll('.trip-row').forEach(row => {
+      const trip = TRIPS.find(t => t.id === row.dataset.id); if (!trip) return;
+      const matchSearch = !q || [trip.title,trip.country,trip.region,trip.dates,trip.description].some(f=>f&&f.toLowerCase().includes(q));
+      const matchRegion = region==='all'||trip.region===region;
+      row.closest('div').style.display = matchSearch&&matchRegion ? '' : 'none';
+    });
+  }
+
+  document.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    filterTrips();
+  }));
+
+  let leafletMap = null;
+  function initMap() {
+    if (leafletMap) return;
+    leafletMap = L.map('mapContainer').setView([20, 0], 2);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap © CARTO', maxZoom: 19,
+    }).addTo(leafletMap);
+    const icon = L.divIcon({className:'',html:'<div style="width:14px;height:14px;background:#2563eb;border:2.5px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(37,99,235,0.5)"></div>',iconSize:[14,14],iconAnchor:[7,7],popupAnchor:[0,-12]});
+    TRIPS.forEach(trip => {
+      const lat=parseFloat(trip.lat),lng=parseFloat(trip.lng); if(!lat||!lng)return;
+      L.marker([lat,lng],{icon}).bindPopup(`<div style="font-family:Inter,sans-serif;min-width:150px"><div class="map-popup-title">${trip.flag?trip.flag+' ':''}${trip.title}</div><div class="map-popup-meta">${[trip.country,trip.dates].filter(Boolean).join(' · ')}</div><button class="map-popup-btn" onclick="openFromMap('${trip.id}')">View →</button></div>`,{maxWidth:220}).addTo(leafletMap);
+    });
+  }
+  function openFromMap(id) {
+    toggleMapView();
+    setTimeout(() => {
+      const row = document.querySelector(`.trip-row[data-id="${id}"]`); if (!row) return;
+      const detail = document.getElementById(`detail-${id}`);
+      if (detail && !detail.classList.contains('open')) {
+        const btn = row.querySelector('.btn-view'); toggleDetail(id, btn);
+      }
+      row.scrollIntoView({ behavior:'smooth', block:'center' });
+    }, 300);
+  }
+  function toggleMapView() {
+    const mapEl=document.getElementById('mapContainer'),listEl=document.getElementById('tripList'),btn=document.getElementById('mapToggle');
+    const showing=mapEl.style.display==='block';
+    if(showing){mapEl.style.display='none';if(listEl)listEl.style.display='';document.querySelectorAll('.pill').forEach(p=>p.style.display='');document.querySelector('.search-wrap').style.display='';btn.textContent='🗺 Map';btn.classList.remove('active');}
+    else{mapEl.style.display='block';if(listEl)listEl.style.display='none';document.querySelectorAll('.pill').forEach(p=>p.style.display='none');document.querySelector('.search-wrap').style.display='none';btn.textContent='⊟ Grid';btn.classList.add('active');initMap();setTimeout(()=>leafletMap.invalidateSize(),120);}
+  }
+
+  // expand/collapse inline detail
+  function toggleDetail(id, btn) {
+    const detail = document.getElementById(`detail-${id}`);
+    const open = detail.classList.toggle('open');
+    btn.textContent = open ? 'Close ▴' : 'View ▾';
+    if (!open) { // close inline edit when collapsing
+      const ie = document.getElementById(`ie-${id}`);
+      if (ie) ie.style.display = 'none';
+    }
+  }
+
+  function toggleInlineEdit(id) {
+    // ensure detail panel is open first
+    const detail = document.getElementById(`detail-${id}`);
+    if (!detail.classList.contains('open')) {
+      detail.classList.add('open');
+      const viewBtn = detail.closest('div').querySelector('.btn-view');
+      if (viewBtn) viewBtn.textContent = 'Close ▴';
+    }
+    const ie = document.getElementById(`ie-${id}`);
+    const opening = ie.style.display === 'none';
+    ie.style.display = opening ? '' : 'none';
+    if (opening) {
+      const trip = TRIPS.find(t => t.id === id); if (!trip) return;
+      ie.querySelector('.ie-title').value   = trip.title || '';
+      ie.querySelector('.ie-country').value = trip.country || '';
+      ie.querySelector('.ie-region').value  = trip.region || '';
+      ie.querySelector('.ie-dates').value   = trip.dates || '';
+      ie.querySelector('.ie-lat').value     = trip.lat || '';
+      ie.querySelector('.ie-lng').value     = trip.lng || '';
+      ie.querySelector('.ie-desc').value    = trip.description || '';
+      ie.querySelector('.ie-notes').value   = trip.notes || '';
+      ie.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  async function saveInlineEdit(id) {
+    const ie = document.getElementById(`ie-${id}`);
+    const body = {
+      title:       ie.querySelector('.ie-title').value.trim(),
+      country:     ie.querySelector('.ie-country').value.trim(),
+      region:      ie.querySelector('.ie-region').value,
+      dates:       ie.querySelector('.ie-dates').value.trim(),
+      lat:         ie.querySelector('.ie-lat').value.trim(),
+      lng:         ie.querySelector('.ie-lng').value.trim(),
+      description: ie.querySelector('.ie-desc').value.trim(),
+      notes:       ie.querySelector('.ie-notes').value.trim(),
+    };
+    const res = await fetch(`/vacation/admin/edit/${id}`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body),
+    });
+    if (res.ok) location.reload(); else alert('Error saving');
+  }
+
+  function swapHero(tripId, src, el) {
+    const h = document.getElementById(`hero-${tripId}`);
+    if (h) h.src = src;
+    el.closest('.thumb-strip').querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function starsHtml(n) {
+    let h = '<span class="stars">';
+    for (let i=1;i<=3;i++) h+=`<span class="${i<=n?'filled':'empty'}">★</span>`;
+    return h+'</span>';
+  }
+
+  {% if is_admin %}
+  document.getElementById('adminToggle').addEventListener('click', () =>
+    document.getElementById('adminPanel').classList.toggle('open'));
+
+  async function submitNewTrip() {
+    const title = document.getElementById('newTitle').value.trim();
+    if (!title) { alert('Title required'); return; }
+    const body = {
+      title, country: document.getElementById('newCountry').value.trim(),
+      region: document.getElementById('newRegion').value,
+      dates: document.getElementById('newDates').value.trim(),
+      description: document.getElementById('newDesc').value.trim(),
+      notes: document.getElementById('newNotes').value.trim(),
+      lat: document.getElementById('newLat').value.trim(),
+      lng: document.getElementById('newLng').value.trim(),
+    };
+    const res = await fetch('/vacation/admin/add', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    if (res.ok) location.reload(); else alert('Error adding trip');
+  }
+
+  function openEditModal(id) {
+    editTrip = TRIPS.find(t => t.id === id); if (!editTrip) return;
+    document.getElementById('editId').value      = editTrip.id;
+    document.getElementById('editTitle').value   = editTrip.title || '';
+    document.getElementById('editCountry').value = editTrip.country || '';
+    document.getElementById('editRegion').value  = editTrip.region || '';
+    document.getElementById('editDates').value   = editTrip.dates || '';
+    document.getElementById('editLat').value     = editTrip.lat || '';
+    document.getElementById('editLng').value     = editTrip.lng || '';
+    document.getElementById('editDesc').value    = editTrip.description || '';
+    document.getElementById('editNotes').value   = editTrip.notes || '';
+    renderEditThumbs();
+    renderItemRows('todo', editTrip.things_to_do || []);
+    renderItemRows('rest', editTrip.restaurants || []);
+    renderItemRows('hotel', editTrip.hotels || []);
+    document.getElementById('editOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeEditModal() { document.getElementById('editOverlay').classList.remove('open'); document.body.style.overflow = ''; editTrip = null; }
+  document.getElementById('editOverlay').addEventListener('click', e => { if (e.target === document.getElementById('editOverlay')) closeEditModal(); });
+
+  function renderEditThumbs() {
+    if (!editTrip) return;
+    document.getElementById('editThumbStrip').innerHTML = (editTrip.images||[]).map(img =>
+      `<img src="/static/vacation/${editTrip.id}/${img}" style="width:64px;height:46px;object-fit:cover;border-radius:6px;border:2px solid ${img===editTrip.main_image?'var(--accent)':'var(--border)'};" title="${img}">`
+    ).join('');
+  }
+  async function uploadImage(input) {
+    if (!editTrip || !input.files.length) return;
+    for (const file of input.files) {
+      const fd = new FormData(); fd.append('image', file);
+      const setAsMain = !editTrip.main_image; if (setAsMain) fd.append('is_main','1');
+      const res = await fetch(`/vacation/admin/upload/${editTrip.id}`, { method:'POST', body:fd });
+      if (res.ok) { const d=await res.json(); if(setAsMain)editTrip.main_image=d.filename; if(!editTrip.images.includes(d.filename))editTrip.images.push(d.filename); renderEditThumbs(); const idx=TRIPS.findIndex(t=>t.id===editTrip.id); if(idx>-1)TRIPS[idx]={...TRIPS[idx],...editTrip}; }
+      else alert(`Upload failed for ${file.name}`);
+    }
+    input.value = '';
+  }
+  function renderItemRows(key, items) { const c=document.getElementById(`${key}Rows`); c.innerHTML=''; items.forEach(it=>addItemRow(key,it)); }
+  function addItemRow(key, item={}) {
+    const c=document.getElementById(`${key}Rows`), row=document.createElement('div'); row.className='item-row';
+    const s=item.stars||1;
+    row.innerHTML=`<input type="text" placeholder="Name" value="${escHtml(item.name||'')}"><input type="text" placeholder="Notes" value="${escHtml(item.notes||'')}"><div class="star-picker" data-val="${s}"><span data-s="1" class="${s>=1?'lit':''}">★</span><span data-s="2" class="${s>=2?'lit':''}">★</span><span data-s="3" class="${s>=3?'lit':''}">★</span></div><button class="remove-item-btn" onclick="this.parentElement.remove()">✕</button>`;
+    row.querySelectorAll('.star-picker span').forEach(star=>star.addEventListener('click',()=>{const p=star.parentElement,v=parseInt(star.dataset.s);p.dataset.val=v;p.querySelectorAll('span').forEach(s=>s.classList.toggle('lit',parseInt(s.dataset.s)<=v));}));
+    c.appendChild(row);
+  }
+  function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function collectItems(key){return Array.from(document.getElementById(`${key}Rows`).querySelectorAll('.item-row')).map(row=>{const ins=row.querySelectorAll('input');return{name:ins[0].value.trim(),notes:ins[1].value.trim(),stars:parseInt(row.querySelector('.star-picker').dataset.val)||1};}).filter(it=>it.name);}
+  async function saveEdit() {
+    const id=document.getElementById('editId').value;
+    const body={title:document.getElementById('editTitle').value.trim(),country:document.getElementById('editCountry').value.trim(),region:document.getElementById('editRegion').value,dates:document.getElementById('editDates').value.trim(),lat:document.getElementById('editLat').value.trim(),lng:document.getElementById('editLng').value.trim(),description:document.getElementById('editDesc').value.trim(),notes:document.getElementById('editNotes').value.trim(),things_to_do:collectItems('todo'),restaurants:collectItems('rest'),hotels:collectItems('hotel')};
+    const res=await fetch(`/vacation/admin/edit/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(res.ok)location.reload();else alert('Error saving');
+  }
+  async function deleteTrip() {
+    if(!confirm('Delete this trip?'))return;
+    const res=await fetch(`/vacation/admin/delete/${document.getElementById('editId').value}`,{method:'POST'});
+    if(res.ok)location.reload();else alert('Error deleting');
+  }
+  {% endif %}
+</script>
+{% endblock %}

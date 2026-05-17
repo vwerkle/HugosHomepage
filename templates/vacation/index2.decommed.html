@@ -1,0 +1,786 @@
+{% extends "base.html" %}
+{% block title %}Travels — Hugo's{% endblock %}
+
+{% block styles %}
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --bg:      #0a0e15;
+    --surface: #111622;
+    --card-bg: #0f1520;
+    --text:    #f0ede8;
+    --muted:   rgba(240,237,232,0.45);
+    --gold:    rgba(201,162,39,0.85);
+    --gold-dim: rgba(201,162,39,0.30);
+    --border:  rgba(201,162,39,0.15);
+    --accent:  rgba(201,162,39,0.85);
+    --radius:  16px;
+  }
+
+  body { background: var(--bg) !important; color: var(--text); }
+  /* override nav for dark theme */
+  nav { background: rgba(10,14,21,0.92) !important; border-bottom: 1px solid var(--border); box-shadow: none !important; backdrop-filter: blur(12px); }
+  nav .nav-logo, nav .nav-links a { color: var(--text) !important; }
+  nav .nav-links a:hover { color: var(--gold) !important; }
+  footer { background: var(--bg) !important; color: var(--muted) !important; border-top: 1px solid var(--border); }
+
+  /* subtle grain */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Ccircle cx='1' cy='1' r='0.6' fill='%23ffffff'/%3E%3C/svg%3E");
+    opacity: 0.018;
+  }
+
+  .container { position: relative; z-index: 1; }
+
+  /* ── header ── */
+  .v-header {
+    text-align: center;
+    padding: 3.5rem 0 2.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+  .v-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(3.5rem, 9vw, 6.5rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.6rem;
+  }
+  .v-header .v-rule {
+    width: 48px; height: 1px;
+    background: var(--gold-dim);
+    margin: 0 auto 0.8rem;
+  }
+  .v-header .v-count {
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* ── admin bar ── */
+  .admin-bar { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+  .btn-admin {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--muted); padding: 6px 18px; border-radius: 50px; cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-admin:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── search + map bar ── */
+  .search-row { display: flex; gap: 10px; align-items: center; margin-bottom: 1.2rem; }
+  .search-wrap { position: relative; flex: 1; }
+  .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; width: 16px; height: 16px; }
+  .search-input {
+    width: 100%; padding: 9px 12px 9px 36px; border: 1px solid var(--border); border-radius: 50px;
+    font-family: 'Inter', sans-serif; font-size: 0.875rem; color: var(--text);
+    background: var(--card-bg); outline: none; transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--gold); }
+  .btn-map {
+    padding: 9px 18px; border-radius: 50px; border: 1px solid var(--border);
+    background: transparent; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); cursor: pointer; white-space: nowrap; transition: all 0.15s;
+    margin-left: auto;
+  }
+  .btn-map:hover, .btn-map.active { border-color: var(--gold); color: var(--gold); }
+  #mapContainer {
+    display: none; height: 580px; border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--border); margin-bottom: 2rem;
+  }
+  .leaflet-popup-content-wrapper { background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important; }
+  .leaflet-popup-tip { background: var(--surface) !important; }
+  .map-popup-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 3px; color: var(--text); }
+  .map-popup-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 10px; }
+  .map-popup-btn { background: var(--gold); color: #080b10; border: none; padding: 5px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: Inter, sans-serif; }
+
+  /* ── filter pills ── */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2.5rem; align-items: center; }
+  .pill {
+    padding: 5px 16px; border-radius: 50px;
+    border: 1px solid var(--border); background: transparent;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; cursor: pointer; color: var(--muted);
+    transition: all 0.15s;
+  }
+  .pill.active { border-color: var(--gold); color: var(--gold); background: rgba(201,162,39,0.06); }
+  .pill:hover { color: var(--text); border-color: rgba(240,237,232,0.3); }
+
+  /* ── trip grid ── */
+  .trip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2px;
+    margin-bottom: 4rem;
+  }
+
+  .trip-card {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    aspect-ratio: 3/4;
+    background: var(--card-bg);
+  }
+  .trip-card .card-img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform 0.6s ease, filter 0.4s ease;
+    filter: brightness(0.72) saturate(0.85);
+  }
+  .trip-card:hover .card-img {
+    transform: scale(1.04);
+    filter: brightness(0.55) saturate(0.75);
+  }
+  .card-img-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(160deg, #111d2e 0%, #0a111c 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem;
+  }
+
+  /* gold inset frame */
+  .trip-card::before {
+    content: '';
+    position: absolute; inset: 12px; z-index: 2;
+    border: 1px solid var(--gold-dim);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+  .trip-card:hover::before { opacity: 1; }
+
+  .card-overlay {
+    position: absolute; inset: 0; z-index: 3;
+    background: linear-gradient(to top, rgba(5,8,14,0.92) 0%, rgba(5,8,14,0.3) 55%, transparent 100%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 28px 24px;
+    pointer-events: none;
+  }
+  .card-eyebrow {
+    font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 8px;
+    opacity: 0; transform: translateY(6px);
+    transition: all 0.35s ease 0.05s;
+  }
+  .trip-card:hover .card-eyebrow { opacity: 1; transform: translateY(0); }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic; font-size: 2rem; font-weight: 700;
+    color: var(--text); line-height: 1.1; margin-bottom: 6px;
+  }
+  .card-meta {
+    font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+  .card-badges {
+    display: flex; gap: 10px;
+    opacity: 0; transform: translateY(8px);
+    transition: all 0.3s ease 0.08s;
+  }
+  .trip-card:hover .card-badges { opacity: 1; transform: translateY(0); }
+  .card-badge {
+    font-size: 0.68rem; color: var(--gold); font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  /* admin edit overlay */
+  .card-edit-btn {
+    position: absolute; top: 12px; right: 12px; z-index: 10;
+    background: rgba(10,14,21,0.82); border: 1px solid var(--border);
+    border-radius: 50%; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; color: var(--muted);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .card-edit-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── empty state ── */
+  .empty-state {
+    text-align: center; padding: 5rem 2rem; color: var(--muted);
+    grid-column: 1/-1;
+  }
+
+  /* ── detail overlay ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(5,8,14,0.88);
+    display: flex; align-items: flex-start; justify-content: center;
+    overflow-y: auto; padding: 0;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    width: 100%; max-width: 900px;
+    background: var(--surface);
+    transform: translateY(30px);
+    transition: transform 0.3s ease;
+    min-height: 100vh;
+    position: relative;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-close {
+    position: fixed; top: 20px; right: 24px; z-index: 200;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(10,14,21,0.9); border: 1px solid var(--border);
+    color: var(--text); font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s;
+  }
+  .modal-close:hover { border-color: var(--gold); }
+  .modal-gear {
+    position: fixed; top: 20px; right: 72px; z-index: 200;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(10,14,21,0.9); border: 1px solid var(--border);
+    color: var(--muted); font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .modal-gear:hover, .modal-gear.active { border-color: var(--gold); color: var(--gold); }
+  .inline-edit-panel {
+    display: none; background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin-bottom: 24px;
+  }
+  .inline-edit-panel.open { display: block; }
+
+  .modal-hero { width: 100%; height: 55vh; object-fit: cover; display: block; }
+  .modal-hero-placeholder {
+    width: 100%; height: 55vh;
+    background: linear-gradient(160deg, #111d2e 0%, #0a111c 100%);
+    display: flex; align-items: center; justify-content: center; font-size: 5rem;
+  }
+
+  .thumb-strip {
+    display: flex; gap: 6px; padding: 10px 28px;
+    overflow-x: auto; background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .thumb {
+    width: 64px; height: 46px; object-fit: cover; border-radius: 4px;
+    cursor: pointer; opacity: 0.5; flex-shrink: 0;
+    border: 1px solid transparent; transition: all 0.15s;
+    filter: saturate(0.7);
+  }
+  .thumb:hover, .thumb.active { opacity: 1; border-color: var(--gold); filter: none; }
+
+  .modal-body { padding: 36px 40px 48px; }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic; font-size: 3rem; font-weight: 700;
+    color: var(--text); margin-bottom: 6px; line-height: 1;
+  }
+  .modal-subtitle {
+    font-size: 0.72rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 28px;
+  }
+
+  /* accordion */
+  .accordion { margin-bottom: 6px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .accordion-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; cursor: pointer; font-size: 0.75rem;
+    font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    background: var(--card-bg); border: none; width: 100%; text-align: left;
+    color: var(--muted); transition: color 0.15s, background 0.15s;
+  }
+  .accordion-header:hover { color: var(--text); }
+  .accordion-header.open { color: var(--gold); }
+  .accordion-header .acc-arrow { transition: transform 0.2s; font-size: 10px; }
+  .accordion-header.open .acc-arrow { transform: rotate(180deg); }
+  .accordion-body { display: none; padding: 16px 20px; background: var(--surface); }
+  .accordion-body.open { display: block; }
+
+  .section-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .section-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .item-info { flex: 1; }
+  .item-name { font-weight: 600; font-size: 0.9rem; color: var(--text); margin-bottom: 3px; }
+  .item-notes { font-size: 0.8rem; color: var(--muted); }
+  .stars { display: flex; gap: 2px; flex-shrink: 0; }
+  .stars .filled { color: var(--gold); font-size: 14px; }
+  .stars .empty  { color: rgba(201,162,39,0.2); font-size: 14px; }
+
+  .modal-notes {
+    margin-top: 24px; padding: 20px;
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+    font-size: 0.875rem; color: var(--muted); line-height: 1.8; white-space: pre-wrap;
+  }
+  .modal-notes-label {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 10px;
+  }
+
+  /* ── admin panel ── */
+  .admin-panel {
+    display: none; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px; margin-bottom: 2.5rem;
+  }
+  .admin-panel.open { display: block; }
+  .admin-panel h3 {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 1.5rem; margin-bottom: 20px; color: var(--text);
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--muted);
+  }
+  .form-group input, .form-group textarea, .form-group select {
+    padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-size: 0.875rem;
+    color: var(--text); background: var(--card-bg); outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--gold); }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-group select option { background: var(--card-bg); }
+
+  .btn-primary {
+    background: var(--gold); color: #080b10; border: none;
+    padding: 10px 24px; border-radius: 8px; font-weight: 700;
+    font-size: 0.875rem; cursor: pointer; opacity: 1; transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-secondary {
+    background: transparent; color: var(--muted); border: 1px solid var(--border);
+    padding: 9px 20px; border-radius: 8px; font-weight: 600;
+    font-size: 0.875rem; cursor: pointer; transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--text); color: var(--text); }
+  .btn-danger {
+    background: transparent; color: #e06c6c; border: 1px solid rgba(224,108,108,0.3);
+    padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer;
+  }
+  .btn-danger:hover { background: rgba(224,108,108,0.08); }
+
+  .items-editor { margin-top: 14px; }
+  .items-editor-label {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--muted); margin-bottom: 8px; display: block;
+  }
+  .item-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+  .item-row input {
+    flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 0.875rem; color: var(--text); background: var(--card-bg);
+  }
+  .star-picker { display: flex; gap: 2px; align-items: center; padding-top: 8px; }
+  .star-picker span { font-size: 20px; cursor: pointer; color: rgba(201,162,39,0.2); transition: color 0.1s; }
+  .star-picker span.lit { color: var(--gold); }
+  .remove-item-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 8px 4px; }
+  .remove-item-btn:hover { color: #e06c6c; }
+  .add-item-btn { font-size: 0.78rem; font-weight: 600; color: var(--gold); background: none; border: none; cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* edit modal */
+  .edit-modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(5,8,14,0.88);
+    display: flex; align-items: flex-start; justify-content: center;
+    overflow-y: auto; padding: 40px 20px;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .edit-modal-overlay.open { opacity: 1; pointer-events: all; }
+  .edit-modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; max-width: 700px; width: 100%; padding: 32px;
+    position: relative; transform: translateY(16px); transition: transform 0.2s;
+  }
+  .edit-modal-overlay.open .edit-modal { transform: translateY(0); }
+
+  .thumb-upload-btn {
+    width: 64px; height: 46px; border-radius: 4px;
+    border: 1px dashed var(--border); background: var(--card-bg);
+    cursor: pointer; display: inline-flex; align-items: center;
+    justify-content: center; font-size: 20px; color: var(--muted); transition: border-color 0.15s;
+  }
+  .thumb-upload-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .modal-body { padding: 24px 20px 32px; }
+    .trip-grid { grid-template-columns: 1fr 1fr; gap: 1px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="v-header">
+  <h1>Travels</h1>
+  <div class="v-rule"></div>
+  <p class="v-count">{{ trips|length }} trip{{ 's' if trips|length != 1 else '' }}</p>
+</div>
+
+{% if is_admin %}
+<div class="admin-bar">
+  <button class="btn-admin" id="adminToggle">⚙ Admin</button>
+</div>
+<div class="admin-panel" id="adminPanel">
+  <h3>Add a New Trip</h3>
+  <div class="form-grid">
+    <div class="form-group"><label>Title</label><input type="text" id="newTitle" placeholder="e.g. Paris"></div>
+    <div class="form-group"><label>Country</label><input type="text" id="newCountry" placeholder="e.g. France"></div>
+    <div class="form-group">
+      <label>Region</label>
+      <select id="newRegion">
+        <option value="">— Select region —</option>
+        <option>Europe</option><option>Americas</option><option>Asia</option>
+        <option>Africa</option><option>Oceania</option><option>Middle East</option><option>Caribbean</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Dates</label><input type="text" id="newDates" placeholder="e.g. June 2024"></div>
+    <div class="form-group"><label>Latitude</label><input type="text" id="newLat" placeholder="48.8566"></div>
+    <div class="form-group"><label>Longitude</label><input type="text" id="newLng" placeholder="2.3522"></div>
+  </div>
+  <div class="form-grid full">
+    <div class="form-group"><label>Description</label><textarea id="newDesc" placeholder="Short description…"></textarea></div>
+    <div class="form-group"><label>Notes</label><textarea id="newNotes" placeholder="Free-form notes…"></textarea></div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:8px;">
+    <button class="btn-primary" onclick="submitNewTrip()">Add Trip</button>
+  </div>
+</div>
+{% endif %}
+
+<div class="search-row">
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="search-input" id="searchInput" type="text" placeholder="Search trips…" oninput="filterTrips()">
+  </div>
+</div>
+
+<div class="pills" id="pills">
+  <button class="pill active" data-region="all">All</button>
+  {% for r in regions %}<button class="pill" data-region="{{ r }}">{{ r }}</button>{% endfor %}
+  <button class="btn-map" id="mapToggle" onclick="toggleMapView()">🗺 Map</button>
+</div>
+
+<div id="mapContainer"></div>
+
+<div class="trip-grid" id="tripGrid">
+  {% for trip in trips %}
+  <div class="trip-card" data-region="{{ trip.region }}" data-id="{{ trip.id }}" onclick="openTrip('{{ trip.id }}')">
+    {% if is_admin %}
+    <button class="card-edit-btn" onclick="event.stopPropagation(); openEditModal('{{ trip.id }}')" title="Edit">✏️</button>
+    {% endif %}
+    {% if trip.main_image %}
+    <img class="card-img" src="{{ url_for('static', filename='vacation/' ~ trip.id ~ '/' ~ trip.main_image) }}" alt="{{ trip.title }}">
+    {% else %}
+    <div class="card-img-placeholder">🌍</div>
+    {% endif %}
+    <div class="card-overlay">
+      <div class="card-eyebrow">{{ trip.region or trip.country }}</div>
+      <div class="card-title">{{ trip.title }}</div>
+      <div class="card-meta">{{ trip.flag }} {{ trip.country }}{% if trip.dates %} · {{ trip.dates }}{% endif %}</div>
+      <div class="card-badges">
+        {% if trip.things_to_do %}<span class="card-badge">📍 {{ trip.things_to_do|length }}</span>{% endif %}
+        {% if trip.restaurants %}<span class="card-badge">🍽 {{ trip.restaurants|length }}</span>{% endif %}
+        {% if trip.hotels %}<span class="card-badge">🏨 {{ trip.hotels|length }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state" style="color:var(--muted)">
+    <div style="font-size:3rem">🌍</div>
+    <p>No trips yet.{% if is_admin %} Add one above!{% endif %}</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Detail modal -->
+<div class="modal-overlay" id="detailOverlay">
+  <div class="modal" id="detailModal">
+    <button class="modal-close" onclick="closeTrip()">✕</button>
+    {% if is_admin %}<button class="modal-gear" id="modalGear" onclick="toggleInlineEdit()" title="Edit trip details">⚙</button>{% endif %}
+    <div id="modalHeroWrap"></div>
+    <div class="thumb-strip" id="thumbStrip" style="display:none"></div>
+    <div class="modal-body">
+      {% if is_admin %}
+      <div class="inline-edit-panel" id="inlineEditPanel">
+        <div class="form-grid">
+          <div class="form-group"><label>Title</label><input type="text" id="ieTitle"></div>
+          <div class="form-group"><label>Country</label><input type="text" id="ieCountry"></div>
+          <div class="form-group"><label>Region</label>
+            <select id="ieRegion"><option value="">— Select region —</option>
+              <option>Europe</option><option>Americas</option><option>Asia</option>
+              <option>Africa</option><option>Oceania</option><option>Middle East</option><option>Caribbean</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Dates</label><input type="text" id="ieDates"></div>
+          <div class="form-group"><label>Latitude</label><input type="text" id="ieLat"></div>
+          <div class="form-group"><label>Longitude</label><input type="text" id="ieLng"></div>
+        </div>
+        <div class="form-grid full" style="margin-top:0">
+          <div class="form-group"><label>Description</label><textarea id="ieDesc"></textarea></div>
+          <div class="form-group"><label>Notes</label><textarea id="ieNotes"></textarea></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <button class="btn-primary" onclick="saveInlineEdit()">Save</button>
+          <button class="btn-secondary" onclick="toggleInlineEdit()">Cancel</button>
+        </div>
+      </div>
+      {% endif %}
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-subtitle" id="modalMeta"></div>
+      <div class="accordion" id="accTodo">
+        <button class="accordion-header" onclick="toggleAcc('Todo')">📍 Things To Do <span class="acc-arrow">▼</span></button>
+        <div class="accordion-body" id="bodyTodo"></div>
+      </div>
+      <div class="accordion" id="accRest">
+        <button class="accordion-header" onclick="toggleAcc('Rest')">🍽 Restaurants <span class="acc-arrow">▼</span></button>
+        <div class="accordion-body" id="bodyRest"></div>
+      </div>
+      <div class="accordion" id="accHotel">
+        <button class="accordion-header" onclick="toggleAcc('Hotel')">🏨 Hotels <span class="acc-arrow">▼</span></button>
+        <div class="accordion-body" id="bodyHotel"></div>
+      </div>
+      <div id="notesWrap" style="display:none">
+        <div class="modal-notes-label" style="margin-top:24px">Notes</div>
+        <div class="modal-notes" id="modalNotes"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if is_admin %}
+<div class="edit-modal-overlay" id="editOverlay">
+  <div class="edit-modal">
+    <button class="modal-close" onclick="closeEditModal()" style="position:absolute;top:16px;right:16px;background:var(--card-bg)">✕</button>
+    <h3 style="font-family:'Playfair Display',serif;font-style:italic;font-size:1.6rem;margin-bottom:20px;color:var(--text)">Edit Trip</h3>
+    <input type="hidden" id="editId">
+    <div class="form-grid">
+      <div class="form-group"><label>Title</label><input type="text" id="editTitle"></div>
+      <div class="form-group"><label>Country</label><input type="text" id="editCountry"></div>
+      <div class="form-group"><label>Region</label>
+        <select id="editRegion"><option value="">— Select —</option>
+          <option>Europe</option><option>Americas</option><option>Asia</option>
+          <option>Africa</option><option>Oceania</option><option>Middle East</option><option>Caribbean</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Dates</label><input type="text" id="editDates"></div>
+      <div class="form-group"><label>Latitude</label><input type="text" id="editLat"></div>
+      <div class="form-group"><label>Longitude</label><input type="text" id="editLng"></div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-group"><label>Description</label><textarea id="editDesc"></textarea></div>
+      <div class="form-group"><label>Notes</label><textarea id="editNotes"></textarea></div>
+    </div>
+    <div style="margin:16px 0 20px;">
+      <span class="items-editor-label">Images</span>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <label style="cursor:pointer;">
+          <span class="thumb-upload-btn" style="display:inline-flex">+</span>
+          <input type="file" accept="image/*" id="uploadMain" style="display:none" multiple onchange="uploadImage(this)">
+        </label>
+        <small style="color:var(--muted);font-size:0.78rem;">First upload = main image.</small>
+      </div>
+      <div id="editThumbStrip" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;"></div>
+    </div>
+    <div class="items-editor" id="editorTodo">
+      <span class="items-editor-label">📍 Things To Do</span>
+      <div id="todoRows"></div>
+      <button class="add-item-btn" onclick="addItemRow('todo')">+ Add item</button>
+    </div>
+    <div class="items-editor" style="margin-top:16px">
+      <span class="items-editor-label">🍽 Restaurants</span>
+      <div id="restRows"></div>
+      <button class="add-item-btn" onclick="addItemRow('rest')">+ Add item</button>
+    </div>
+    <div class="items-editor" style="margin-top:16px">
+      <span class="items-editor-label">🏨 Hotels</span>
+      <div id="hotelRows"></div>
+      <button class="add-item-btn" onclick="addItemRow('hotel')">+ Add item</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;">
+      <button class="btn-primary" onclick="saveEdit()">Save Changes</button>
+      <button class="btn-danger" onclick="deleteTrip()">Delete Trip</button>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+  const TRIPS = {{ trips | tojson }};
+  const IS_ADMIN = {{ 'true' if is_admin else 'false' }};
+  let activeTrip = null, editTrip = null;
+
+  function filterTrips() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const region = document.querySelector('.pill.active')?.dataset.region || 'all';
+    document.querySelectorAll('.trip-card').forEach(card => {
+      const trip = TRIPS.find(t => t.id === card.dataset.id); if (!trip) return;
+      const matchSearch = !q || [trip.title,trip.country,trip.region,trip.dates,trip.description].some(f=>f&&f.toLowerCase().includes(q));
+      const matchRegion = region==='all'||trip.region===region;
+      card.style.display = matchSearch&&matchRegion?'':'none';
+    });
+  }
+  document.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    filterTrips();
+  }));
+
+  let leafletMap=null;
+  function initMap(){
+    if(leafletMap)return;
+    leafletMap=L.map('mapContainer').setView([20,0],2);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(leafletMap);
+    const icon=L.divIcon({className:'',html:'<div style="width:14px;height:14px;background:rgba(201,162,39,0.9);border:2.5px solid rgba(255,255,255,0.8);border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,0.6)"></div>',iconSize:[14,14],iconAnchor:[7,7],popupAnchor:[0,-12]});
+    TRIPS.forEach(trip=>{
+      const lat=parseFloat(trip.lat),lng=parseFloat(trip.lng); if(!lat||!lng)return;
+      L.marker([lat,lng],{icon}).bindPopup(`<div style="font-family:Inter,sans-serif;min-width:150px"><div class="map-popup-title">${trip.flag?trip.flag+' ':''}${trip.title}</div><div class="map-popup-meta">${[trip.country,trip.dates].filter(Boolean).join(' · ')}</div><button class="map-popup-btn" onclick="openTrip('${trip.id}')">View →</button></div>`,{maxWidth:220}).addTo(leafletMap);
+    });
+  }
+  function toggleMapView(){
+    const mapEl=document.getElementById('mapContainer'),gridEl=document.getElementById('tripGrid'),btn=document.getElementById('mapToggle');
+    const showing=mapEl.style.display==='block';
+    if(showing){mapEl.style.display='none';gridEl.style.display='';document.querySelectorAll('.pill').forEach(p=>p.style.display='');document.querySelector('.search-wrap').style.display='';btn.textContent='🗺 Map';btn.classList.remove('active');}
+    else{mapEl.style.display='block';gridEl.style.display='none';document.querySelectorAll('.pill').forEach(p=>p.style.display='none');document.querySelector('.search-wrap').style.display='none';btn.textContent='⊟ Grid';btn.classList.add('active');initMap();setTimeout(()=>leafletMap.invalidateSize(),120);}
+  }
+
+  function toggleAcc(key) {
+    const header = document.querySelector(`#acc${key} .accordion-header`);
+    const body   = document.getElementById(`body${key}`);
+    const open   = body.classList.toggle('open');
+    header.classList.toggle('open', open);
+  }
+
+  function starsHtml(n) {
+    let h = '<span class="stars">';
+    for (let i=1;i<=3;i++) h+=`<span class="${i<=n?'filled':'empty'}">★</span>`;
+    return h+'</span>';
+  }
+  function itemsHtml(items) {
+    if (!items||!items.length) return '<p style="color:var(--muted);font-size:0.85rem;padding:8px 0">None added yet.</p>';
+    return items.map(it=>`<div class="section-item"><div class="item-info"><div class="item-name">${it.name}</div>${it.notes?`<div class="item-notes">${it.notes}</div>`:''}</div>${starsHtml(it.stars)}</div>`).join('');
+  }
+
+  function openTrip(id) {
+    const trip = TRIPS.find(t=>t.id===id); if(!trip) return;
+    activeTrip = trip;
+    const hw = document.getElementById('modalHeroWrap');
+    hw.innerHTML = trip.main_image
+      ? `<img class="modal-hero" id="modalHeroImg" src="/static/vacation/${trip.id}/${trip.main_image}" alt="${trip.title}">`
+      : `<div class="modal-hero-placeholder">🌍</div>`;
+    const strip = document.getElementById('thumbStrip');
+    if (trip.images&&trip.images.length>1) {
+      strip.style.display='';
+      strip.innerHTML=trip.images.map(img=>`<img class="thumb${img===trip.main_image?' active':''}" src="/static/vacation/${trip.id}/${img}" onclick="swapHero('${trip.id}','${img}',this)">`).join('');
+    } else { strip.style.display='none'; strip.innerHTML=''; }
+    document.getElementById('modalTitle').textContent=trip.title;
+    const flagCountry=[trip.flag,trip.country].filter(Boolean).join(' ');
+    document.getElementById('modalMeta').textContent=[flagCountry,trip.region,trip.dates].filter(Boolean).join(' · ');
+    document.getElementById('bodyTodo').innerHTML=itemsHtml(trip.things_to_do);
+    document.getElementById('bodyRest').innerHTML=itemsHtml(trip.restaurants);
+    document.getElementById('bodyHotel').innerHTML=itemsHtml(trip.hotels);
+    const nw=document.getElementById('notesWrap');
+    if(trip.notes){nw.style.display='';document.getElementById('modalNotes').textContent=trip.notes;}else nw.style.display='none';
+    ['Todo','Rest','Hotel'].forEach(k=>{document.getElementById(`body${k}`).classList.remove('open');document.querySelector(`#acc${k} .accordion-header`).classList.remove('open');});
+    toggleAcc('Todo');
+    const panel=document.getElementById('inlineEditPanel');
+    if(panel){panel.classList.remove('open');document.getElementById('modalGear').classList.remove('active');}
+    document.getElementById('detailOverlay').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function swapHero(tid,img,el){const h=document.getElementById('modalHeroImg');if(h)h.src=`/static/vacation/${tid}/${img}`;document.querySelectorAll('#thumbStrip .thumb').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+  function closeTrip(){document.getElementById('detailOverlay').classList.remove('open');document.body.style.overflow='';activeTrip=null;}
+  document.getElementById('detailOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('detailOverlay'))closeTrip();});
+
+  {% if is_admin %}
+  function toggleInlineEdit(){
+    const panel=document.getElementById('inlineEditPanel'),gear=document.getElementById('modalGear');
+    const open=panel.classList.toggle('open');gear.classList.toggle('active',open);
+    if(open&&activeTrip){
+      document.getElementById('ieTitle').value=activeTrip.title||'';
+      document.getElementById('ieCountry').value=activeTrip.country||'';
+      document.getElementById('ieRegion').value=activeTrip.region||'';
+      document.getElementById('ieDates').value=activeTrip.dates||'';
+      document.getElementById('ieLat').value=activeTrip.lat||'';
+      document.getElementById('ieLng').value=activeTrip.lng||'';
+      document.getElementById('ieDesc').value=activeTrip.description||'';
+      document.getElementById('ieNotes').value=activeTrip.notes||'';
+    }
+  }
+  async function saveInlineEdit(){
+    if(!activeTrip)return;
+    const body={title:document.getElementById('ieTitle').value.trim(),country:document.getElementById('ieCountry').value.trim(),region:document.getElementById('ieRegion').value,dates:document.getElementById('ieDates').value.trim(),lat:document.getElementById('ieLat').value.trim(),lng:document.getElementById('ieLng').value.trim(),description:document.getElementById('ieDesc').value.trim(),notes:document.getElementById('ieNotes').value.trim()};
+    const res=await fetch(`/vacation/admin/edit/${activeTrip.id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(res.ok)location.reload();else alert('Error saving');
+  }
+  document.getElementById('adminToggle').addEventListener('click',()=>document.getElementById('adminPanel').classList.toggle('open'));
+  async function submitNewTrip(){
+    const title=document.getElementById('newTitle').value.trim();if(!title){alert('Title required');return;}
+    const body={title,country:document.getElementById('newCountry').value.trim(),region:document.getElementById('newRegion').value,dates:document.getElementById('newDates').value.trim(),description:document.getElementById('newDesc').value.trim(),notes:document.getElementById('newNotes').value.trim(),lat:document.getElementById('newLat').value.trim(),lng:document.getElementById('newLng').value.trim()};
+    const res=await fetch('/vacation/admin/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(res.ok)location.reload();else alert('Error adding trip');
+  }
+  function openEditModal(id){
+    editTrip=TRIPS.find(t=>t.id===id);if(!editTrip)return;
+    document.getElementById('editId').value=editTrip.id;
+    document.getElementById('editTitle').value=editTrip.title||'';
+    document.getElementById('editCountry').value=editTrip.country||'';
+    document.getElementById('editRegion').value=editTrip.region||'';
+    document.getElementById('editDates').value=editTrip.dates||'';
+    document.getElementById('editLat').value=editTrip.lat||'';
+    document.getElementById('editLng').value=editTrip.lng||'';
+    document.getElementById('editDesc').value=editTrip.description||'';
+    document.getElementById('editNotes').value=editTrip.notes||'';
+    renderEditThumbs();
+    renderItemRows('todo',editTrip.things_to_do||[]);
+    renderItemRows('rest',editTrip.restaurants||[]);
+    renderItemRows('hotel',editTrip.hotels||[]);
+    document.getElementById('editOverlay').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeEditModal(){document.getElementById('editOverlay').classList.remove('open');document.body.style.overflow='';editTrip=null;}
+  document.getElementById('editOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('editOverlay'))closeEditModal();});
+  function renderEditThumbs(){if(!editTrip)return;document.getElementById('editThumbStrip').innerHTML=(editTrip.images||[]).map(img=>`<img src="/static/vacation/${editTrip.id}/${img}" style="width:64px;height:46px;object-fit:cover;border-radius:4px;border:1px solid ${img===editTrip.main_image?'var(--gold)':'var(--border)'};" title="${img}">`).join('');}
+  async function uploadImage(input){
+    if(!editTrip||!input.files.length)return;
+    for(const file of input.files){
+      const fd=new FormData();fd.append('image',file);
+      const setAsMain=!editTrip.main_image;if(setAsMain)fd.append('is_main','1');
+      const res=await fetch(`/vacation/admin/upload/${editTrip.id}`,{method:'POST',body:fd});
+      if(res.ok){const d=await res.json();if(setAsMain)editTrip.main_image=d.filename;if(!editTrip.images.includes(d.filename))editTrip.images.push(d.filename);renderEditThumbs();const idx=TRIPS.findIndex(t=>t.id===editTrip.id);if(idx>-1)TRIPS[idx]={...TRIPS[idx],...editTrip};}
+      else alert(`Upload failed for ${file.name}`);
+    }
+    input.value='';
+  }
+  function renderItemRows(key,items){const c=document.getElementById(`${key}Rows`);c.innerHTML='';items.forEach(it=>addItemRow(key,it));}
+  function addItemRow(key,item={}){
+    const c=document.getElementById(`${key}Rows`),row=document.createElement('div');row.className='item-row';
+    const s=item.stars||1;
+    row.innerHTML=`<input type="text" placeholder="Name" value="${escHtml(item.name||'')}" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:0.875rem;color:var(--text);background:var(--card-bg)"><input type="text" placeholder="Notes" value="${escHtml(item.notes||'')}" style="flex:1.2;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:0.875rem;color:var(--text);background:var(--card-bg)"><div class="star-picker" data-val="${s}"><span data-s="1" class="${s>=1?'lit':''}">★</span><span data-s="2" class="${s>=2?'lit':''}">★</span><span data-s="3" class="${s>=3?'lit':''}">★</span></div><button class="remove-item-btn" onclick="this.parentElement.remove()">✕</button>`;
+    row.querySelectorAll('.star-picker span').forEach(star=>star.addEventListener('click',()=>{const p=star.parentElement,v=parseInt(star.dataset.s);p.dataset.val=v;p.querySelectorAll('span').forEach(s=>s.classList.toggle('lit',parseInt(s.dataset.s)<=v));}));
+    c.appendChild(row);
+  }
+  function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function collectItems(key){return Array.from(document.getElementById(`${key}Rows`).querySelectorAll('.item-row')).map(row=>{const ins=row.querySelectorAll('input');return{name:ins[0].value.trim(),notes:ins[1].value.trim(),stars:parseInt(row.querySelector('.star-picker').dataset.val)||1};}).filter(it=>it.name);}
+  async function saveEdit(){
+    const id=document.getElementById('editId').value;
+    const body={title:document.getElementById('editTitle').value.trim(),country:document.getElementById('editCountry').value.trim(),region:document.getElementById('editRegion').value,dates:document.getElementById('editDates').value.trim(),lat:document.getElementById('editLat').value.trim(),lng:document.getElementById('editLng').value.trim(),description:document.getElementById('editDesc').value.trim(),notes:document.getElementById('editNotes').value.trim(),things_to_do:collectItems('todo'),restaurants:collectItems('rest'),hotels:collectItems('hotel')};
+    const res=await fetch(`/vacation/admin/edit/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(res.ok)location.reload();else alert('Error saving');
+  }
+  async function deleteTrip(){
+    const id=document.getElementById('editId').value;
+    if(!confirm('Delete this trip?'))return;
+    const res=await fetch(`/vacation/admin/delete/${id}`,{method:'POST'});
+    if(res.ok)location.reload();else alert('Error deleting');
+  }
+  {% endif %}
+</script>
+{% endblock %}

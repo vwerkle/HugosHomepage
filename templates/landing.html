@@ -51,7 +51,7 @@
     /* ── card table ── */
     .card-table {
       position: relative; z-index: 1;
-      width: 620px; height: 430px;
+      width: 820px; height: 430px;
       display: flex; align-items: center; justify-content: center;
     }
 
@@ -117,6 +117,17 @@
     }
     .card-pools:hover .card-inner {
       box-shadow: 0 36px 90px rgba(0,0,0,0.85), 0 0 50px rgba(60,40,120,0.25),
+                  0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    /* vacation */
+    .card-vacation .card-inner {
+      background-color: #0c2740;
+      background-image: linear-gradient(155deg, #113352 0%, #0c2740 45%, #071829 100%);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.75), 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .card-vacation:hover .card-inner {
+      box-shadow: 0 36px 90px rgba(0,0,0,0.85), 0 0 50px rgba(20,110,140,0.30),
                   0 4px 20px rgba(0,0,0,0.5);
     }
 
@@ -212,25 +223,25 @@
     @media (max-width: 700px) {
       .card-table {
         width: 100vw;
-        height: 72vw;
+        height: 58vw;
         flex-direction: row;
-        gap: 3vw;
+        gap: 2vw;
       }
       .card {
         position: relative;
-        width: 44vw; height: 66vw;
-        border-radius: 12px;
+        width: 29vw; height: 44vw;
+        border-radius: 10px;
       }
-      .card-inner { border-radius: 12px; padding: 18px 12px; }
-      .card-inner::after { border-radius: 12px; }
-      .card-frame { inset: 9px; border-radius: 8px; }
-      .card-title { font-size: 22px; margin-bottom: 12px; }
-      .card-eyebrow { font-size: 7px; margin-bottom: 12px; }
-      .card-suit { font-size: 22px; margin-bottom: 10px; }
-      .card-sub { font-size: 7px; }
-      .corner { font-size: 9px; }
-      .corner.tl { top: 12px; left: 12px; }
-      .corner.br { bottom: 12px; right: 12px; }
+      .card-inner { border-radius: 10px; padding: 14px 8px; }
+      .card-inner::after { border-radius: 10px; }
+      .card-frame { inset: 7px; border-radius: 6px; }
+      .card-title { font-size: 17px; margin-bottom: 8px; }
+      .card-eyebrow { font-size: 6px; margin-bottom: 8px; }
+      .card-suit { font-size: 18px; margin-bottom: 8px; }
+      .card-sub { font-size: 6px; }
+      .corner { font-size: 8px; }
+      .corner.tl { top: 9px; left: 9px; }
+      .corner.br { bottom: 9px; right: 9px; }
     }
   </style>
 </head>
@@ -270,6 +281,20 @@
         <div class="card-sub">Pick'em &middot; MLB &middot; World Cup</div>
       </div>
     </div>
+
+    <!-- Vacation card -->
+    <div class="card card-vacation" id="cardVacation">
+      <div class="card-inner">
+        <div class="card-frame"></div>
+        <div class="corner tl">H<br>♣<br>V</div>
+        <div class="corner br">H<br>♣<br>V</div>
+        <div class="card-eyebrow">Hugo's</div>
+        <div class="card-suit">♣</div>
+        <div class="card-title">Travels</div>
+        <div class="card-rule"></div>
+        <div class="card-sub">Trips &middot; Destinations</div>
+      </div>
+    </div>
   </div>
 
   <p class="choose-label">Choose your destination</p>
@@ -278,10 +303,11 @@
 
   <script>window._FEAT = "{{ featured_image or '' }}";</script>
   <script>
-    const table   = document.getElementById('cardTable');
-    const recipes = document.getElementById('cardRecipes');
-    const pools   = document.getElementById('cardPools');
-    const veil    = document.getElementById('fadeVeil');
+    const table    = document.getElementById('cardTable');
+    const recipes  = document.getElementById('cardRecipes');
+    const vacation = document.getElementById('cardVacation');
+    const pools    = document.getElementById('cardPools');
+    const veil     = document.getElementById('fadeVeil');
 
     // apply featured image as subtle overlay on recipes card
     if (window._FEAT) {
@@ -290,42 +316,46 @@
         `linear-gradient(155deg, rgba(28,70,48,0.94) 0%, rgba(22,55,36,0.93) 45%, rgba(14,36,24,0.96) 100%), url('${window._FEAT}')`;
     }
 
-    const isMobile = window.innerWidth <= 700;
-    // Mobile: CSS flex-row handles placement; JS just applies a gentle tilt
-    // Desktop: absolute positioning fanned out via translateX
-    const FAN_L = isMobile ? 'rotate(-6deg)'  : 'translateX(-158px) rotate(-13deg)';
-    const FAN_R = isMobile ? 'rotate( 6deg)'  : 'translateX( 158px) rotate( 13deg)';
+    function fanPositions() {
+      const m = window.innerWidth <= 700;
+      return {
+        L: m ? 'rotate(-5deg)'  : 'translateX(-210px) rotate(-14deg)',
+        C: m ? 'rotate( 1deg)'  : 'translateX(    0px) rotate(  2deg)',
+        R: m ? 'rotate( 5deg)'  : 'translateX( 210px) rotate( 13deg)',
+      };
+    }
 
-    // fan open on load (slight delay so transition is visible)
+    let fan = fanPositions();
+
     setTimeout(() => {
-      recipes.style.transform = FAN_L;
-      pools.style.transform   = FAN_R;
+      recipes.style.transform  = fan.L;
+      pools.style.transform    = fan.C;
+      vacation.style.transform = fan.R;
     }, 140);
 
-    function setupCard(card, fanPos, url) {
+    function setupCard(card, getFanPos, url) {
       card.addEventListener('mouseenter', () => {
         table.classList.add('hovered');
         card.classList.add('card-active');
         card.style.zIndex = '10';
-        // fast transition for tilt tracking
         card.style.transition = 'transform 0.12s ease, opacity 0.35s ease, box-shadow 0.35s ease';
       });
 
       card.addEventListener('mousemove', e => {
+        const pos = getFanPos();
         const r = card.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width  - 0.5;
         const y = (e.clientY - r.top)  / r.height - 0.5;
         card.style.transform =
-          `${fanPos} translateY(-22px) scale(1.055) perspective(700px) rotateX(${y * -13}deg) rotateY(${x * 13}deg)`;
+          `${pos} translateY(-22px) scale(1.055) perspective(700px) rotateX(${y * -13}deg) rotateY(${x * 13}deg)`;
       });
 
       card.addEventListener('mouseleave', () => {
         table.classList.remove('hovered');
         card.classList.remove('card-active');
         card.style.zIndex = '';
-        // slow spring-back
         card.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.35s ease';
-        card.style.transform = fanPos;
+        card.style.transform = getFanPos();
       });
 
       card.addEventListener('click', () => {
@@ -334,26 +364,24 @@
       });
     }
 
-    setupCard(recipes, FAN_L, '/recipes3');
-    setupCard(pools,   FAN_R, '/pools');
+    setupCard(recipes,  () => fanPositions().L, '/recipes3');
+    setupCard(pools,    () => fanPositions().C, '/pools');
+    setupCard(vacation, () => fanPositions().R, '/vacation');
 
     document.getElementById('bdayChip').addEventListener('click', () => {
       veil.classList.add('on');
       setTimeout(() => window.location.href = '/birthdays', 560);
     });
 
-    // clear veil when browser restores page from back-forward cache
     window.addEventListener('pageshow', e => {
       if (e.persisted) veil.classList.remove('on');
     });
 
-    // re-fan on resize
     window.addEventListener('resize', () => {
-      const m = window.innerWidth <= 700;
-      const l = m ? 'rotate(-6deg)'  : 'translateX(-158px) rotate(-13deg)';
-      const r = m ? 'rotate( 6deg)'  : 'translateX( 158px) rotate( 13deg)';
-      recipes.style.transform = l;
-      pools.style.transform   = r;
+      fan = fanPositions();
+      recipes.style.transform  = fan.L;
+      pools.style.transform    = fan.C;
+      vacation.style.transform = fan.R;
     });
   </script>
 </body>

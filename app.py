@@ -11,6 +11,7 @@ from blueprints.reservations import scheduler as res_scheduler
 from blueprints.reservations.routes import preload_venues
 from blueprints.birthdays import birthdays_bp
 from blueprints.birthdays import scheduler as bday_scheduler
+from blueprints.vacation.routes import vacation_bp
 
 app = Flask(__name__)
 app.secret_key = 'vincent'
@@ -24,13 +25,14 @@ app.register_blueprint(moonshot_mike_bp)
 app.register_blueprint(worldcup_bp)
 app.register_blueprint(reservations_bp)
 app.register_blueprint(birthdays_bp)
+app.register_blueprint(vacation_bp, url_prefix='/vacation')
 
 # Global constants (if needed across app)
 DATA_DIR = 'data/madness'
 
 def init_db():
     # Ensure data directories exist
-    for path in ['data/madness', 'data/misc', 'data/random', 'data/reservations', 'data/worldcup', 'data/birthdays']:
+    for path in ['data/madness', 'data/misc', 'data/random', 'data/reservations', 'data/worldcup', 'data/birthdays', 'data/vacation', 'static/vacation']:
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -41,6 +43,11 @@ def init_db():
                 json.dump({}, f)
 
     # Initialize birthdays data and config files
+    vacation_file = 'data/vacation/trips.json'
+    if not os.path.exists(vacation_file):
+        with open(vacation_file, 'w') as f:
+            json.dump([], f)
+
     bday_file = 'data/birthdays/birthdays.json'
     if not os.path.exists(bday_file):
         with open(bday_file, 'w') as f:
