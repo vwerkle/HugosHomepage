@@ -14,6 +14,7 @@ from blueprints.birthdays import scheduler as bday_scheduler
 from blueprints.vacation.routes import vacation_bp
 from blueprints.moneyline import moneyline_bp
 from blueprints.moneyline import scheduler as moneyline_scheduler
+from blueprints.wc_grid import wc_grid_bp
 
 app = Flask(__name__)
 app.secret_key = 'vincent'
@@ -29,6 +30,7 @@ app.register_blueprint(reservations_bp)
 app.register_blueprint(birthdays_bp)
 app.register_blueprint(vacation_bp, url_prefix='/vacation')
 app.register_blueprint(moneyline_bp)
+app.register_blueprint(wc_grid_bp)
 
 # Global constants (if needed across app)
 DATA_DIR = 'data/madness'

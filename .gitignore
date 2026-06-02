@@ -7,7 +7,8 @@ logs/error.log
 logs/out.log
 
 # All data files (contains credentials, user data, picks, etc.)
-data/
+# Anchored to root so static/wc-grid/data/ and wc-grid/public/data/ are not excluded
+/data/
 
 # Virtual environment
 venv/
