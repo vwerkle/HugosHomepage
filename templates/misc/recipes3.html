@@ -136,16 +136,94 @@
         }
 
         @keyframes cardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── gear nav btn ── */
+        .gear-nav {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px; border-radius: 50%;
+            border: 1.5px solid var(--border); background: none;
+            font-size: 13px; cursor: pointer; color: var(--muted);
+            transition: border-color 0.15s, color 0.15s;
+            text-decoration: none; flex-shrink: 0; margin-left: 10px;
+        }
+        .gear-nav:hover, .gear-nav.active { border-color: var(--accent); color: var(--accent); }
+
+        .add-fab {
+            position: fixed; bottom: 28px; right: 28px; z-index: 500;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: var(--accent); color: white; border: none;
+            font-size: 28px; line-height: 1; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(160,52,30,0.4);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .add-fab:hover { transform: scale(1.07); box-shadow: 0 6px 22px rgba(160,52,30,0.5); }
+
+        /* ── modals ── */
+        .r-overlay {
+            position: fixed; inset: 0; z-index: 1200;
+            background: rgba(15,12,10,0.6);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        .r-overlay.open { opacity: 1; pointer-events: all; }
+        .r-modal {
+            background: var(--surface); border-radius: 16px; width: 100%;
+            max-width: 420px; padding: 28px 28px 24px;
+            transform: translateY(14px); transition: transform 0.2s;
+            position: relative; border: 1px solid var(--border);
+        }
+        .r-overlay.open .r-modal { transform: translateY(0); }
+        .r-modal-wide { max-width: 540px; max-height: 90vh; overflow-y: auto; }
+        .r-modal h3 { margin: 0 0 20px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.6rem; font-weight: 700; color: var(--text); }
+        .r-close {
+            position: absolute; top: 14px; right: 14px;
+            background: none; border: 1.5px solid var(--border); border-radius: 50%;
+            width: 30px; height: 30px; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; color: var(--muted);
+        }
+        .r-close:hover { border-color: var(--muted); }
+        .r-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+        .r-field label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+        .r-field input, .r-field textarea, .r-field select {
+            padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+            font-family: 'Inter', sans-serif; font-size: 0.875rem; color: var(--text);
+            background: var(--bg); outline: none; transition: border-color 0.15s;
+        }
+        .r-field input:focus, .r-field textarea:focus, .r-field select:focus { border-color: var(--accent); background: white; }
+        .r-field textarea { resize: vertical; min-height: 72px; }
+        .r-field input[type="file"] { padding: 6px 10px; background: white; }
+        .r-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 480px) { .r-row { grid-template-columns: 1fr; } }
+        .r-btn {
+            background: var(--accent); color: white; border: none;
+            padding: 10px 24px; border-radius: 8px; font-weight: 600;
+            font-size: 0.875rem; cursor: pointer; transition: opacity 0.15s; font-family: 'Inter', sans-serif;
+        }
+        .r-btn:hover { opacity: 0.88; }
+        .r-btn-ghost {
+            background: none; color: var(--muted); border: 1.5px solid var(--border);
+            padding: 9px 20px; border-radius: 8px; font-weight: 600;
+            font-size: 0.875rem; cursor: pointer; margin-left: 8px; font-family: 'Inter', sans-serif;
+        }
+        .r-err { color: #c0392b; font-size: 0.82rem; margin-top: 6px; display: none; }
     </style>
 </head>
 <body>
 
 <nav>
     <a href="/" class="nav-logo">HUGO</a>
-    <div class="nav-links">
-        <a href="/recipes3">Recipes</a>
+    <div class="nav-links" style="display:flex;align-items:center;">
+        <a href="/recipes">Recipes</a>
         <a href="/restaurants">Restaurants</a>
+        <a href="/vacation">Vacation</a>
         <a href="/pools">Pools</a>
+        {% if is_admin %}
+        <a href="/admin/logout?next=/recipes" class="gear-nav active" title="Signed in — click to sign out">⚙</a>
+        {% else %}
+        <button class="gear-nav" onclick="openRModal('signInOverlay')" title="Sign in to edit">⚙</button>
+        {% endif %}
     </div>
 </nav>
 
@@ -236,6 +314,94 @@
     </div>
     {% endfor %}
 </div>
+
+{% if is_admin %}
+<button class="add-fab" onclick="openRModal('addOverlay')" title="Add recipe">+</button>
+{% endif %}
+
+<!-- ── Sign-in modal ── -->
+{% if not is_admin %}
+<div class="r-overlay" id="signInOverlay">
+  <div class="r-modal">
+    <button class="r-close" onclick="closeRModal('signInOverlay')">✕</button>
+    <h3>Sign In</h3>
+    <form method="post" action="/admin/login">
+      <input type="hidden" name="next" value="/recipes">
+      <div class="r-field">
+        <label>Username</label>
+        <input type="text" name="name" value="hugo" autocomplete="username">
+      </div>
+      <div class="r-field">
+        <label>Password</label>
+        <input type="password" name="password" autofocus autocomplete="current-password">
+      </div>
+      <div style="margin-top:18px;">
+        <button type="submit" class="r-btn">Sign In</button>
+        <button type="button" class="r-btn-ghost" onclick="closeRModal('signInOverlay')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Add Recipe modal ── -->
+{% if is_admin %}
+<div class="r-overlay" id="addOverlay">
+  <div class="r-modal r-modal-wide">
+    <button class="r-close" onclick="closeRModal('addOverlay')">✕</button>
+    <h3>Add Recipe</h3>
+    <div class="r-row">
+      <div class="r-field">
+        <label>Category</label>
+        <select id="addCat" onchange="updateSubcats()">
+          {% for cat in cats.keys() %}
+          <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="r-field">
+        <label>Subcategory</label>
+        <select id="addSubcat"></select>
+      </div>
+    </div>
+    <div class="r-field">
+      <label>Recipe Name</label>
+      <input type="text" id="addTitle" placeholder="e.g. Chicken Piccata">
+    </div>
+    <div class="r-field">
+      <label>Recipe Link (URL)</label>
+      <input type="url" id="addLink" placeholder="https://...">
+    </div>
+    <div class="r-field">
+      <label>Notes</label>
+      <textarea id="addNotes" placeholder="Tips, modifications, source notes…"></textarea>
+    </div>
+    <div class="r-row">
+      <div class="r-field">
+        <label>Date</label>
+        <input type="text" id="addDate" placeholder="MM/DD/YYYY">
+      </div>
+      <div class="r-field">
+        <label>Tier (1 = best, 3 = default)</label>
+        <select id="addTier">
+          <option value="3">3 — Standard</option>
+          <option value="2">2 — Good</option>
+          <option value="1">1 — Best</option>
+        </select>
+      </div>
+    </div>
+    <div class="r-field">
+      <label>Photo</label>
+      <input type="file" id="addImage" accept="image/*">
+    </div>
+    <div class="r-err" id="addErr"></div>
+    <div style="margin-top:18px;">
+      <button class="r-btn" onclick="submitAdd()">Add Recipe</button>
+      <button class="r-btn-ghost" onclick="closeRModal('addOverlay')">Cancel</button>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 <div class="empty-state" id="empty"><p>No recipes match.</p></div>
 
@@ -395,6 +561,65 @@ function surpriseMe() {
 
 applyFilters();
 window.addEventListener('resize', redistributeCards);
+
+// ── Modal helpers ──
+function openRModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeRModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+document.querySelectorAll('.r-overlay').forEach(ov => {
+    ov.addEventListener('click', e => { if (e.target === ov) closeRModal(ov.id); });
+});
+
+{% if is_admin %}
+const CATS = {{ cats | tojson }};
+
+function updateSubcats() {
+    const cat = document.getElementById('addCat').value;
+    const sel = document.getElementById('addSubcat');
+    sel.innerHTML = '';
+    (CATS[cat] || []).forEach(sc => {
+        const o = document.createElement('option');
+        o.value = o.textContent = sc;
+        sel.appendChild(o);
+    });
+}
+updateSubcats();
+
+(function() {
+    const d = new Date();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    document.getElementById('addDate').value = `${mm}/${dd}/${d.getFullYear()}`;
+})();
+
+async function submitAdd() {
+    const title = document.getElementById('addTitle').value.trim();
+    const cat   = document.getElementById('addCat').value;
+    const sub   = document.getElementById('addSubcat').value;
+    const err   = document.getElementById('addErr');
+    err.style.display = 'none';
+    if (!title) { err.textContent = 'Recipe name is required.'; err.style.display = ''; return; }
+
+    const fd = new FormData();
+    fd.append('title',       title);
+    fd.append('notes',       document.getElementById('addNotes').value);
+    fd.append('link',        document.getElementById('addLink').value.trim());
+    fd.append('category',    cat);
+    fd.append('subcategory', sub);
+    fd.append('date',        document.getElementById('addDate').value.trim());
+    fd.append('tier',        document.getElementById('addTier').value);
+    const imgFile = document.getElementById('addImage').files[0];
+    if (imgFile) fd.append('image', imgFile);
+
+    const res = await fetch('/recipes/add', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.ok) {
+        location.reload();
+    } else {
+        err.textContent = data.error || 'Something went wrong.';
+        err.style.display = '';
+    }
+}
+{% endif %}
 </script>
 </body>
 </html>

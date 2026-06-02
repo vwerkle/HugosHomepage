@@ -78,10 +78,11 @@ def _check_birthdays():
         if isinstance(alert_days, int):
             alert_days = [alert_days]
 
-        if days_until == 0:
-            _send_sms(f"Today is {name}'s birthday! \U0001f382")
-        elif days_until in alert_days:
-            _send_sms(f"{name}'s birthday is in {days_until} days! ({month_name} {day})")
+        if days_until in alert_days:
+            if days_until == 0:
+                _send_sms(f"Today is {name}'s birthday! \U0001f382")
+            else:
+                _send_sms(f"{name}'s birthday is in {days_until} days! ({month_name} {day})")
 
 
 def start_scheduler():

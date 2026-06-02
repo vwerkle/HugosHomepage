@@ -51,7 +51,7 @@
     /* ── card table ── */
     .card-table {
       position: relative; z-index: 1;
-      width: 820px; height: 430px;
+      width: 960px; height: 430px;
       display: flex; align-items: center; justify-content: center;
     }
 
@@ -117,6 +117,17 @@
     }
     .card-pools:hover .card-inner {
       box-shadow: 0 36px 90px rgba(0,0,0,0.85), 0 0 50px rgba(60,40,120,0.25),
+                  0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    /* restaurants */
+    .card-restaurants .card-inner {
+      background-color: #2a0d14;
+      background-image: linear-gradient(155deg, #3d1526 0%, #2a0d18 45%, #1a0810 100%);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.75), 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .card-restaurants:hover .card-inner {
+      box-shadow: 0 36px 90px rgba(0,0,0,0.85), 0 0 50px rgba(120,20,45,0.30),
                   0 4px 20px rgba(0,0,0,0.5);
     }
 
@@ -223,25 +234,25 @@
     @media (max-width: 700px) {
       .card-table {
         width: 100vw;
-        height: 58vw;
+        height: 52vw;
         flex-direction: row;
-        gap: 2vw;
+        gap: 1.5vw;
       }
       .card {
         position: relative;
-        width: 29vw; height: 44vw;
-        border-radius: 10px;
+        width: 22vw; height: 33vw;
+        border-radius: 8px;
       }
-      .card-inner { border-radius: 10px; padding: 14px 8px; }
-      .card-inner::after { border-radius: 10px; }
-      .card-frame { inset: 7px; border-radius: 6px; }
-      .card-title { font-size: 17px; margin-bottom: 8px; }
-      .card-eyebrow { font-size: 6px; margin-bottom: 8px; }
-      .card-suit { font-size: 18px; margin-bottom: 8px; }
-      .card-sub { font-size: 6px; }
-      .corner { font-size: 8px; }
-      .corner.tl { top: 9px; left: 9px; }
-      .corner.br { bottom: 9px; right: 9px; }
+      .card-inner { border-radius: 8px; padding: 10px 6px; }
+      .card-inner::after { border-radius: 8px; }
+      .card-frame { inset: 5px; border-radius: 5px; }
+      .card-title { font-size: 13px; margin-bottom: 6px; }
+      .card-eyebrow { font-size: 5px; margin-bottom: 6px; }
+      .card-suit { font-size: 14px; margin-bottom: 6px; }
+      .card-sub { font-size: 5px; }
+      .corner { font-size: 7px; }
+      .corner.tl { top: 7px; left: 7px; }
+      .corner.br { bottom: 7px; right: 7px; }
     }
   </style>
 </head>
@@ -258,8 +269,8 @@
     <div class="card card-recipes" id="cardRecipes">
       <div class="card-inner" id="recipesInner">
         <div class="card-frame"></div>
-        <div class="corner tl">H<br>♦<br>K</div>
-        <div class="corner br">H<br>♦<br>K</div>
+        <div class="corner tl">H<br>♥<br>K</div>
+        <div class="corner br">H<br>♥<br>K</div>
         <div class="card-eyebrow">Hugo's</div>
         <div class="card-suit">♥</div>
         <div class="card-title">Kitchen</div>
@@ -268,17 +279,17 @@
       </div>
     </div>
 
-    <!-- Pools card -->
-    <div class="card card-pools" id="cardPools">
+    <!-- Restaurants card -->
+    <div class="card card-restaurants" id="cardRestaurants">
       <div class="card-inner">
         <div class="card-frame"></div>
-        <div class="corner tl">H<br>♠<br>P</div>
-        <div class="corner br">H<br>♠<br>P</div>
+        <div class="corner tl">H<br>♦<br>R</div>
+        <div class="corner br">H<br>♦<br>R</div>
         <div class="card-eyebrow">Hugo's</div>
-        <div class="card-suit">♠</div>
-        <div class="card-title">Pools</div>
+        <div class="card-suit">♦</div>
+        <div class="card-title">Eats</div>
         <div class="card-rule"></div>
-        <div class="card-sub">Pick'em &middot; MLB &middot; World Cup</div>
+        <div class="card-sub">Restaurants &middot; Rankings</div>
       </div>
     </div>
 
@@ -295,6 +306,20 @@
         <div class="card-sub">Trips &middot; Destinations</div>
       </div>
     </div>
+
+    <!-- Pools card -->
+    <div class="card card-pools" id="cardPools">
+      <div class="card-inner">
+        <div class="card-frame"></div>
+        <div class="corner tl">H<br>♠<br>P</div>
+        <div class="corner br">H<br>♠<br>P</div>
+        <div class="card-eyebrow">Hugo's</div>
+        <div class="card-suit">♠</div>
+        <div class="card-title">Pools</div>
+        <div class="card-rule"></div>
+        <div class="card-sub">Pick'em &middot; MLB &middot; World Cup</div>
+      </div>
+    </div>
   </div>
 
   <p class="choose-label">Choose your destination</p>
@@ -303,11 +328,12 @@
 
   <script>window._FEAT = "{{ featured_image or '' }}";</script>
   <script>
-    const table    = document.getElementById('cardTable');
-    const recipes  = document.getElementById('cardRecipes');
-    const vacation = document.getElementById('cardVacation');
-    const pools    = document.getElementById('cardPools');
-    const veil     = document.getElementById('fadeVeil');
+    const table       = document.getElementById('cardTable');
+    const recipes     = document.getElementById('cardRecipes');
+    const restaurants = document.getElementById('cardRestaurants');
+    const vacation    = document.getElementById('cardVacation');
+    const pools       = document.getElementById('cardPools');
+    const veil        = document.getElementById('fadeVeil');
 
     // apply featured image as subtle overlay on recipes card
     if (window._FEAT) {
@@ -319,18 +345,20 @@
     function fanPositions() {
       const m = window.innerWidth <= 700;
       return {
-        L: m ? 'rotate(-5deg)'  : 'translateX(-210px) rotate(-14deg)',
-        C: m ? 'rotate( 1deg)'  : 'translateX(    0px) rotate(  2deg)',
-        R: m ? 'rotate( 5deg)'  : 'translateX( 210px) rotate( 13deg)',
+        LL: m ? 'rotate(-6deg)' : 'translateX(-285px) rotate(-17deg)',
+        CL: m ? 'rotate(-2deg)' : 'translateX( -95px) rotate( -5deg)',
+        CR: m ? 'rotate( 2deg)' : 'translateX(  95px) rotate(  5deg)',
+        RR: m ? 'rotate( 6deg)' : 'translateX( 285px) rotate( 17deg)',
       };
     }
 
     let fan = fanPositions();
 
     setTimeout(() => {
-      recipes.style.transform  = fan.L;
-      pools.style.transform    = fan.C;
-      vacation.style.transform = fan.R;
+      recipes.style.transform     = fan.LL;
+      restaurants.style.transform = fan.CL;
+      vacation.style.transform    = fan.CR;
+      pools.style.transform       = fan.RR;
     }, 140);
 
     function setupCard(card, getFanPos, url) {
@@ -364,9 +392,10 @@
       });
     }
 
-    setupCard(recipes,  () => fanPositions().L, '/recipes3');
-    setupCard(pools,    () => fanPositions().C, '/pools');
-    setupCard(vacation, () => fanPositions().R, '/vacation');
+    setupCard(recipes,     () => fanPositions().LL, '/recipes3');
+    setupCard(restaurants, () => fanPositions().CL, '/restaurants');
+    setupCard(vacation,    () => fanPositions().CR, '/vacation');
+    setupCard(pools,       () => fanPositions().RR, '/pools');
 
     document.getElementById('bdayChip').addEventListener('click', () => {
       veil.classList.add('on');
@@ -379,9 +408,10 @@
 
     window.addEventListener('resize', () => {
       fan = fanPositions();
-      recipes.style.transform  = fan.L;
-      pools.style.transform    = fan.C;
-      vacation.style.transform = fan.R;
+      recipes.style.transform     = fan.LL;
+      restaurants.style.transform = fan.CL;
+      vacation.style.transform    = fan.CR;
+      pools.style.transform       = fan.RR;
     });
   </script>
 </body>

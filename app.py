@@ -12,6 +12,8 @@ from blueprints.reservations.routes import preload_venues
 from blueprints.birthdays import birthdays_bp
 from blueprints.birthdays import scheduler as bday_scheduler
 from blueprints.vacation.routes import vacation_bp
+from blueprints.moneyline import moneyline_bp
+from blueprints.moneyline import scheduler as moneyline_scheduler
 
 app = Flask(__name__)
 app.secret_key = 'vincent'
@@ -26,13 +28,14 @@ app.register_blueprint(worldcup_bp)
 app.register_blueprint(reservations_bp)
 app.register_blueprint(birthdays_bp)
 app.register_blueprint(vacation_bp, url_prefix='/vacation')
+app.register_blueprint(moneyline_bp)
 
 # Global constants (if needed across app)
 DATA_DIR = 'data/madness'
 
 def init_db():
     # Ensure data directories exist
-    for path in ['data/madness', 'data/misc', 'data/random', 'data/reservations', 'data/worldcup', 'data/birthdays', 'data/vacation', 'static/vacation']:
+    for path in ['data/madness', 'data/misc', 'data/random', 'data/reservations', 'data/worldcup', 'data/birthdays', 'data/vacation', 'data/moneyline', 'static/vacation']:
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -99,6 +102,7 @@ if __name__ == '__main__':
     init_db()
     res_scheduler.start_scheduler()
     bday_scheduler.start_scheduler()
+    moneyline_scheduler.start_scheduler()
     preload_venues()  # kicks off background Resy + OT venue loading
     from waitress import serve
     print("Waitress is starting on port 5000...")

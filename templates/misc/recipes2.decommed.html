@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Cookbook</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfdfd;
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+            --accent: #e67e22;
+            --radius: 16px;
+            --shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* --- Search Bar --- */
+        .search-container { position: sticky; top: 10px; z-index: 100; margin-bottom: 40px; }
+        #recipeSearch {
+            width: 100%; padding: 15px 25px; font-size: 1.1rem; border-radius: 50px;
+            border: 2px solid #eee; box-shadow: var(--shadow); outline: none;
+        }
+
+        /* --- Collapsible Headers --- */
+        .category-wrapper { margin-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        .category-header {
+            width: 100%; background: none; border: none; display: flex; 
+            justify-content: space-between; align-items: center;
+            padding: 15px 0; cursor: pointer; font-size: 1.8rem;
+            font-weight: 800; color: var(--text-main); text-align: left;
+        }
+
+        .subcategory-section { margin-left: 15px; margin-bottom: 20px; }
+
+        .subcategory-header {
+            width: 100%; background: #f8f9fa; border: none; padding: 10px 15px;
+            border-radius: 8px; text-align: left; font-size: 1.1rem;
+            font-weight: 600; cursor: pointer; margin-bottom: 15px;
+            display: flex; justify-content: space-between;
+        }
+
+        /* --- Grid & Images --- */
+        .recipes-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px; padding-bottom: 20px;
+        }
+
+        .recipe-card {
+            background: var(--card-bg); border-radius: var(--radius);
+            overflow: hidden; box-shadow: var(--shadow);
+        }
+
+        .image-container { width: 100%; background-color: #f8f9fa; }
+        .recipe-image { 
+            width: 100%; height: auto; max-height: 500px; 
+            object-fit: contain; display: block; 
+        }
+
+        .recipe-content { padding: 20px; }
+        .recipe-title { font-size: 1.4rem; margin: 0 0 8px 0; }
+        .recipe-notes { color: #636e72; margin-bottom: 10px; }
+
+        /* Utilities */
+        .hidden { display: none; }
+        .icon { transition: transform 0.3s; font-size: 0.8rem; }
+        .icon.open { transform: rotate(180deg); }
+
+        @media (max-width: 600px) {
+            .subcategory-section { margin-left: 0; }
+        }
+
+        /* ── gear / admin ── */
+        .gear-fab {
+            position: fixed; bottom: 28px; left: 28px; z-index: 500;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: white; border: 1.5px solid #e0e0e0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; cursor: pointer; color: #94a3b8;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+            transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+            text-decoration: none;
+        }
+        .gear-fab:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 4px 14px rgba(230,126,34,0.25); }
+        .gear-fab.active { border-color: var(--accent); color: var(--accent); }
+
+        .add-fab {
+            position: fixed; bottom: 28px; right: 28px; z-index: 500;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: var(--accent); color: white; border: none;
+            font-size: 28px; line-height: 1; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(230,126,34,0.4);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .add-fab:hover { transform: scale(1.07); box-shadow: 0 6px 22px rgba(230,126,34,0.5); }
+
+        /* ── modals ── */
+        .r-overlay {
+            position: fixed; inset: 0; z-index: 1000;
+            background: rgba(15,12,10,0.6);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        .r-overlay.open { opacity: 1; pointer-events: all; }
+        .r-modal {
+            background: #fff; border-radius: 16px; width: 100%;
+            max-width: 480px; padding: 28px 28px 24px;
+            transform: translateY(14px); transition: transform 0.2s;
+            position: relative;
+        }
+        .r-overlay.open .r-modal { transform: translateY(0); }
+        .r-modal-wide { max-width: 560px; }
+        .r-modal h3 { margin: 0 0 20px; font-size: 1.15rem; font-weight: 700; color: #0f172a; }
+        .r-close {
+            position: absolute; top: 14px; right: 14px;
+            background: none; border: 1.5px solid #e0e0e0; border-radius: 50%;
+            width: 30px; height: 30px; font-size: 15px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; color: #64748b;
+        }
+        .r-close:hover { border-color: #94a3b8; }
+
+        .r-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+        .r-field label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: #64748b; }
+        .r-field input, .r-field textarea, .r-field select {
+            padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+            font-family: 'Inter', sans-serif; font-size: 0.875rem; color: #0f172a;
+            background: #f8fafc; outline: none; transition: border-color 0.15s;
+        }
+        .r-field input:focus, .r-field textarea:focus, .r-field select:focus { border-color: var(--accent); background: #fff; }
+        .r-field textarea { resize: vertical; min-height: 72px; }
+        .r-field input[type="file"] { padding: 6px 10px; background: #fff; }
+
+        .r-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 480px) { .r-row { grid-template-columns: 1fr; } }
+
+        .r-btn {
+            background: var(--accent); color: white; border: none;
+            padding: 10px 24px; border-radius: 8px; font-weight: 600;
+            font-size: 0.875rem; cursor: pointer; transition: opacity 0.15s;
+        }
+        .r-btn:hover { opacity: 0.88; }
+        .r-btn-ghost {
+            background: none; color: #64748b; border: 1.5px solid #e2e8f0;
+            padding: 9px 20px; border-radius: 8px; font-weight: 600;
+            font-size: 0.875rem; cursor: pointer; margin-left: 8px;
+        }
+        .r-err { color: #c0392b; font-size: 0.82rem; margin-top: 6px; display: none; }
+    </style>
+</head>
+<body>
+<nav style="background:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);font-family:'Inter',sans-serif;">
+    <a href="/" style="font-weight:800;font-size:1.2rem;text-decoration:none;color:#0f172a;">HUGO</a>
+    <div>
+        <a href="/recipes3" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Recipes</a>
+        <a href="/restaurants" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Restaurants</a>
+        <a href="/vacation" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Vacation</a>
+        <a href="/pools" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Pools</a>
+    </div>
+</nav>
+
+{% if is_admin %}
+<a href="/admin/logout?next=/recipes" class="gear-fab active" title="Signed in — tap to sign out">⚙</a>
+{% else %}
+<button class="gear-fab" onclick="openModal('signInOverlay')" title="Sign in to edit">⚙</button>
+{% endif %}
+
+<div class="container">
+    <div class="search-container">
+        <input type="text" id="recipeSearch" placeholder="Search for a recipe..." onkeyup="filterRecipes()">
+    </div>
+
+    {% for category, subcategories in recipes.items() %}
+    {% set cat_idx = loop.index %}
+    <div class="category-wrapper" id="cat-wrapper-{{ cat_idx }}">
+        <button class="category-header" onclick="toggle('cat-content-{{ cat_idx }}', this)">
+            {{ category }}
+            <span class="icon">▼</span>
+        </button>
+
+        <div id="cat-content-{{ cat_idx }}" class="category-content">
+            {% for subcategory, recipe_list in subcategories.items() %}
+            {% set sub_idx = loop.index %}
+            <div class="subcategory-section" id="sub-section-{{ cat_idx }}-{{ sub_idx }}">
+                <button class="subcategory-header" onclick="toggle('sub-grid-{{ cat_idx }}-{{ sub_idx }}', this)">
+                    {{ subcategory }}
+                    <span class="icon">▼</span>
+                </button>
+                
+                <div id="sub-grid-{{ cat_idx }}-{{ sub_idx }}" class="recipes-grid">
+                    {% for recipe in recipe_list %}
+                    <div class="recipe-card" data-title="{{ recipe.title | lower }}" data-notes="{{ recipe.notes | lower }}">
+                        <div class="image-container">
+                            <img src="{{ url_for('static', filename=recipe.image) }}" alt="{{ recipe.title }}" class="recipe-image">
+                        </div>
+                        <div class="recipe-content">
+                            <h2 class="recipe-title">{{ recipe.title }}</h2>
+                            <div class="recipe-notes">{{ recipe.notes | safe }}</div>
+                            <div class="recipe-date">{{ recipe.date }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if is_admin %}
+<button class="add-fab" onclick="openModal('addOverlay')" title="Add recipe">+</button>
+{% endif %}
+
+<!-- ── Sign-in modal ── -->
+{% if not is_admin %}
+<div class="r-overlay" id="signInOverlay">
+  <div class="r-modal">
+    <button class="r-close" onclick="closeModal('signInOverlay')">✕</button>
+    <h3>Sign In</h3>
+    <form method="post" action="/admin/login">
+      <input type="hidden" name="next" value="/recipes">
+      <div class="r-field">
+        <label>Username</label>
+        <input type="text" name="name" value="hugo" autocomplete="username">
+      </div>
+      <div class="r-field">
+        <label>Password</label>
+        <input type="password" name="password" autofocus autocomplete="current-password">
+      </div>
+      <div style="margin-top:18px;">
+        <button type="submit" class="r-btn">Sign In</button>
+        <button type="button" class="r-btn-ghost" onclick="closeModal('signInOverlay')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Add Recipe modal ── -->
+{% if is_admin %}
+<div class="r-overlay" id="addOverlay">
+  <div class="r-modal r-modal-wide">
+    <button class="r-close" onclick="closeModal('addOverlay')">✕</button>
+    <h3>Add Recipe</h3>
+    <div class="r-row">
+      <div class="r-field">
+        <label>Category</label>
+        <select id="addCat" onchange="updateSubcats()">
+          {% for cat in recipes.keys() %}
+          <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="r-field">
+        <label>Subcategory</label>
+        <select id="addSubcat"></select>
+      </div>
+    </div>
+    <div class="r-field">
+      <label>Recipe Name</label>
+      <input type="text" id="addTitle" placeholder="e.g. Chicken Piccata">
+    </div>
+    <div class="r-field">
+      <label>Recipe Link (URL)</label>
+      <input type="url" id="addLink" placeholder="https://...">
+    </div>
+    <div class="r-field">
+      <label>Notes</label>
+      <textarea id="addNotes" placeholder="Tips, modifications, source notes…"></textarea>
+    </div>
+    <div class="r-row">
+      <div class="r-field">
+        <label>Date</label>
+        <input type="text" id="addDate" placeholder="e.g. 05/18/2026">
+      </div>
+      <div class="r-field">
+        <label>Tier (1 = best, 3 = default)</label>
+        <select id="addTier">
+          <option value="3">3 — Standard</option>
+          <option value="2">2 — Good</option>
+          <option value="1">1 — Best</option>
+        </select>
+      </div>
+    </div>
+    <div class="r-field">
+      <label>Photo</label>
+      <input type="file" id="addImage" accept="image/*">
+    </div>
+    <div class="r-err" id="addErr"></div>
+    <div style="margin-top:18px;">
+      <button class="r-btn" onclick="submitAdd()">Add Recipe</button>
+      <button class="r-btn-ghost" onclick="closeModal('addOverlay')">Cancel</button>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+// Toggle Visibility
+function toggle(id, btn) {
+    const el = document.getElementById(id);
+    const icon = btn.querySelector('.icon');
+    el.classList.toggle('hidden');
+    icon.classList.toggle('open');
+}
+
+// Search with Auto-Expand
+function filterRecipes() {
+    const input = document.getElementById('recipeSearch').value.toLowerCase();
+    const cards = document.querySelectorAll('.recipe-card');
+
+    cards.forEach(card => {
+        const text = card.getAttribute('data-title') + " " + card.getAttribute('data-notes');
+        if (text.includes(input)) {
+            card.style.display = "";
+        } else {
+            card.style.display = "none";
+        }
+    });
+
+    if (input.length > 0) {
+        document.querySelectorAll('.category-content, .recipes-grid').forEach(el => {
+            el.classList.remove('hidden');
+        });
+        document.querySelectorAll('.icon').forEach(i => i.classList.add('open'));
+    }
+}
+
+// ── Modal helpers ──
+function openModal(id) {
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = '';
+}
+document.querySelectorAll('.r-overlay').forEach(ov => {
+    ov.addEventListener('click', e => { if (e.target === ov) closeModal(ov.id); });
+});
+
+{% if is_admin %}
+// ── Category/subcategory data ──
+const CATS_DATA = {{ cats_data | tojson }};
+
+function updateSubcats() {
+    const cat = document.getElementById('addCat').value;
+    const sel = document.getElementById('addSubcat');
+    sel.innerHTML = '';
+    (CATS_DATA[cat] || []).forEach(sc => {
+        const o = document.createElement('option');
+        o.value = o.textContent = sc;
+        sel.appendChild(o);
+    });
+}
+updateSubcats();
+
+// Pre-fill today's date
+(function() {
+    const d = new Date();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    document.getElementById('addDate').value = `${mm}/${dd}/${yyyy}`;
+})();
+
+async function submitAdd() {
+    const title = document.getElementById('addTitle').value.trim();
+    const cat   = document.getElementById('addCat').value;
+    const sub   = document.getElementById('addSubcat').value;
+    const err   = document.getElementById('addErr');
+    err.style.display = 'none';
+    if (!title) { err.textContent = 'Recipe name is required.'; err.style.display = ''; return; }
+
+    const fd = new FormData();
+    fd.append('title',       title);
+    fd.append('notes',       document.getElementById('addNotes').value);
+    fd.append('link',        document.getElementById('addLink').value.trim());
+    fd.append('category',    cat);
+    fd.append('subcategory', sub);
+    fd.append('date',        document.getElementById('addDate').value.trim());
+    fd.append('tier',        document.getElementById('addTier').value);
+    const imgFile = document.getElementById('addImage').files[0];
+    if (imgFile) fd.append('image', imgFile);
+
+    const res = await fetch('/recipes/add', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.ok) {
+        location.reload();
+    } else {
+        err.textContent = data.error || 'Something went wrong.';
+        err.style.display = '';
+    }
+}
+{% endif %}
+</script>
+
+</body>
+</html>

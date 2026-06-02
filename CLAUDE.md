@@ -32,6 +32,7 @@ Runs Waitress on port 5000. In production it's a Windows Service via NSSM. `init
 | `moonshot_bp` | `/moonshot` | `blueprints/pools/moonshot.py` |
 | `worldcup_bp` | `/worldcup` | `blueprints/pools/worldcup/routes.py` |
 | `reservations_bp` | `/reservations` | `blueprints/reservations/` |
+| `moneyline_bp` | `/moneyline` | `blueprints/moneyline/` |
 
 ### Data patterns
 
@@ -41,6 +42,7 @@ All persistence is flat JSON in `data/`. Each blueprint has its own subdirectory
 - `data/worldcup/` — World Cup pool: `users.json`, `picks.json`, `games.json`, `config.json`
 - `data/misc/` — Source-of-truth text files `Recipes.txt` and `Restaurants.txt` parsed on each request; JSON sidecars are write-only cache
 - `data/reservations/` — `config.json` (gitignored), `active_jobs.json`, `history.json`
+- `data/moneyline/` — `daily_game.json` (today's decrypted game), `API_REFERENCE.md` (full decryption + scoring docs)
 
 ### Auth
 
@@ -62,6 +64,37 @@ Custom line-by-line format parsed in `make_json_recipes()`:
 - Bare line — title (first), notes (second), image filename (third), date (fourth)
 - `#tag1, tag2` — tags
 - `>1` — tier (1=best, 3=default)
+
+### Moneyline game (`/moneyline`)
+
+A daily number-guessing game cloned from fromthethink.com/moneyline. 8 rounds per day. No login, no server-side scores — all state in `localStorage`.
+
+**Gameplay change from original:** Instead of Higher/Lower buttons, the player types their actual guess for the number. Scored 0–100 per round based on closeness.
+
+**Scoring (client-side, `static/moneyline/moneyline.js`):**
+- *Percentage questions* (question text contains "percent" or "%"): `score = max(0, min(99, 100 - absDiff * 3))` — scored on absolute percentage-point difference. Being 1.7pp off on a 6.7% question → 95 pts.
+- *Regular numbers*: `score = max(0, min(99, 100 - pctError * mult))` where `mult` = 1.0 (actual ≤ 50), 1.5 (≤ 500), 2.0 (> 500). Softens penalty for small-number questions like "how many rounds."
+
+**Question source:** `https://timeline-production-6c18.up.railway.app/api/moneyline/daily-game`
+- Response has `game_number`, `date` (YYYY-MM-DD), and encrypted `data` field
+- AES-256-CBC: key = `SHA256("XkaKm30N51IGGlofzK6pWb9MmyXhdLCr" + date)`, IV = first 16 bytes of decoded ciphertext
+- Decrypted payload: `{ rounds: [{ round_number, category, question, line_value, actual_value }] }`
+- `line_value` is the original over/under threshold — ignored in our version
+- Full decryption recipe + failure mode guide: `data/moneyline/API_REFERENCE.md`
+
+**Scheduler (`blueprints/moneyline/scheduler.py`):** Fetches + decrypts at 5:00 AM ET daily → `data/moneyline/daily_game.json`. On-demand fetch if cache is missing or stale. Uses `pycryptodome` (installed in venv).
+
+**localStorage key:** `moneyline-vwerkle-v1` — stores `{ gameNumber, results, finished, totalScore }`. Replay blocked by matching `gameNumber` to today's game. Clearing localStorage resets progress.
+
+**Share format:**
+```
+🏈 Moneyline #15
+487/800
+
+🟩🟥🟨🟩🟩🟨🟩🟥
+
+vwerkle.com/moneyline
+```
 
 ### Reservations
 

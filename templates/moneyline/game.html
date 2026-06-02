@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Moneyline</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='moneyline/moneyline.css') }}">
+</head>
+<body>
+<div class="container">
+
+  <!-- Loading -->
+  <div id="screen-loading" class="screen active">
+    <p style="text-align:center;color:#6b7280;padding-top:40px;">Loading…</p>
+  </div>
+
+  <!-- Error -->
+  <div id="screen-error" class="screen">
+    <div class="card">
+      <p class="error-text">Could not load today's game. Check back soon.</p>
+      <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
+    </div>
+  </div>
+
+  <!-- Landing -->
+  <div id="screen-landing" class="screen">
+    <h1 class="landing-title">🏈 Moneyline</h1>
+    <p class="landing-sub" id="landing-sub"></p>
+    <button class="btn btn-primary" onclick="startGame()">Play</button>
+  </div>
+
+  <!-- Question -->
+  <div id="screen-question" class="screen">
+    <div class="round-counter" id="q-number">1 / 8</div>
+    <div class="progress-row" id="progress-dots"></div>
+    <div class="card">
+      <div class="category-chip" id="q-category">Category</div>
+      <p class="question-text" id="q-text"></p>
+      <input
+        type="number"
+        inputmode="decimal"
+        class="guess-input"
+        id="guess-input"
+        placeholder="Your guess"
+        autocomplete="off"
+      >
+      <div class="guess-formatted" id="guess-formatted"></div>
+      <button class="btn btn-primary" id="submit-btn" onclick="submitGuess()">Submit</button>
+    </div>
+  </div>
+
+  <!-- Round result -->
+  <div id="screen-result" class="screen">
+    <div class="card">
+      <div class="result-score" id="result-score">—/100</div>
+      <p class="result-question" id="result-question"></p>
+      <div class="result-row">
+        <span class="result-label">Your guess</span>
+        <span class="result-value" id="result-your-guess"></span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Actual</span>
+        <span class="result-value" id="result-actual"></span>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="next-btn">Next</button>
+  </div>
+
+  <!-- Final results -->
+  <div id="screen-final" class="screen">
+    <p class="final-title" id="final-game-number">Moneyline #—</p>
+    <div class="final-total-score" id="final-score">— / —</div>
+    <div class="card">
+      <div class="rounds-list" id="rounds-list"></div>
+    </div>
+    <button class="btn btn-primary" id="share-btn" onclick="share()">Share Results</button>
+  </div>
+
+</div>
+<script src="{{ url_for('static', filename='moneyline/moneyline.js') }}"></script>
+</body>
+</html>

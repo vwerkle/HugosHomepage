@@ -47,6 +47,8 @@
   .admin-bar {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
     margin-bottom: 1.5rem;
   }
   .btn-admin {
@@ -63,6 +65,53 @@
     transition: all 0.18s;
   }
   .btn-admin:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-signout {
+    font-size: 0.72rem; font-weight: 600; color: var(--muted);
+    background: none; border: none; cursor: pointer; text-decoration: underline;
+    text-underline-offset: 2px; padding: 0;
+  }
+  .btn-signout:hover { color: var(--accent); }
+
+  /* ── sign-in modal ── */
+  .signin-overlay {
+    position: fixed; inset: 0; z-index: 1200;
+    background: rgba(15,12,10,0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .signin-overlay.open { opacity: 1; pointer-events: all; }
+  .signin-modal {
+    background: var(--surface); border-radius: 14px; width: 100%; max-width: 380px;
+    padding: 28px; position: relative;
+    transform: translateY(12px); transition: transform 0.2s;
+    border: 1px solid var(--border);
+  }
+  .signin-overlay.open .signin-modal { transform: translateY(0); }
+  .signin-modal h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1.5rem; font-weight: 700;
+    margin: 0 0 20px; color: var(--text);
+  }
+  .signin-close {
+    position: absolute; top: 14px; right: 14px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: none; border: 1.5px solid var(--border);
+    font-size: 13px; cursor: pointer; color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .signin-close:hover { border-color: var(--muted); }
+  .signin-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+  .signin-field label {
+    font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted);
+  }
+  .signin-field input {
+    padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-size: 0.875rem; color: var(--text);
+    background: var(--vbg); outline: none; transition: border-color 0.15s;
+  }
+  .signin-field input:focus { border-color: var(--accent); background: white; }
 
   /* ── search + map bar ── */
   .search-row {
@@ -259,7 +308,7 @@
 
   /* ── modal overlay ── */
   .modal-overlay {
-    position: fixed; inset: 0; z-index: 100;
+    position: fixed; inset: 0; z-index: 1000;
     background: rgba(15,12,10,0.75);
     display: flex;
     align-items: flex-start;
@@ -606,7 +655,7 @@
 
   /* admin edit modal */
   .edit-modal-overlay {
-    position: fixed; inset: 0; z-index: 200;
+    position: fixed; inset: 0; z-index: 1100;
     background: rgba(15,12,10,0.75);
     display: flex;
     align-items: flex-start;
@@ -647,8 +696,40 @@
 {% if is_admin %}
 <div class="admin-bar">
   <button class="btn-admin" id="adminToggle">⚙ Admin</button>
+  <form method="get" action="/admin/logout" style="display:inline">
+    <input type="hidden" name="next" value="/vacation">
+    <button type="submit" class="btn-signout">Sign out</button>
+  </form>
+</div>
+{% else %}
+<div class="admin-bar">
+  <button class="btn-admin" onclick="document.getElementById('signinOverlay').classList.add('open');document.body.style.overflow='hidden'">⚙ Sign In</button>
 </div>
 
+<!-- sign-in modal -->
+<div class="signin-overlay" id="signinOverlay">
+  <div class="signin-modal">
+    <button class="signin-close" onclick="document.getElementById('signinOverlay').classList.remove('open');document.body.style.overflow=''">✕</button>
+    <h3>Sign In</h3>
+    <form method="post" action="/admin/login">
+      <input type="hidden" name="next" value="/vacation">
+      <div class="signin-field">
+        <label>Username</label>
+        <input type="text" name="name" value="hugo" autocomplete="username">
+      </div>
+      <div class="signin-field">
+        <label>Password</label>
+        <input type="password" name="password" autofocus autocomplete="current-password">
+      </div>
+      <div style="margin-top:18px;">
+        <button type="submit" class="btn-primary">Sign In</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+{% if is_admin %}
 <div class="admin-panel" id="adminPanel">
   <h3>Add a New Trip</h3>
   <div class="form-grid">
@@ -714,6 +795,7 @@
   {% for r in regions %}
   <button class="pill" data-region="{{ r }}">{{ r }}</button>
   {% endfor %}
+  <button class="btn-map" id="recentBtn" onclick="toggleRecentSort()">↓ Recent</button>
   <button class="btn-map" id="mapToggle" onclick="toggleMapView()">🗺 Map</button>
 </div>
 
@@ -959,6 +1041,7 @@
       gridEl.style.display = '';
       document.querySelectorAll('.pill').forEach(p => p.style.display = '');
       document.querySelector('.search-wrap').style.display = '';
+      document.getElementById('recentBtn').style.display = '';
       btn.textContent = '🗺 Map';
       btn.classList.remove('active');
     } else {
@@ -966,6 +1049,7 @@
       gridEl.style.display = 'none';
       document.querySelectorAll('.pill').forEach(p => p.style.display = 'none');
       document.querySelector('.search-wrap').style.display = 'none';
+      document.getElementById('recentBtn').style.display = 'none';
       btn.textContent = '⊟ Grid';
       btn.classList.add('active');
       initMap();
@@ -1292,5 +1376,41 @@
     else alert('Error deleting');
   }
   {% endif %}
+
+  // ── recent sort ──
+  let sortedByRecent = false;
+  const MONTHS = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+
+  function parseDateValue(datesStr) {
+    if (!datesStr) return -1;
+    const s = datesStr.toLowerCase();
+    const yearMatch = s.match(/\d{4}/);
+    const year = yearMatch ? parseInt(yearMatch[0]) : 0;
+    let month = -1;
+    MONTHS.forEach((m, i) => { if (s.includes(m)) month = i; });
+    return year * 12 + month;
+  }
+
+  function toggleRecentSort() {
+    sortedByRecent = !sortedByRecent;
+    const btn = document.getElementById('recentBtn');
+    btn.classList.toggle('active', sortedByRecent);
+    btn.textContent = sortedByRecent ? '↑ Random' : '↓ Recent';
+
+    const grid = document.getElementById('tripGrid');
+    const cards = Array.from(grid.querySelectorAll('.trip-card'));
+    if (sortedByRecent) {
+      cards.sort((a, b) => {
+        const ta = TRIPS.find(t => t.id === a.dataset.id);
+        const tb = TRIPS.find(t => t.id === b.dataset.id);
+        return parseDateValue(tb?.dates) - parseDateValue(ta?.dates);
+      });
+    } else {
+      cards.sort((a, b) =>
+        TRIPS.findIndex(t => t.id === a.dataset.id) - TRIPS.findIndex(t => t.id === b.dataset.id)
+      );
+    }
+    cards.forEach(card => grid.appendChild(card));
+  }
 </script>
 {% endblock %}

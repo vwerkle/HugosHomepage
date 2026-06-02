@@ -73,8 +73,10 @@ def index():
     redir = _require_hugo()
     if redir:
         return redir
+    today = date.today()
     entries = _annotated_sorted(_load())
-    return render_template('birthdays/index.html', entries=entries, month_names=MONTH_NAMES[1:])
+    return render_template('birthdays/index.html', entries=entries, month_names=MONTH_NAMES[1:],
+                           today_month=today.month, today_day=today.day)
 
 
 @birthdays_bp.route('/add', methods=['POST'])
@@ -86,7 +88,6 @@ def add():
     try:
         month = int(request.form.get('month', 1))
         day = int(request.form.get('day', 1))
-        alert_days = int(request.form.get('alert_days', 7))
     except (ValueError, TypeError):
         return redirect(url_for('birthdays.index'))
     if not name or not (1 <= month <= 12) or not (1 <= day <= 31):
