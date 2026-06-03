@@ -59,6 +59,8 @@ def _make_label(ctype: str, value, entities: dict) -> str:
         nation = entities["nations"].get(value, {})
         name = nation.get("name", value)
         return f"Played for {name}"
+    if ctype == "tournament":
+        return f"In the {value} World Cup"
     if ctype == "confederation":
         return CONFEDERATION_LABELS.get(value, value)
     if ctype == "achievement":

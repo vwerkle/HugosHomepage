@@ -43,19 +43,30 @@ MAX_AVG = 200          # average valid players per cell — upper bound
 MAX_TRIES = 5000       # attempts per date before giving up
 
 
-def _split_pool(pool: list[dict]) -> tuple[list[dict], list[dict]]:
+# Event criterion types that are considered "hard" (skill/role/achievement based).
+# When a hard criterion appears on the event axis, the nation axis is restricted to
+# UEFA or CONMEBOL nations — where players are more likely to be recognisable.
+_EASY_EVENT_TYPES = frozenset({"tournament", "confederation"})
+
+
+def _split_pool(pool: list[dict], entities: dict) -> tuple[list[dict], list[dict], list[dict]]:
     """
     Split the criterion pool into:
-      - nation_pool: criteria keyed on a player's national team (type=nation only)
-      - event_pool: everything else — position, role, achievement, confederation
+      - nation_pool_all:   all nation criteria (any confederation)
+      - nation_pool_elite: UEFA + CONMEBOL nations only (for hard-event grids)
+      - event_pool:        everything that is not a nation criterion
 
     Grid generation keeps pure nation criteria on one axis and event criteria on
-    the other, preventing impossible nation × nation cells (a player can only
-    represent one national team).
+    the other, preventing impossible nation × nation cells.
     """
-    nation_pool = [c for c in pool if c["type"] == "nation"]
-    event_pool  = [c for c in pool if c["type"] != "nation"]
-    return nation_pool, event_pool
+    nations = entities["nations"]
+    nation_pool_all = [c for c in pool if c["type"] == "nation"]
+    nation_pool_elite = [
+        c for c in nation_pool_all
+        if nations.get(c["value"], {}).get("confederation") in ("UEFA", "CONMEBOL")
+    ]
+    event_pool = [c for c in pool if c["type"] != "nation"]
+    return nation_pool_all, nation_pool_elite, event_pool
 
 
 def _generate_one_grid(
@@ -66,24 +77,33 @@ def _generate_one_grid(
     """
     Try up to MAX_TRIES times to find a valid 3x3 grid.
 
-    Strategy: keep nation/confederation criteria on one axis (rows XOR cols),
-    event criteria on the other. This avoids impossible nation×nation cells.
-    With ~50% probability, nations go on rows; otherwise on cols.
+    Strategy: keep pure nation criteria on one axis, event criteria on the other.
+    When the event axis contains a 'hard' criterion (position / GK / achievement),
+    restrict the nation axis to UEFA + CONMEBOL nations so questions stay
+    recognisable.  'Easy' criteria (tournament, confederation) allow any nation.
     """
-    nation_pool, event_pool = _split_pool(pool)
+    nation_pool_all, nation_pool_elite, event_pool = _split_pool(pool, entities)
 
-    # Need at least 3 nation criteria and 3 event criteria
-    if len(nation_pool) < 3 or len(event_pool) < 3:
+    if len(nation_pool_all) < 3 or len(event_pool) < 3:
         return None
+    if len(nation_pool_elite) < 3:
+        nation_pool_elite = nation_pool_all  # fallback if not enough elite nations
 
     for _ in range(MAX_TRIES):
         # Alternate which axis holds nations for variety
         if rng.random() < 0.5:
-            rows = rng.sample(nation_pool, 3)
-            cols = rng.sample(event_pool, 3)
+            event_sample = rng.sample(event_pool, 3)
+            # Use elite (UEFA/CONMEBOL) nations when the events are "hard" criteria
+            has_hard = any(c["type"] not in _EASY_EVENT_TYPES for c in event_sample)
+            n_pool = nation_pool_elite if has_hard else nation_pool_all
+            rows = rng.sample(n_pool, 3)
+            cols = event_sample
         else:
-            rows = rng.sample(event_pool, 3)
-            cols = rng.sample(nation_pool, 3)
+            event_sample = rng.sample(event_pool, 3)
+            has_hard = any(c["type"] not in _EASY_EVENT_TYPES for c in event_sample)
+            n_pool = nation_pool_elite if has_hard else nation_pool_all
+            rows = event_sample
+            cols = rng.sample(n_pool, 3)
 
         # No criterion used twice (shouldn't happen since pools are disjoint,
         # but guard against it anyway)
