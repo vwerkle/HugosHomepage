@@ -204,11 +204,14 @@ class TestBuildCriterionPool:
         ger_criteria = [c for c in nation_criteria if c["value"] == "Q_ger"]
         assert len(ger_criteria) == 1
 
-    def test_pool_excludes_small_nations(self, entities):
-        # Argentina has only 1 player (messi) < MIN_VALID_PLAYERS=3 → excluded
+    def test_pool_excludes_single_player_nations(self, entities):
+        # A nation with 0 valid players is excluded from the pool
         pool = build_criterion_pool(entities)
+        nonexistent = [c for c in pool if c["type"] == "nation" and c["value"] == "Q_nonexistent"]
+        assert len(nonexistent) == 0
+        # Argentina (Messi, 2 appearances) now passes MIN_VALID_PLAYERS=2
         arg_criteria = [c for c in pool if c["type"] == "nation" and c["value"] == "Q_arg"]
-        assert len(arg_criteria) == 0
+        assert len(arg_criteria) == 1
 
     def test_pool_has_achievement_criteria(self, entities):
         pool = build_criterion_pool(entities)

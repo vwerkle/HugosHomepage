@@ -5,30 +5,44 @@ A criterion is a dict: {"type": str, "value": Any, "label": str}
 
 Supported types:
   nation        value = nation_id (Wikidata QID)
-  tournament    value = year (int)
   confederation value = "UEFA"|"CONMEBOL"|"CAF"|"AFC"|"CONCACAF"|"OFC"
   achievement   value = achievement key string (see ACHIEVEMENT_LABELS)
+  position      value = "DF"|"MF"|"FW"  (outfield positions from squad data)
   is_gk         value = True
+  is_captain    value = True
 """
 
 from __future__ import annotations
 
-MIN_VALID_PLAYERS = 3  # criterion must cover >= this many players to enter the pool
+MIN_VALID_PLAYERS = 2  # criterion must cover >= this many players to enter the pool
 MAX_SAME_TYPE_PER_AXIS = 1  # no more than 1 of the same type in a row or column
 
 ACHIEVEMENT_LABELS: dict[str, str] = {
+    # Tournament-end awards (populated once the WC concludes)
     "won_wc":           "Won the World Cup",
     "golden_boot":      "Won the Golden Boot",
     "golden_glove":     "Won the Golden Glove",
+    # Match-level (populated as tournament progresses)
+    "scored_wc_goal":   "Scored a goal",
+    "scored_in_final":  "Scored in the Final",
+    "played_in_final":  "Played in the Final",
+    "played_in_semis":  "Reached the semifinals",
+    "scored_penalty":   "Scored a penalty",
+    # Multi-WC (populated from historical data if included)
     "played_3plus_wcs": "Played in 3+ World Cups",
-    "career_goals_5plus": "5+ career WC goals",
+}
+
+POSITION_LABELS: dict[str, str] = {
+    "DF": "Defender",
+    "MF": "Midfielder",
+    "FW": "Forward",
 }
 
 CONFEDERATION_LABELS: dict[str, str] = {
     "UEFA":     "UEFA (Europe)",
     "CONMEBOL": "CONMEBOL (South America)",
     "CAF":      "CAF (Africa)",
-    "AFC":      "AFC (Asia)",
+    "AFC":      "AFC (Asia / Pacific)",
     "CONCACAF": "CONCACAF (N./C. America)",
     "OFC":      "OFC (Oceania)",
 }
@@ -45,14 +59,16 @@ def _make_label(ctype: str, value, entities: dict) -> str:
         nation = entities["nations"].get(value, {})
         name = nation.get("name", value)
         return f"Played for {name}"
-    if ctype == "tournament":
-        return f"In the {value} World Cup"
     if ctype == "confederation":
         return CONFEDERATION_LABELS.get(value, value)
     if ctype == "achievement":
         return ACHIEVEMENT_LABELS.get(value, value)
+    if ctype == "position":
+        return POSITION_LABELS.get(value, value)
     if ctype == "is_gk":
         return "Goalkeeper"
+    if ctype == "is_captain":
+        return "Team captain"
     return str(value)
 
 
@@ -93,8 +109,14 @@ def get_valid_players(criterion: dict, entities: dict) -> frozenset[str]:
             if ac["achievement"] == value and ac["player_id"] in players
         )
 
+    if ctype == "position":
+        return frozenset(pid for pid, p in players.items() if p.get("position") == value)
+
     if ctype == "is_gk":
         return frozenset(pid for pid, p in players.items() if p.get("is_gk"))
+
+    if ctype == "is_captain":
+        return frozenset(pid for pid, p in players.items() if p.get("is_captain"))
 
     raise ValueError(f"Unknown criterion type: {ctype!r}")
 
@@ -162,6 +184,17 @@ def build_criterion_pool(entities: dict) -> list[dict]:
     if gk_count >= MIN_VALID_PLAYERS:
         pool.append(make_criterion("is_gk", True, entities))
 
+    # Position criteria (outfield positions from squad data)
+    for pos_code in ("DF", "MF", "FW"):
+        pos_count = sum(1 for p in players.values() if p.get("position") == pos_code)
+        if pos_count >= MIN_VALID_PLAYERS:
+            pool.append(make_criterion("position", pos_code, entities))
+
+    # Captain criterion
+    captain_count = sum(1 for p in players.values() if p.get("is_captain"))
+    if captain_count >= MIN_VALID_PLAYERS:
+        pool.append(make_criterion("is_captain", True, entities))
+
     return pool
 
 
@@ -180,7 +213,7 @@ def axes_are_diverse(row_criteria: list[dict], col_criteria: list[dict]) -> bool
     - "confederation", "achievement", "is_gk" are limited to 1 per axis
       (multiple same-confederation or same-achievement criteria are boring/redundant).
     """
-    TYPES_WITH_LIMIT = ("confederation", "achievement", "is_gk")
+    TYPES_WITH_LIMIT = ("confederation", "achievement", "is_gk", "position", "is_captain")
     for axis in (row_criteria, col_criteria):
         type_counts: dict[str, int] = {}
         for c in axis:

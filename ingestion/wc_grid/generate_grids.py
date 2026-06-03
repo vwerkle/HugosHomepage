@@ -36,26 +36,25 @@ from .criteria import (
 ENTITIES_FILE = Path("data/wc_grid/entities.json")
 BUNDLE_OUT = Path("wc-grid/public/data/bundle.json")
 
-MIN_CELL_PLAYERS = 3   # reject grids where any cell has fewer valid players
-MAX_CELL_PLAYERS = 200 # cells with huge valid sets are trivially easy; warn but allow
-MIN_AVG = 5            # average valid players per cell — lower bound
-MAX_AVG = 120          # average valid players per cell — upper bound
+MIN_CELL_PLAYERS = 2   # reject grids where any cell has fewer valid players
+MAX_CELL_PLAYERS = 300 # cells with huge valid sets are trivially easy; warn but allow
+MIN_AVG = 3            # average valid players per cell — lower bound
+MAX_AVG = 200          # average valid players per cell — upper bound
 MAX_TRIES = 5000       # attempts per date before giving up
 
 
 def _split_pool(pool: list[dict]) -> tuple[list[dict], list[dict]]:
     """
     Split the criterion pool into:
-      - nation_pool: criteria that describe a player's national team identity
-        (type=nation, type=confederation)
-      - event_pool: criteria that describe what the player achieved/appeared in
-        (type=tournament, type=achievement, type=is_gk)
+      - nation_pool: criteria keyed on a player's national team (type=nation only)
+      - event_pool: everything else — position, role, achievement, confederation
 
-    Grid generation keeps nations on one axis and events on the other to avoid
-    impossible nation × nation cells (a player can only represent one nation).
+    Grid generation keeps pure nation criteria on one axis and event criteria on
+    the other, preventing impossible nation × nation cells (a player can only
+    represent one national team).
     """
-    nation_pool = [c for c in pool if c["type"] in ("nation", "confederation")]
-    event_pool  = [c for c in pool if c["type"] not in ("nation", "confederation")]
+    nation_pool = [c for c in pool if c["type"] == "nation"]
+    event_pool  = [c for c in pool if c["type"] != "nation"]
     return nation_pool, event_pool
 
 
@@ -197,9 +196,11 @@ def main() -> None:
 
     pool = build_criterion_pool(entities)
     print(f"Criterion pool: {len(pool)} criteria")
-    for ctype in ("nation", "tournament", "confederation", "achievement", "is_gk"):
+    for ctype in ("nation", "tournament", "confederation", "achievement",
+                  "is_gk", "position", "is_captain"):
         n = sum(1 for c in pool if c["type"] == ctype)
-        print(f"  {ctype}: {n}")
+        if n:
+            print(f"  {ctype}: {n}")
 
     start = date.fromisoformat(args.start) if args.start else date.today()
     print(f"Generating {args.days} grids starting {start}...")

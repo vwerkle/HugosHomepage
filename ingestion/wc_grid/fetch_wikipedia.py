@@ -310,21 +310,28 @@ def parse_squads_html(html_text: str, year: int) -> list[dict]:
                 name = None
 
                 # Column 0 or 1: position code
+                # Handles formats: "GK", "1GK", "GK", "GKP", "2DF", "DF", "3MF", "4FW", etc.
                 for i in range(min(3, len(cell_texts))):
                     upper = cell_texts[i].upper().strip()
-                    if upper in ('GK', 'GKP', '1'):
+                    if 'GK' in upper or 'GKP' in upper or upper == '1':
                         position = 'GK'; break
-                    elif upper in ('DF', 'DEF', 'D', '2'):
+                    elif 'DF' in upper or 'DEF' in upper or upper in ('D', '2'):
                         position = 'DF'; break
-                    elif upper in ('MF', 'MID', 'M', '3'):
+                    elif 'MF' in upper or 'MID' in upper or upper in ('M', '3'):
                         position = 'MF'; break
-                    elif upper in ('FW', 'FOR', 'F', 'ST', 'ATT', '4'):
+                    elif ('FW' in upper or 'FOR' in upper or 'ST' in upper
+                          or 'ATT' in upper or upper in ('F', '4')):
                         position = 'FW'; break
 
-                # Column 1-4: player name
+                # Column 1-4: player name (detect captain before stripping annotation)
+                is_captain = False
                 for text in cell_texts[1:5]:
+                    # Detect captain marker before stripping
+                    raw = text.strip()
+                    if re.search(r'\(c\)', raw, re.IGNORECASE):
+                        is_captain = True
                     # Strip captain/footnote annotations: "(c)", "(Captain)", "[1]", etc.
-                    cleaned = re.sub(r'\s*\([^)]{0,20}\)|\s*\[[^\]]*\]', '', text).strip()
+                    cleaned = re.sub(r'\s*\([^)]{0,20}\)|\s*\[[^\]]*\]', '', raw).strip()
                     # Name: 3-50 chars, letters + spaces + hyphens + apostrophes + accented
                     if (3 <= len(cleaned) <= 50
                             and re.match(r"^[\w\s'\-\.À-ÿ]+$", cleaned, re.UNICODE)
@@ -338,58 +345,159 @@ def parse_squads_html(html_text: str, year: int) -> list[dict]:
                         "name": name,
                         "nation": current_nation,
                         "position": position or "DF",
-                        "goals": 0,  # not parsed from HTML (unreliable); use award data instead
+                        "is_captain": is_captain,
+                        "goals": 0,
                     })
 
     return players
 
 
-def _make_sparql_style_squads(players: list[dict], year: int) -> dict:
-    """Convert parsed players into the SPARQL-style JSON format expected by transform.py."""
-    bindings = []
-    for i, p in enumerate(players):
+def _player_id(name: str) -> str:
+    """Stable player ID from name."""
+    return f"WP_{_strip_accents(name).replace(' ', '_').replace('.', '').replace(chr(39), '')}"
+
+
+def _make_squad_json(players: list[dict], year: int) -> dict:
+    """Clean squad JSON format (v2) replacing the old SPARQL-style format."""
+    records = []
+    seen: set[str] = set()
+    for p in players:
+        pid = _player_id(p["name"])
+        if pid in seen:
+            continue
+        seen.add(pid)
         nation_data = NATIONS.get(p["nation"], {})
         nation_qid = nation_data.get("qid", f"Q_UNKNOWN_{p['nation'].replace(' ', '_')}")
-        # Use a Wikipedia-page-like ID for the player: prefix with 'WP_' + normalized name
-        player_id = f"WP_{_strip_accents(p['name']).replace(' ', '_').replace('.', '').replace(chr(39), '')}"
-        bindings.append({
-            "player": {"type": "uri", "value": f"http://www.wikidata.org/entity/{player_id}"},
-            "playerLabel": {"type": "literal", "value": p["name"]},
-            "country": {"type": "uri", "value": f"http://www.wikidata.org/entity/{nation_qid}"},
-            "countryLabel": {"type": "literal", "value": p["nation"]},
+        records.append({
+            "id": pid,
+            "name": p["name"],
+            "nation_name": p["nation"],
+            "nation_id": nation_qid,
+            "position": p["position"],   # GK | DF | MF | FW
+            "is_captain": p.get("is_captain", False),
+            "goals": p.get("goals", 0),
+            "tournament_year": year,
         })
-    return {"results": {"bindings": bindings}}
+    return {"format": "squad_v2", "year": year, "players": records}
 
 
-def _make_sparql_style_positions(players: list[dict]) -> dict:
-    GK_QID = "Q201330"
-    bindings = []
-    seen = set()
-    for p in players:
-        if p["position"] != "GK":
-            continue
-        player_id = f"WP_{_strip_accents(p['name']).replace(' ', '_').replace('.', '').replace(chr(39), '')}"
-        if player_id in seen:
-            continue
-        seen.add(player_id)
-        bindings.append({
-            "player": {"type": "uri", "value": f"http://www.wikidata.org/entity/{player_id}"},
-            "position": {"type": "uri", "value": f"http://www.wikidata.org/entity/{GK_QID}"},
-        })
-    return {"results": {"bindings": bindings}}
+def fetch_match_data(year: int, force: bool = False) -> dict:
+    """
+    Fetch match-level data (goal scorers, final participants, etc.) from Wikipedia.
+    Returns a dict with keys: scorers, final_players, final_scorers, semi_players.
+    Falls back to empty data when Wikipedia pages don't exist yet (tournament ongoing).
+
+    Caches to data/wc_grid/raw/match_data_{year}.json.
+    """
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    cache_file = RAW_DIR / f"match_data_{year}.json"
+    if cache_file.exists() and not force:
+        with open(cache_file, encoding="utf-8") as f:
+            return json.load(f)
+
+    result: dict = {
+        "year": year,
+        "scorers": [],          # list of {"name": str, "nation": str, "goals": int}
+        "final_players": [],    # list of {"name": str, "nation": str}
+        "final_scorers": [],    # list of {"name": str, "nation": str}
+        "semi_players": [],     # list of {"name": str, "nation": str}
+        "penalty_scorers": [],  # list of {"name": str, "nation": str}
+    }
+
+    # Try fetching the tournament statistics page for goal scorers
+    stats_pages = [
+        f"{year}_FIFA_World_Cup_statistics",
+        f"{year}_FIFA_World_Cup_golden_boot",
+    ]
+    for page in stats_pages:
+        try:
+            html_content = fetch_wiki_html(page, f"match_stats_{year}_{page.split('_')[-1]}", force=force)
+            scorers = _parse_top_scorers_html(html_content)
+            if scorers:
+                result["scorers"] = scorers
+                print(f"    Found {len(scorers)} goal scorers from {page}")
+                break
+        except Exception:
+            pass  # page doesn't exist yet
+
+    # Try fetching the final page
+    final_pages = [
+        f"{year}_FIFA_World_Cup_final",
+        f"{year}_FIFA_World_Cup_Final",
+    ]
+    for page in final_pages:
+        try:
+            html_content = fetch_wiki_html(page, f"match_final_{year}", force=force)
+            final_data = _parse_match_html(html_content)
+            if final_data["players"] or final_data["scorers"]:
+                result["final_players"] = final_data["players"]
+                result["final_scorers"] = final_data["scorers"]
+                print(f"    Found final data: {len(final_data['players'])} players, {len(final_data['scorers'])} scorers")
+                break
+        except Exception:
+            pass
+
+    with open(cache_file, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+
+    return result
 
 
-def _make_sparql_style_goals(players: list[dict]) -> dict:
-    bindings = []
-    for p in players:
-        if p["goals"] <= 0:
-            continue
-        player_id = f"WP_{_strip_accents(p['name']).replace(' ', '_').replace('.', '').replace(chr(39), '')}"
-        bindings.append({
-            "player": {"type": "uri", "value": f"http://www.wikidata.org/entity/{player_id}"},
-            "goals": {"type": "literal", "value": str(p["goals"])},
-        })
-    return {"results": {"bindings": bindings}}
+def _parse_top_scorers_html(html_text: str) -> list[dict]:
+    """Extract goal scorers from a tournament statistics or top scorers page."""
+    def strip_tags(s: str) -> str:
+        return html.unescape(re.sub(r'<[^>]+>', '', s)).strip()
+
+    scorers = []
+    # Look for tables with player name + goals columns
+    table_matches = re.findall(
+        r'<table[^>]*class="[^"]*wikitable[^"]*"[^>]*>(.*?)</table>',
+        html_text, re.DOTALL
+    )
+    for table in table_matches:
+        rows = re.findall(r'<tr[^>]*>(.*?)</tr>', table, re.DOTALL)
+        for row in rows[1:]:
+            cells = re.findall(r'<t[dh][^>]*>(.*?)</t[dh]>', row, re.DOTALL)
+            texts = [strip_tags(c) for c in cells]
+            if len(texts) < 2:
+                continue
+            # Look for a name + numeric goals pair
+            name = None
+            goals = 0
+            nation = None
+            for text in texts:
+                cleaned = re.sub(r'\s*\([^)]{0,20}\)', '', text).strip()
+                if 3 <= len(cleaned) <= 50 and not cleaned[0].isdigit():
+                    if re.match(r"^[\w\s'\-\.À-ÿ]+$", cleaned, re.UNICODE):
+                        name = cleaned
+            for text in reversed(texts):
+                try:
+                    goals = int(text.strip())
+                    break
+                except ValueError:
+                    pass
+            if name and goals > 0:
+                scorers.append({"name": name, "nation": nation or "Unknown", "goals": goals})
+    return scorers
+
+
+def _parse_match_html(html_text: str) -> dict:
+    """Extract player names from a match page (final or semifinal)."""
+    def strip_tags(s: str) -> str:
+        return html.unescape(re.sub(r'<[^>]+>', '', s)).strip()
+
+    players = []
+    scorers = []
+    # Extract all player links (href=/wiki/PlayerName)
+    player_links = re.findall(r'href="/wiki/([^"]+)"[^>]*>([^<]+)</a>', html_text)
+    for href, display in player_links:
+        display = display.strip()
+        if (3 <= len(display) <= 50
+                and re.match(r"^[\w\s'\-\.À-ÿ]+$", display, re.UNICODE)
+                and display[0].isupper()):
+            players.append({"name": display, "nation": "Unknown"})
+
+    return {"players": players[:100], "scorers": scorers}
 
 
 def _make_award_json(award_players: list[tuple[str, str]]) -> dict:
@@ -461,17 +569,15 @@ def fetch_year(year: int, force: bool = False) -> list[dict]:
         print(f"    WARNING: No players parsed for {year}! Check HTML parser.")
         return []
 
-    # Write SPARQL-compatible cache files
-    _save(RAW_DIR / f"squads_{year}.json", _make_sparql_style_squads(players, year))
-    _save(RAW_DIR / f"positions_{year}.json", _make_sparql_style_positions(players))
-    _save(RAW_DIR / f"goals_{year}.json", _make_sparql_style_goals(players))
+    # Write clean v2 squad JSON (includes position, captain, goals per player)
+    _save(RAW_DIR / f"squads_v2_{year}.json", _make_squad_json(players, year))
 
     return players
 
 
 def fetch_awards_and_meta(years: list[int]) -> None:
     """Write tournament winners, award winners, and confederation data."""
-    # Merge golden boot/glove from all requested years
+    # Merge golden boot/glove from all requested years (hardcoded from TOURNAMENT_META)
     gb_players: list[tuple] = []
     gg_players: list[tuple] = []
     for year in years:
@@ -491,6 +597,9 @@ def fetch_all(years: list[int], force: bool = False) -> None:
     for year in years:
         players = fetch_year(year, force=force)
         all_players.extend(players)
+        # Always try to fetch match data (gracefully returns empty if not available)
+        print(f"  Fetching match data for {year}...")
+        fetch_match_data(year, force=force)
     fetch_awards_and_meta(years)
     print(f"Done. {len(all_players)} player-year entries in {RAW_DIR}/")
 
@@ -502,7 +611,7 @@ if __name__ == "__main__":
 
     all_years = sorted(TOURNAMENT_META.keys())
     if not args:
-        years = [2018]
+        years = [2026]
     elif args[0] == "all":
         years = all_years
     else:
