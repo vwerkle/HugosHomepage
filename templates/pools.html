@@ -17,6 +17,16 @@
             </a>
         </div>
 
+        <div class="col-6">
+            <a href="{{ url_for('finals.tracker') }}" class="app-card-link">
+                <div class="app-card gradient-finals glow-finals">
+                    <div class="icon-box">🏆</div>
+                    <span class="app-name">Finals Pool</span>
+                    <div class="new-tag new-tag-finals">NEW</div>
+                </div>
+            </a>
+        </div>
+
         <!-- Inactive pools — hidden until next season
         <div class="col-6">
             <a href="{{ url_for('madness.dness_hub') }}" class="app-card-link">
@@ -43,6 +53,10 @@
             <a href="{{ url_for('worldcup.admin') }}" class="admin-item">
                 <div class="admin-icon"><i class="bi bi-sliders"></i></div>
                 <span>World Cup Admin</span>
+            </a>
+            <a href="{{ url_for('finals.admin') }}" class="admin-item">
+                <div class="admin-icon">🏆</div>
+                <span>Finals Admin</span>
             </a>
         </div>
     </div>
@@ -78,12 +92,15 @@
     .gradient-orange { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #633; }
     .gradient-green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
     .gradient-purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .gradient-finals { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #f0c040; }
 
     .glow { box-shadow: 0 0 20px rgba(56, 239, 125, 0.4); }
+    .glow-finals { box-shadow: 0 0 20px rgba(240, 192, 64, 0.3); }
     .new-tag {
         position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9);
         color: #11998e; font-size: 0.6rem; font-weight: 900; padding: 2px 8px; border-radius: 10px;
     }
+    .new-tag-finals { color: #b8860b; }
 
     .admin-shelf {
         background: white;

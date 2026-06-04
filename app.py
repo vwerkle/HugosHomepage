@@ -15,6 +15,7 @@ from blueprints.vacation.routes import vacation_bp
 from blueprints.moneyline import moneyline_bp
 from blueprints.moneyline import scheduler as moneyline_scheduler
 from blueprints.wc_grid import wc_grid_bp
+from blueprints.pools.finals.routes import finals_bp
 
 app = Flask(__name__)
 app.secret_key = 'vincent'
@@ -31,13 +32,14 @@ app.register_blueprint(birthdays_bp)
 app.register_blueprint(vacation_bp, url_prefix='/vacation')
 app.register_blueprint(moneyline_bp)
 app.register_blueprint(wc_grid_bp)
+app.register_blueprint(finals_bp)
 
 # Global constants (if needed across app)
 DATA_DIR = 'data/madness'
 
 def init_db():
     # Ensure data directories exist
-    for path in ['data/madness', 'data/misc', 'data/random', 'data/reservations', 'data/worldcup', 'data/birthdays', 'data/vacation', 'data/moneyline', 'static/vacation']:
+    for path in ['data/madness', 'data/misc', 'data/random', 'data/reservations', 'data/worldcup', 'data/birthdays', 'data/vacation', 'data/moneyline', 'data/finals', 'static/vacation']:
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -65,6 +67,19 @@ def init_db():
                 'gmail_app_password': '',
                 'to_sms_email': '',
             }, f, indent=4)
+
+    # Initialize Finals pool data files
+    for finals_file, default in [
+        ('data/finals/picks.json', {}),
+        ('data/finals/config.json', {
+            'nhl_season': '20252026', 'nba_season': '2025-26',
+            'player_ids': {'nhl': {}, 'nba': {}},
+            'scoring': {'nhl_winner': 10, 'nhl_games_exact': 5, 'nhl_games_off_one': 2}
+        })
+    ]:
+        if not os.path.exists(finals_file):
+            with open(finals_file, 'w') as f:
+                json.dump(default, f, indent=2)
 
     # Initialize World Cup data files
     for wc_file in ['data/worldcup/users.json', 'data/worldcup/picks.json', 'data/worldcup/games.json']:

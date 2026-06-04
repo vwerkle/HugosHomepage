@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Finals Pool — Admin{% endblock %}
+{% block styles %}
+<style>
+  body { background: #0f172a; color: #e2e8f0; }
+  nav { background: #1e293b; box-shadow: 0 1px 0 rgba(255,255,255,0.06); }
+  nav a, .nav-logo { color: #e2e8f0 !important; }
+
+  .admin-header {
+    padding: 2rem 0 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .admin-header h1 { font-size: 1.5rem; font-weight: 800; margin: 0; }
+  .back-link {
+    font-size: 0.8rem;
+    color: #64748b;
+    text-decoration: none;
+  }
+  .back-link:hover { color: #94a3b8; }
+
+  .msg {
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  .msg-ok { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+  .msg-err { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+
+  .editor-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .editor-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 0.75rem;
+  }
+  textarea {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    color: #a5f3fc;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    padding: 0.75rem;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  textarea:focus { outline: none; border-color: #3b82f6; }
+
+  .save-btn {
+    margin-top: 0.75rem;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.55rem 1.2rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .save-btn:hover { background: #1d4ed8; }
+
+  .refresh-form { margin-bottom: 1rem; }
+  .refresh-btn-admin {
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    border-radius: 10px;
+    padding: 0.55rem 1.2rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .refresh-btn-admin:hover { border-color: #475569; color: #e2e8f0; }
+
+  .schema-hint {
+    font-size: 0.7rem;
+    color: #475569;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+  .schema-hint code {
+    background: #0f172a;
+    border-radius: 4px;
+    padding: 0.1rem 0.35rem;
+    color: #7dd3fc;
+    font-size: 0.7rem;
+  }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="admin-header">
+  <h1>⚙ Finals Admin</h1>
+  <a href="{{ url_for('finals.tracker') }}" class="back-link">← Back to tracker</a>
+</div>
+
+{% if msg %}
+  <div class="msg msg-{{ msg[0] }}">{{ msg[1] }}</div>
+{% endif %}
+
+<!-- Force refresh -->
+<div class="refresh-form">
+  <form method="post">
+    <input type="hidden" name="action" value="refresh">
+    <button type="submit" class="refresh-btn-admin">↻ Force Refresh Live Data</button>
+  </form>
+</div>
+
+<!-- Picks editor -->
+<div class="editor-card">
+  <div class="editor-title">Picks JSON</div>
+  <div class="schema-hint">
+    Format: <code>{"Name": {"nhl_winner": "EDM", "nhl_games": 6, "nba_winner": "OKC", "nba_games": 5, "nhl_players": ["Skater A", "Skater B", "Skater C"], "nba_players": ["Player"]}}</code><br>
+    <strong>3 NHL skaters</strong> scored (G×40)+(A×20). <strong>1 NBA player</strong> scored Pts+Reb+Ast.<br>
+    Team abbreviations must match the API (NHL: e.g. <code>EDM</code>, <code>FLA</code> · NBA: e.g. <code>OKC</code>, <code>MIN</code>).
+    Player names must exactly match keys in <code>config.json → player_ids</code>.
+  </div>
+  <form method="post">
+    <input type="hidden" name="action" value="picks">
+    <textarea name="data" rows="18">{{ picks_json }}</textarea>
+    <button type="submit" class="save-btn">Save Picks</button>
+  </form>
+</div>
+
+<!-- Config editor -->
+<div class="editor-card">
+  <div class="editor-title">Config JSON</div>
+  <div class="schema-hint">
+    <code>player_ids.nhl</code> — map player display name to NHL player ID (integer, from nhle.com API).<br>
+    <code>player_ids.nba</code> — map player display name to NBA Stats player ID.<br>
+    <code>scoring</code> — <code>nhl_winner</code> pts, <code>nhl_games_exact</code> pts, <code>nhl_games_off_one</code> pts.<br>
+    Save config also clears the live data cache.
+  </div>
+  <form method="post">
+    <input type="hidden" name="action" value="config">
+    <textarea name="data" rows="22">{{ config_json }}</textarea>
+    <button type="submit" class="save-btn">Save Config</button>
+  </form>
+</div>
+
+{% endblock %}
