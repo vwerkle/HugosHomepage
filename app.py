@@ -14,8 +14,8 @@ from blueprints.birthdays import scheduler as bday_scheduler
 from blueprints.vacation.routes import vacation_bp
 from blueprints.moneyline import moneyline_bp
 from blueprints.moneyline import scheduler as moneyline_scheduler
-from blueprints.wc_grid import wc_grid_bp
 from blueprints.pools.finals.routes import finals_bp
+from blueprints.statline import statline_bp
 
 app = Flask(__name__)
 app.secret_key = 'vincent'
@@ -31,15 +31,15 @@ app.register_blueprint(reservations_bp)
 app.register_blueprint(birthdays_bp)
 app.register_blueprint(vacation_bp, url_prefix='/vacation')
 app.register_blueprint(moneyline_bp)
-app.register_blueprint(wc_grid_bp)
 app.register_blueprint(finals_bp)
+app.register_blueprint(statline_bp)
 
 # Global constants (if needed across app)
 DATA_DIR = 'data/madness'
 
 def init_db():
     # Ensure data directories exist
-    for path in ['data/madness', 'data/misc', 'data/random', 'data/reservations', 'data/worldcup', 'data/birthdays', 'data/vacation', 'data/moneyline', 'data/finals', 'static/vacation']:
+    for path in ['data/madness', 'data/misc', 'data/random', 'data/reservations', 'data/worldcup', 'data/birthdays', 'data/vacation', 'data/moneyline', 'data/finals', 'data/statline', 'static/vacation']:
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -82,7 +82,7 @@ def init_db():
                 json.dump(default, f, indent=2)
 
     # Initialize World Cup data files
-    for wc_file in ['data/worldcup/users.json', 'data/worldcup/picks.json', 'data/worldcup/games.json']:
+    for wc_file in ['data/worldcup/users.json', 'data/worldcup/picks.json', 'data/worldcup/games.json', 'data/worldcup/champions.json']:
         if not os.path.exists(wc_file):
             with open(wc_file, 'w') as f:
                 json.dump({}, f)
@@ -114,6 +114,10 @@ def index():
 @app.route('/pools')
 def pools():
     return render_template('pools.html')
+
+@app.route('/games')
+def games():
+    return render_template('games.html')
 
 if __name__ == '__main__':
     init_db()

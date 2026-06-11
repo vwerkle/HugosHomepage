@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Statline</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='statline/statline.css') }}">
+  {% if is_admin %}<style>body { padding-top: 44px; }</style>{% endif %}
+</head>
+<body>
+<div class="container">
+
+  <!-- Loading -->
+  <div id="screen-loading" class="screen active">
+    <p style="text-align:center;color:#6b7280;padding-top:40px;">Loading…</p>
+  </div>
+
+  <!-- Error -->
+  <div id="screen-error" class="screen">
+    <div class="card">
+      <p class="error-text">Could not load today's game. Check back soon.</p>
+      <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
+    </div>
+  </div>
+
+  <!-- Landing -->
+  <div id="screen-landing" class="screen">
+    <h1 class="landing-title">⚾🏈 Statline</h1>
+    <p class="landing-sub" id="landing-sub"></p>
+    <button class="btn btn-primary" onclick="startGame()">Play</button>
+  </div>
+
+  <!-- Sport intro -->
+  <div id="screen-sport-intro" class="screen">
+    <div class="card">
+      <div class="intro-sport-label" id="intro-sport-label"></div>
+      <div id="intro-players"></div>
+    </div>
+    <button class="btn btn-primary" id="intro-start-btn">Start Guessing</button>
+  </div>
+
+  <!-- Guess -->
+  <div id="screen-guess" class="screen">
+    <div class="guess-sport-label" id="guess-sport-label"></div>
+    <div class="round-counter" id="guess-round-counter">1 / 3</div>
+    <div class="progress-row" id="progress-dots"></div>
+    <div class="card">
+      <div class="guess-player-context" id="guess-player-context"></div>
+      <div class="guess-cat-label" id="guess-cat-label"></div>
+      <div class="guess-target-value" id="guess-target-value"></div>
+      <p class="guess-prompt" id="guess-prompt"></p>
+      <div class="autocomplete-wrap">
+        <input
+          type="text"
+          class="guess-input"
+          id="guess-input"
+          placeholder="Type a player name…"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        >
+        <div class="autocomplete-dropdown" id="autocomplete-dropdown"></div>
+      </div>
+      <div class="selected-player-display" id="selected-player-display"></div>
+      <button class="btn btn-primary" id="submit-btn" disabled onclick="submitGuess()">Submit</button>
+    </div>
+  </div>
+
+  <!-- Category result -->
+  <div id="screen-cat-result" class="screen">
+    <div class="card">
+      <div class="category-chip" id="catres-sport-label"></div>
+      <div class="category-chip" id="catres-cat-label" style="margin-left:6px;"></div>
+      <div class="result-score" id="catres-score">—</div>
+      <div class="result-row">
+        <span class="result-label">Your guess</span>
+        <span class="result-value">
+          <div id="catres-guess-name"></div>
+          <div class="result-sub" id="catres-guess-value"></div>
+        </span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Target</span>
+        <span class="result-value">
+          <div id="catres-target-name"></div>
+          <div class="result-sub" id="catres-target-value"></div>
+        </span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Best possible</span>
+        <span class="result-value">
+          <div id="catres-best-name"></div>
+          <div class="result-sub" id="catres-best-value"></div>
+        </span>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="catres-next-btn">Next</button>
+  </div>
+
+  <!-- Sport summary -->
+  <div id="screen-sport-summary" class="screen">
+    <p class="final-title" id="summary-sport-label"></p>
+    <div class="final-total-score" id="summary-score"></div>
+    <div class="card">
+      <div class="rounds-list" id="summary-cat-list"></div>
+    </div>
+    <button class="btn btn-secondary" id="summary-share-btn">Share ⚾</button>
+    <button class="btn btn-primary" id="summary-continue-btn">Continue</button>
+  </div>
+
+  <!-- Final results -->
+  <div id="screen-final" class="screen">
+    <p class="final-title" id="final-game-label"></p>
+    <div class="final-total-score" id="final-score"></div>
+    <div class="card">
+      <div id="final-sports-list"></div>
+    </div>
+    <button class="btn btn-primary" id="share-btn" onclick="share()">Share Results</button>
+  </div>
+
+</div>
+
+{% if is_admin %}
+<div style="position:fixed;top:0;left:0;right:0;background:#1f2937;border-bottom:1px solid #374151;display:flex;align-items:center;justify-content:space-between;padding:8px 16px;z-index:999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <span style="color:#6b7280;font-size:12px;">Admin</span>
+  <button onclick="adminReroll()" style="background:#374151;color:#d1d5db;border:1px solid #4b5563;border-radius:6px;padding:5px 14px;font-size:13px;cursor:pointer;">↻ Reroll Today</button>
+</div>
+{% endif %}
+
+<script>
+const SCORING = {{ scoring | tojson }};
+</script>
+<script src="{{ url_for('static', filename='statline/statline.js') }}"></script>
+{% if is_admin %}
+<script>
+function adminReroll() {
+  if (!confirm('Reroll today\'s players?')) return;
+  fetch('/statline/api/admin/reroll', { method: 'POST' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        localStorage.removeItem('statline-vwerkle-v3');
+        location.reload();
+      } else {
+        alert(d.error || 'Reroll failed');
+      }
+    });
+}
+</script>
+{% endif %}
+</body>
+</html>

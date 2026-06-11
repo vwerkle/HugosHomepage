@@ -10,6 +10,7 @@ USERS_FILE = os.path.join(DATA_DIR, 'users.json')
 PICKS_FILE = os.path.join(DATA_DIR, 'picks.json')
 GAMES_FILE = os.path.join(DATA_DIR, 'games.json')
 CONFIG_FILE = os.path.join(DATA_DIR, 'config.json')
+CHAMPIONS_FILE = os.path.join(DATA_DIR, 'champions.json')
 
 KNOCKOUT_STAGES = {'round_of_32', 'round_of_16', 'quarterfinal', 'semifinal', 'third_place', 'final'}
 
@@ -59,6 +60,27 @@ def now_utc_str():
 
 def is_locked(kickoff_time_str, current_time_str):
     return kickoff_time_str[:16] <= current_time_str[:16]
+
+
+def first_kickoff(games):
+    times = [g['kickoff_time'] for g in games.values() if not is_tbd(g)]
+    return min(times) if times else None
+
+
+def is_champion_locked(games, current_time):
+    first = first_kickoff(games)
+    return bool(first and is_locked(first, current_time))
+
+
+def get_all_teams(games):
+    teams = set()
+    for g in games.values():
+        if not is_tbd(g):
+            if g.get('home_team'):
+                teams.add(g['home_team'])
+            if g.get('away_team'):
+                teams.add(g['away_team'])
+    return sorted(teams)
 
 
 def game_points(stage):
@@ -257,6 +279,11 @@ def picks():
     all_picks = load_json(PICKS_FILE, {})
     user_picks = all_picks.get(username, {})
 
+    champion_locked = is_champion_locked(games, current_time)
+    all_teams = get_all_teams(games)
+    champions = load_json(CHAMPIONS_FILE, {})
+    my_champion = champions.get(username)
+
     # Build sorted list of dates that have at least one non-TBD game
     all_dates = sorted({
         g['kickoff_time'][:10]
@@ -293,7 +320,10 @@ def picks():
                                next_date=None,
                                user_picks=user_picks,
                                current_time=current_time,
-                               dates_games={})
+                               dates_games={},
+                               champion_locked=champion_locked,
+                               all_teams=all_teams,
+                               my_champion=my_champion)
 
     # Default to the first date with at least one unpicked non-locked game
     default_date = None
@@ -356,7 +386,34 @@ def picks():
                            next_date=next_date,
                            user_picks=user_picks,
                            current_time=current_time,
-                           dates_games=dates_games)
+                           dates_games=dates_games,
+                           champion_locked=champion_locked,
+                           all_teams=all_teams,
+                           my_champion=my_champion)
+
+
+@worldcup_bp.route('/champion/pick', methods=['POST'])
+def champion_pick():
+    username = session.get('wc_user')
+    if not username:
+        return {'error': 'Not logged in'}, 401
+
+    data = request.get_json() or {}
+    team = data.get('team', '').strip()
+
+    games = load_json(GAMES_FILE, {})
+    current_time = now_utc_str()
+
+    if is_champion_locked(games, current_time):
+        return {'error': 'Champion pick is locked'}, 403
+
+    champions = load_json(CHAMPIONS_FILE, {})
+    if team:
+        champions[username] = team
+    elif username in champions:
+        del champions[username]
+    save_json(CHAMPIONS_FILE, champions)
+    return {'ok': True, 'team': team}
 
 
 @worldcup_bp.route('/picks/submit', methods=['POST'])
@@ -396,6 +453,8 @@ def results():
     games = load_json(GAMES_FILE, {})
     all_picks = load_json(PICKS_FILE, {})
     logged_in_user = session.get('wc_user')
+    champion_locked = is_champion_locked(games, current_time)
+    champions = load_json(CHAMPIONS_FILE, {})
 
     usernames = sorted(all_picks.keys())
 
@@ -412,7 +471,17 @@ def results():
     max_score = max(user_totals.values()) if user_totals else 0
     leaders = [u for u, s in user_totals.items() if s == max_score and s > 0]
 
-    sorted_games = sorted(games.items(), key=lambda x: x[1]['kickoff_time'])
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    all_game_items = list(games.items())
+    today_games    = sorted([(gid, g) for gid, g in all_game_items if g['kickoff_time'][:10] == today_str],
+                            key=lambda x: x[1]['kickoff_time'])
+    completed_past = sorted([(gid, g) for gid, g in all_game_items
+                              if g['kickoff_time'][:10] != today_str and g['result'] != 'pending'],
+                            key=lambda x: x[1]['kickoff_time'], reverse=True)
+    upcoming       = sorted([(gid, g) for gid, g in all_game_items
+                              if g['kickoff_time'][:10] != today_str and g['result'] == 'pending'],
+                            key=lambda x: x[1]['kickoff_time'])
+    sorted_games = today_games + completed_past + upcoming
     table_rows = []
     for game_id, game in sorted_games:
         locked = is_locked(game['kickoff_time'], current_time)
@@ -448,7 +517,9 @@ def results():
                            user_totals=user_totals,
                            leaders=leaders,
                            sorted_leaderboard=sorted_leaderboard,
-                           logged_in_user=logged_in_user)
+                           logged_in_user=logged_in_user,
+                           champions=champions,
+                           champion_locked=champion_locked)
 
 
 @worldcup_bp.route('/admin')

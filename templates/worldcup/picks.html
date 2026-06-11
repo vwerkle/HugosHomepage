@@ -163,6 +163,36 @@
             font-weight: 600; font-size: 0.9rem; z-index: 200; animation: fadeUp 0.3s ease;
         }
 
+        /* Champion card */
+        .champion-card {
+            background: white; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #f59e0b;
+        }
+        .champion-header {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+        }
+        .champion-icon { font-size: 1.5rem; line-height: 1; }
+        .champion-title { font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+        .champion-desc { font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+        .lock-tag {
+            font-size: 0.62rem; font-weight: 700; padding: 2px 7px;
+            border-radius: 8px; margin-left: 6px; vertical-align: middle;
+        }
+        .lock-tag.locked   { background: #fee2e2; color: #991b1b; }
+        .lock-tag.unlocked { background: #dcfce7; color: #15803d; }
+        .champion-input-row { display: flex; gap: 8px; align-items: center; }
+        .champion-select {
+            flex: 1; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 9px;
+            font-size: 0.82rem; font-weight: 600; color: #475569; background: white;
+        }
+        .champion-select:focus { outline: none; border-color: #f59e0b; }
+        .champion-save-btn {
+            padding: 10px 18px; background: #f59e0b; color: white; border: none;
+            border-radius: 9px; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+        }
+        .champion-save-btn:hover { opacity: 0.88; }
+        .champion-save-btn:active { transform: scale(0.97); }
+
         /* Mobile */
         @media (max-width: 480px) {
             body { padding: 10px; padding-bottom: 160px; }
@@ -192,6 +222,43 @@
     <div class="page-header">
         <h2>⚽ World Cup 2026</h2>
         <p>Group = 1 pt &bull; Knockout = 2 pts &bull; Picks lock at kickoff</p>
+    </div>
+
+    <!-- Champion tiebreaker -->
+    <div class="champion-card">
+        <div class="champion-header">
+            <div class="champion-icon">🏆</div>
+            <div>
+                <div class="champion-title">
+                    Champion Pick
+                    {% if champion_locked %}
+                        <span class="lock-tag locked">Locked</span>
+                    {% else %}
+                        <span class="lock-tag unlocked">Open</span>
+                    {% endif %}
+                </div>
+                <div class="champion-desc">Tiebreaker — pick the World Cup winner &bull; locks at first kickoff</div>
+            </div>
+        </div>
+        {% if champion_locked %}
+            {% if my_champion %}
+            <div class="submitted-pick">
+                <span class="check">✓</span> {{ my_champion }}
+            </div>
+            {% else %}
+            <div class="submitted-pick" style="color:#94a3b8;border-color:#e2e8f0;">No pick made</div>
+            {% endif %}
+        {% else %}
+            <div class="champion-input-row">
+                <select id="champion-select" class="champion-select">
+                    <option value="">Select a team…</option>
+                    {% for team in all_teams %}
+                    <option value="{{ team }}"{% if my_champion == team %} selected{% endif %}>{{ team }}</option>
+                    {% endfor %}
+                </select>
+                <button class="champion-save-btn" onclick="saveChampion()">Save</button>
+            </div>
+        {% endif %}
     </div>
 
     {% if not all_dates %}
@@ -226,8 +293,8 @@
                     <span class="knockout-badge">{{ game.stage_label }} &times;2</span>
                 {% endif %}
             </div>
-            <div class="meta">
-                {{ game.kickoff_time[11:16] }} UTC
+            <div class="meta" data-kickoff-utc="{{ game.kickoff_time }}">
+                <span class="kickoff-time">{{ game.kickoff_time[11:16] }} UTC</span>
                 {% if game.group %}<br>{{ game.group }}{% endif %}
             </div>
         </div>
@@ -507,6 +574,50 @@ const _pickable = (DATES_GAMES[SELECTED] || []).filter(g => !g.locked);
 dayCompleteAtLoad = _pickable.length > 0 && _pickable.every(g => _p[g.id]);
 
 updateUI();
+localizeKickoffs();
+
+// ── Localize kickoff times ────────────────────────────────────────────────────
+
+function localizeKickoffs() {
+    document.querySelectorAll('.meta[data-kickoff-utc]').forEach(el => {
+        const utc = el.dataset.kickoffUtc;
+        const d = new Date(utc);
+        if (isNaN(d)) return;
+        const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const shortTz = d.toLocaleTimeString([], { timeZoneName: 'short' }).split(' ').pop();
+        el.querySelector('.kickoff-time').textContent = `${timeStr} ${shortTz}`;
+    });
+}
+
+// ── Champion pick ─────────────────────────────────────────────────────────────
+
+async function saveChampion() {
+    const sel  = document.getElementById('champion-select');
+    const team = sel ? sel.value : '';
+    const btn  = document.querySelector('.champion-save-btn');
+    if (btn) btn.disabled = true;
+
+    try {
+        const resp = await fetch('/worldcup/champion/pick', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ team })
+        });
+        const data = await resp.json();
+        if (data.ok) {
+            const toast = document.getElementById('toast');
+            toast.textContent = team ? `🏆 Champion saved: ${team}` : 'Champion pick cleared';
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        } else {
+            alert(data.error || 'Could not save champion pick.');
+        }
+    } catch(e) {
+        alert('Network error. Please try again.');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
 </script>
 </body>
 </html>

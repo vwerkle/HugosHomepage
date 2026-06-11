@@ -48,6 +48,23 @@
         .leader-col { background: #f0fdf4 !important; }
 
         .nav-back { display: inline-block; margin-top: 18px; color: #16a34a; text-decoration: none; font-weight: 600; }
+
+        /* Champion section */
+        .champion-section {
+            background: white; border-radius: 14px; padding: 18px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin-bottom: 24px;
+            border-top: 4px solid #f59e0b;
+        }
+        .champion-section h3 { margin: 0 0 14px; color: #92400e; font-size: 0.9rem; text-align: center; }
+        .champion-picks-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .champion-pick-card {
+            background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
+            padding: 10px 16px; text-align: center; min-width: 100px;
+        }
+        .champion-pick-card.gold { border-color: #f59e0b; background: #fef3c7; }
+        .c-name { display: block; font-size: 0.72rem; font-weight: 700; color: #92400e; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+        .c-team { display: block; font-size: 0.95rem; font-weight: 700; color: #1e293b; }
+        .c-hidden { color: #d1d5db; }
     </style>
 </head>
 <body>
@@ -79,6 +96,32 @@
         {% endfor %}
     </div>
 
+    <!-- Champion tiebreaker -->
+    <div class="champion-section">
+        <h3>🏆 Champion Pick — Tiebreaker</h3>
+        {% if usernames %}
+        <div class="champion-picks-row">
+            {% for user in usernames %}
+            <div class="champion-pick-card {% if user in leaders %}gold{% endif %}">
+                <span class="c-name">{{ user }}{% if user in leaders %} 👑{% endif %}</span>
+                {% if champion_locked or user == logged_in_user %}
+                    <span class="c-team">{{ champions.get(user) or '—' }}</span>
+                {% elif champions.get(user) %}
+                    <span class="c-team c-hidden">⚽</span>
+                {% else %}
+                    <span class="c-team c-hidden">—</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="text-align:center;color:#94a3b8;margin:0;font-size:0.85rem;">No picks yet.</p>
+        {% endif %}
+        {% if not champion_locked %}
+        <p style="text-align:center;color:#94a3b8;margin:12px 0 0;font-size:0.75rem;">Other players' picks are hidden until the first game kicks off.</p>
+        {% endif %}
+    </div>
+
     {% if table_rows %}
     <div class="table-wrapper">
         <table class="grid-table">
@@ -108,8 +151,8 @@
                         <td class="game-col">
                             {{ row.game.away_team }} vs {{ row.game.home_team }}
                             {% if row.pts == 2 %}<span class="knockout-badge">&times;2</span>{% endif %}
-                            <div class="kickoff">
-                                {{ row.game.kickoff_time[:10] }} {{ row.game.kickoff_time[11:16] }} UTC
+                            <div class="kickoff" data-kickoff-utc="{{ row.game.kickoff_time }}">
+                                <span class="kickoff-time">{{ row.game.kickoff_time[:10] }} {{ row.game.kickoff_time[11:16] }} UTC</span>
                                 {% if row.game.result != 'pending' %}
                                 &bull; <strong>
                                     {% if row.game.result == 'home_win' %}{{ row.game.home_team }} Win
@@ -136,5 +179,15 @@
 
     <a href="{{ url_for('worldcup.hub') }}" class="nav-back">&larr; Back to Hub</a>
 </div>
+<script>
+document.querySelectorAll('.kickoff[data-kickoff-utc]').forEach(el => {
+    const d = new Date(el.dataset.kickoffUtc);
+    if (isNaN(d)) return;
+    const date = d.toLocaleDateString([], { month: 'numeric', day: 'numeric' });
+    const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const tz = d.toLocaleTimeString([], { timeZoneName: 'short' }).split(' ').pop();
+    el.querySelector('.kickoff-time').textContent = `${date} ${time} ${tz}`;
+});
+</script>
 </body>
 </html>

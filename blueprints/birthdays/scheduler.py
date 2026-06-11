@@ -78,7 +78,7 @@ def _check_birthdays():
         if isinstance(alert_days, int):
             alert_days = [alert_days]
 
-        if days_until in alert_days:
+        if days_until == 0 or days_until in alert_days:
             if days_until == 0:
                 _send_sms(f"Today is {name}'s birthday! \U0001f382")
             else:
@@ -96,5 +96,6 @@ def start_scheduler():
         id='birthday_daily_check',
         replace_existing=True,
         max_instances=1,
+        misfire_grace_time=82800,  # 23 hrs — fires even if app restarts late in the day
     )
     _scheduler.start()

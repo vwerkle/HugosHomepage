@@ -142,6 +142,17 @@
                   0 4px 20px rgba(0,0,0,0.5);
     }
 
+    /* games */
+    .card-games .card-inner {
+      background-color: #1c120a;
+      background-image: linear-gradient(155deg, #2e1f0a 0%, #1c1208 45%, #0e0a04 100%);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.75), 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .card-games:hover .card-inner {
+      box-shadow: 0 36px 90px rgba(0,0,0,0.85), 0 0 50px rgba(180,140,30,0.30),
+                  0 4px 20px rgba(0,0,0,0.5);
+    }
+
     /* playing-card corner indices */
     .corner {
       position: absolute; z-index: 4;
@@ -195,26 +206,6 @@
     }
     @keyframes labelPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
 
-    /* ── wc grid chip ── */
-    .wc-chip {
-      position: fixed; bottom: 28px; right: 28px; z-index: 10;
-      width: 38px; height: 38px; border-radius: 50%;
-      background: radial-gradient(circle at 38% 35%, #0a1f0a, #061006);
-      border: 1px solid rgba(78,160,78,0.35);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; cursor: pointer; text-decoration: none;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-      opacity: 0.22;
-      transition: opacity 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    }
-    .wc-chip:hover {
-      opacity: 0.85;
-      border-color: rgba(78,160,78,0.70);
-      box-shadow: 0 0 14px rgba(78,160,78,0.25),
-                  0 0 0 4px rgba(0,0,0,0.3),
-                  inset 0 0 0 5px rgba(78,160,78,0.10);
-    }
-
     /* ── birthday chip ── */
     .bday-chip {
       position: fixed; bottom: 28px; left: 28px; z-index: 10;
@@ -256,21 +247,21 @@
         width: 100vw;
         height: 52vw;
         flex-direction: row;
-        gap: 1.5vw;
+        gap: 1.2vw;
       }
       .card {
         position: relative;
-        width: 22vw; height: 33vw;
+        width: 17vw; height: 27vw;
         border-radius: 8px;
       }
-      .card-inner { border-radius: 8px; padding: 10px 6px; }
+      .card-inner { border-radius: 8px; padding: 8px 4px; }
       .card-inner::after { border-radius: 8px; }
       .card-frame { inset: 5px; border-radius: 5px; }
-      .card-title { font-size: 13px; margin-bottom: 6px; }
-      .card-eyebrow { font-size: 5px; margin-bottom: 6px; }
-      .card-suit { font-size: 14px; margin-bottom: 6px; }
-      .card-sub { font-size: 5px; }
-      .corner { font-size: 7px; }
+      .card-title { font-size: 10px; margin-bottom: 6px; }
+      .card-eyebrow { font-size: 4px; margin-bottom: 6px; }
+      .card-suit { font-size: 12px; margin-bottom: 6px; }
+      .card-sub { font-size: 4px; }
+      .corner { font-size: 6px; }
       .corner.tl { top: 7px; left: 7px; }
       .corner.br { bottom: 7px; right: 7px; }
     }
@@ -284,6 +275,7 @@
       <a href="/restaurants" class="nav-link">Restaurants</a>
       <a href="/vacation" class="nav-link">Vacation</a>
       <a href="/pools" class="nav-link">Pools</a>
+      <a href="/games" class="nav-link">Games</a>
     </div>
   </nav>
 
@@ -343,12 +335,25 @@
         <div class="card-sub">Pick'em &middot; MLB &middot; World Cup</div>
       </div>
     </div>
+
+    <!-- Games card -->
+    <div class="card card-games" id="cardGames">
+      <div class="card-inner">
+        <div class="card-frame"></div>
+        <div class="corner tl">H<br>★<br>G</div>
+        <div class="corner br">H<br>★<br>G</div>
+        <div class="card-eyebrow">Hugo's</div>
+        <div class="card-suit">★</div>
+        <div class="card-title">Games</div>
+        <div class="card-rule"></div>
+        <div class="card-sub">Statline &middot; Moneyline</div>
+      </div>
+    </div>
   </div>
 
   <p class="choose-label">Choose your destination</p>
   <a class="bday-chip" id="bdayChip" title="Birthdays">🎂</a>
-  <a class="wc-chip" href="/wc-grid" title="WC Grid">⚽</a>
-  <div class="fade-veil" id="fadeVeil"></div>
+<div class="fade-veil" id="fadeVeil"></div>
 
   <script>window._FEAT = "{{ featured_image or '' }}";</script>
   <script>
@@ -357,6 +362,7 @@
     const restaurants = document.getElementById('cardRestaurants');
     const vacation    = document.getElementById('cardVacation');
     const pools       = document.getElementById('cardPools');
+    const games       = document.getElementById('cardGames');
     const veil        = document.getElementById('fadeVeil');
 
     // apply featured image as subtle overlay on recipes card
@@ -369,10 +375,11 @@
     function fanPositions() {
       const m = window.innerWidth <= 700;
       return {
-        LL: m ? 'rotate(-6deg)' : 'translateX(-285px) rotate(-17deg)',
-        CL: m ? 'rotate(-2deg)' : 'translateX( -95px) rotate( -5deg)',
-        CR: m ? 'rotate( 2deg)' : 'translateX(  95px) rotate(  5deg)',
-        RR: m ? 'rotate( 6deg)' : 'translateX( 285px) rotate( 17deg)',
+        LL: m ? 'rotate(-7deg)' : 'translateX(-330px) rotate(-20deg)',
+        ML: m ? 'rotate(-3deg)' : 'translateX(-155px) rotate( -9deg)',
+        C:  m ? 'rotate( 0deg)' : 'translateX(   0px) rotate(  0deg)',
+        MR: m ? 'rotate( 3deg)' : 'translateX( 155px) rotate(  9deg)',
+        RR: m ? 'rotate( 7deg)' : 'translateX( 330px) rotate( 20deg)',
       };
     }
 
@@ -380,9 +387,10 @@
 
     setTimeout(() => {
       recipes.style.transform     = fan.LL;
-      restaurants.style.transform = fan.CL;
-      vacation.style.transform    = fan.CR;
-      pools.style.transform       = fan.RR;
+      restaurants.style.transform = fan.ML;
+      vacation.style.transform    = fan.C;
+      pools.style.transform       = fan.MR;
+      games.style.transform       = fan.RR;
     }, 140);
 
     function setupCard(card, getFanPos, url) {
@@ -417,9 +425,10 @@
     }
 
     setupCard(recipes,     () => fanPositions().LL, '/recipes3');
-    setupCard(restaurants, () => fanPositions().CL, '/restaurants');
-    setupCard(vacation,    () => fanPositions().CR, '/vacation');
-    setupCard(pools,       () => fanPositions().RR, '/pools');
+    setupCard(restaurants, () => fanPositions().ML, '/restaurants');
+    setupCard(vacation,    () => fanPositions().C,  '/vacation');
+    setupCard(pools,       () => fanPositions().MR, '/pools');
+    setupCard(games,       () => fanPositions().RR, '/games');
 
     document.getElementById('bdayChip').addEventListener('click', () => {
       veil.classList.add('on');
@@ -433,9 +442,10 @@
     window.addEventListener('resize', () => {
       fan = fanPositions();
       recipes.style.transform     = fan.LL;
-      restaurants.style.transform = fan.CL;
-      vacation.style.transform    = fan.CR;
-      pools.style.transform       = fan.RR;
+      restaurants.style.transform = fan.ML;
+      vacation.style.transform    = fan.C;
+      pools.style.transform       = fan.MR;
+      games.style.transform       = fan.RR;
     });
   </script>
 </body>
