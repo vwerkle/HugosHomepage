@@ -2,6 +2,9 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 import json, os, requests as http_requests
 from datetime import datetime, timezone
 from collections import defaultdict
+import pytz
+
+EASTERN = pytz.timezone('America/New_York')
 
 worldcup_bp = Blueprint('worldcup', __name__, url_prefix='/worldcup')
 
@@ -60,6 +63,12 @@ def now_utc_str():
 
 def is_locked(kickoff_time_str, current_time_str):
     return kickoff_time_str[:16] <= current_time_str[:16]
+
+
+def kickoff_et_date(kickoff_utc_str):
+    """Return the local ET date (YYYY-MM-DD) for a UTC kickoff string."""
+    dt = datetime.strptime(kickoff_utc_str, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
+    return dt.astimezone(EASTERN).strftime('%Y-%m-%d')
 
 
 def first_kickoff(games):
@@ -140,15 +149,17 @@ def sync_from_api(api_key):
             added += 1
         else:
             old_result = games[ext_id].get('result', 'pending')
+            # Never overwrite a manually-set result — only update if currently pending
+            new_result = result if old_result == 'pending' else old_result
             games[ext_id].update({
                 'home_team': home,
                 'away_team': away,
                 'kickoff_time': kickoff,
                 'stage': stage,
                 'group': group,
-                'result': result,
+                'result': new_result,
             })
-            if old_result != result:
+            if old_result == 'pending' and new_result != 'pending':
                 results_updated += 1
 
     save_json(GAMES_FILE, games)
@@ -231,6 +242,8 @@ def login():
             next_url = request.args.get('next', '')
             if next_url and next_url.startswith('/'):
                 return redirect(next_url)
+            if name == 'hugo':
+                return redirect(url_for('worldcup.hub'))
             return redirect(url_for('worldcup.picks'))
         error = "Invalid username or password."
     return render_template('worldcup/login.html', error=error)
@@ -447,6 +460,9 @@ def submit_picks():
     return {'ok': True, 'saved': saved_count}
 
 
+CHALK_USER = 'CHALK'
+
+
 @worldcup_bp.route('/results')
 def results():
     current_time = now_utc_str()
@@ -456,7 +472,9 @@ def results():
     champion_locked = is_champion_locked(games, current_time)
     champions = load_json(CHAMPIONS_FILE, {})
 
-    usernames = sorted(all_picks.keys())
+    # CHALK always sorted last in all lists
+    real_users = sorted(u for u in all_picks if u != CHALK_USER)
+    usernames = real_users + ([CHALK_USER] if CHALK_USER in all_picks else [])
 
     user_totals = {u: 0 for u in usernames}
     for game_id, game in games.items():
@@ -467,19 +485,39 @@ def results():
             if all_picks.get(user, {}).get(game_id) == game['result']:
                 user_totals[user] += pts
 
-    sorted_leaderboard = sorted(user_totals.items(), key=lambda x: x[1], reverse=True)
-    max_score = max(user_totals.values()) if user_totals else 0
-    leaders = [u for u, s in user_totals.items() if s == max_score and s > 0]
+    real_lb = sorted(((u, s) for u, s in user_totals.items() if u != CHALK_USER), key=lambda x: x[1], reverse=True)
+    chalk_lb = [(CHALK_USER, user_totals[CHALK_USER])] if CHALK_USER in user_totals else []
+    sorted_leaderboard = real_lb + chalk_lb
 
-    today_str = datetime.now().strftime('%Y-%m-%d')
+    max_score = max((s for u, s in real_lb), default=0)
+    leaders = [u for u, s in real_lb if s == max_score and s > 0]
+
+    # % of completed games each real user picked same as CHALK
+    chalk_picks = all_picks.get(CHALK_USER, {})
+    completed_chalk_games = [
+        gid for gid, g in games.items()
+        if g['result'] != 'pending' and not is_tbd(g) and gid in chalk_picks
+    ]
+    chalk_agreement = {}
+    for user in real_users:
+        total = len(completed_chalk_games)
+        if total == 0:
+            chalk_agreement[user] = None
+            continue
+        user_p = all_picks.get(user, {})
+        matches = sum(1 for gid in completed_chalk_games if user_p.get(gid) == chalk_picks[gid])
+        chalk_agreement[user] = round(100 * matches / total)
+
+    today_str = datetime.now(EASTERN).strftime('%Y-%m-%d')
     all_game_items = list(games.items())
-    today_games    = sorted([(gid, g) for gid, g in all_game_items if g['kickoff_time'][:10] == today_str],
+    today_games    = sorted([(gid, g) for gid, g in all_game_items
+                              if kickoff_et_date(g['kickoff_time']) == today_str],
                             key=lambda x: x[1]['kickoff_time'])
     completed_past = sorted([(gid, g) for gid, g in all_game_items
-                              if g['kickoff_time'][:10] != today_str and g['result'] != 'pending'],
+                              if kickoff_et_date(g['kickoff_time']) != today_str and g['result'] != 'pending'],
                             key=lambda x: x[1]['kickoff_time'], reverse=True)
     upcoming       = sorted([(gid, g) for gid, g in all_game_items
-                              if g['kickoff_time'][:10] != today_str and g['result'] == 'pending'],
+                              if kickoff_et_date(g['kickoff_time']) != today_str and g['result'] == 'pending'],
                             key=lambda x: x[1]['kickoff_time'])
     sorted_games = today_games + completed_past + upcoming
     table_rows = []
@@ -519,7 +557,9 @@ def results():
                            sorted_leaderboard=sorted_leaderboard,
                            logged_in_user=logged_in_user,
                            champions=champions,
-                           champion_locked=champion_locked)
+                           champion_locked=champion_locked,
+                           chalk_agreement=chalk_agreement,
+                           chalk_user=CHALK_USER)
 
 
 @worldcup_bp.route('/admin')

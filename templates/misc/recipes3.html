@@ -83,6 +83,11 @@
         .result-count { font-size: 0.8rem; color: var(--muted); }
         .surprise-btn { font-size: 0.78rem; font-weight: 600; color: var(--accent); background: none; border: 1.5px solid var(--accent); border-radius: 50px; padding: 4px 12px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.18s; }
         .surprise-btn:hover { background: var(--accent); color: white; }
+        #sortSelect {
+            font-size: 0.78rem; font-weight: 600; color: var(--muted); background: white;
+            border: 1.5px solid var(--border); border-radius: 50px; padding: 4px 12px; cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
 
         /* ── Grid ── */
         .grid { max-width: 1240px; margin: 20px auto 0; padding: 0 20px 80px; display: flex; gap: 18px; align-items: flex-start; }
@@ -290,7 +295,14 @@
 
 <div class="meta-bar">
     <span class="result-count" id="result-count"></span>
-    <button class="surprise-btn" onclick="surpriseMe()">&#10024; Surprise me</button>
+    <div style="display:flex;align-items:center;gap:10px;">
+        <select id="sortSelect" onchange="applySort()">
+            <option value="featured">Featured</option>
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+        </select>
+        <button class="surprise-btn" onclick="surpriseMe()">&#10024; Surprise me</button>
+    </div>
 </div>
 
 <div class="grid" id="grid">
@@ -301,6 +313,7 @@
          data-tier="{{ recipe.tier }}"
          data-tags="{{ recipe.tags | join(',') }}"
          data-title="{{ recipe.title | lower }}"
+         data-date="{{ recipe.date_ts }}"
          onclick="openLb(this)">
         <div class="card-img-wrap">
             <img src="{{ url_for('static', filename=recipe.image) }}" alt="{{ recipe.title }}" loading="lazy">
@@ -373,6 +386,10 @@
       <input type="url" id="addLink" placeholder="https://...">
     </div>
     <div class="r-field">
+      <label>Or Recipe Image (e.g. cookbook page, handwritten card)</label>
+      <input type="file" id="addRecipeImage" accept="image/*">
+    </div>
+    <div class="r-field">
       <label>Notes</label>
       <textarea id="addNotes" placeholder="Tips, modifications, source notes…"></textarea>
     </div>
@@ -391,8 +408,17 @@
       </div>
     </div>
     <div class="r-field">
-      <label>Photo</label>
+      <label>Photo (required)</label>
       <input type="file" id="addImage" accept="image/*">
+    </div>
+    <div class="r-field">
+      <label>Tags</label>
+      <div id="addTagPills" style="display:flex;flex-wrap:wrap;gap:6px;">
+        {% for tag in all_tags %}
+        <button type="button" class="pill tag-pill" data-tag="{{ tag }}" onclick="toggleAddTag(this)">{{ tag }}</button>
+        {% endfor %}
+      </div>
+      <input type="text" id="addTagsNew" placeholder="Add a new tag, comma-separated" style="margin-top:8px;">
     </div>
     <div class="r-err" id="addErr"></div>
     <div style="margin-top:18px;">
@@ -448,6 +474,22 @@ function redistributeCards() {
     cols.forEach(col => Array.from(col.children).forEach(c => grid.appendChild(c)));
     const visible = cards.filter(c => !c.classList.contains('hidden'));
     visible.forEach((c, i) => cols[i % n].appendChild(c));
+}
+
+const originalOrder = cards.slice();
+let sortMode = 'featured';
+
+function applySort() {
+    sortMode = document.getElementById('sortSelect').value;
+    if (sortMode === 'newest') {
+        cards.sort((a, b) => parseFloat(b.dataset.date) - parseFloat(a.dataset.date));
+    } else if (sortMode === 'oldest') {
+        cards.sort((a, b) => parseFloat(a.dataset.date) - parseFloat(b.dataset.date));
+    } else {
+        cards.length = 0;
+        cards.push(...originalOrder);
+    }
+    redistributeCards();
 }
 
 let activeCat        = 'all';
@@ -591,6 +633,13 @@ updateSubcats();
     document.getElementById('addDate').value = `${mm}/${dd}/${d.getFullYear()}`;
 })();
 
+const selectedAddTags = new Set();
+function toggleAddTag(pill) {
+    const tag = pill.dataset.tag;
+    if (selectedAddTags.has(tag)) { selectedAddTags.delete(tag); pill.classList.remove('active'); }
+    else { selectedAddTags.add(tag); pill.classList.add('active'); }
+}
+
 async function submitAdd() {
     const title = document.getElementById('addTitle').value.trim();
     const cat   = document.getElementById('addCat').value;
@@ -598,6 +647,8 @@ async function submitAdd() {
     const err   = document.getElementById('addErr');
     err.style.display = 'none';
     if (!title) { err.textContent = 'Recipe name is required.'; err.style.display = ''; return; }
+    const imgFile = document.getElementById('addImage').files[0];
+    if (!imgFile) { err.textContent = 'A photo is required.'; err.style.display = ''; return; }
 
     const fd = new FormData();
     fd.append('title',       title);
@@ -607,8 +658,11 @@ async function submitAdd() {
     fd.append('subcategory', sub);
     fd.append('date',        document.getElementById('addDate').value.trim());
     fd.append('tier',        document.getElementById('addTier').value);
-    const imgFile = document.getElementById('addImage').files[0];
-    if (imgFile) fd.append('image', imgFile);
+    const newTags = document.getElementById('addTagsNew').value.split(',').map(t => t.trim()).filter(Boolean);
+    fd.append('tags',        [...selectedAddTags, ...newTags].join(','));
+    fd.append('image',       imgFile);
+    const recipeImgFile = document.getElementById('addRecipeImage').files[0];
+    if (recipeImgFile) fd.append('recipe_image', recipeImgFile);
 
     const res = await fetch('/recipes/add', { method: 'POST', body: fd });
     const data = await res.json();

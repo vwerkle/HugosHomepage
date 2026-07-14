@@ -211,6 +211,7 @@
         <a href="/restaurants" style="text-decoration:none;color:#0f172a;margin-left:12px;font-size:0.9rem;">Restaurants</a>
         <a href="/vacation" style="text-decoration:none;color:#0f172a;margin-left:12px;font-size:0.9rem;">Vacation</a>
         <a href="/pools" style="text-decoration:none;color:#0f172a;margin-left:12px;font-size:0.9rem;">Pools</a>
+        <a href="/worldcup/picks" style="text-decoration:none;color:#0f172a;margin-left:12px;font-size:0.9rem;">Games</a>
         <a href="/worldcup/results" style="text-decoration:none;color:#0f172a;margin-left:12px;font-size:0.9rem;">Leaderboard</a>
         <a href="/worldcup/logout" style="text-decoration:none;color:#0f172a;margin-left:12px;font-size:0.9rem;">Log Out ({{ username }})</a>
     </div>
@@ -388,7 +389,7 @@ const ALL_DATES    = {{ all_dates | tojson }};
 const SELECTED     = "{{ selected_date }}";
 const NEXT_DATE    = {{ next_date | tojson }};
 const PICKS_BASE   = "{{ url_for('worldcup.picks') }}";
-const LS_KEY       = 'wc_picks_2026';
+const LS_KEY       = 'wc_picks_2026_{{ username }}';
 
 let advanceInterval    = null;
 let dayCompleteAtLoad  = false;

@@ -15,6 +15,14 @@ def is_admin():
 
 def _allowed_img(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMG
+
+def _parse_date_ts(date_str):
+    for fmt in ('%m/%d/%Y', '%m/%d/%y'):
+        try:
+            return datetime.strptime(date_str, fmt).timestamp()
+        except ValueError:
+            continue
+    return 0
 locations = {"Fairmount","Fishtown","Rittenhouse","Center City","West Philly","NoLibs","South Philly","Fitler Square"}
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, '..', '..', 'data', 'misc')
@@ -38,6 +46,319 @@ NEIGHBORHOOD_COORDS = {
     "West Philly":   (39.9526, -75.2090),
     "Fitler Square": (39.9457, -75.1800),
 }
+
+WORKOUTS = {
+    "2026-07-01": {
+        "label": "Treadmill Speed Sprints",
+        "phase": "Phase 1 — Neuromuscular Speed · Week 1",
+        "type": "treadmill",
+        "details": [
+            "10-min warm-up at 6.0 mph",
+            "10 × 45-sec sprints at 11.2 mph",
+            "90-sec side-rail rest between each",
+            "5-min cool-down",
+        ],
+        "stat": "Speed: 11.2 mph",
+    },
+    "2026-07-02": {
+        "label": "Outdoor Easy Run",
+        "phase": "Phase 1 — Neuromuscular Speed · Week 1",
+        "type": "outdoor",
+        "details": ["4 miles continuous, conversational effort"],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 2.0 mi",
+    },
+    "2026-07-03": {
+        "label": "Outdoor VO2 Max (4×4)",
+        "phase": "Phase 1 — Neuromuscular Speed · Week 1",
+        "type": "outdoor",
+        "details": [
+            "10-min easy warm-up jog",
+            "4 × 4 min hard",
+            "3-min slow walk/jog recovery between sets",
+        ],
+        "stat": "Pace: 6:30–6:45/mi · Turnaround: 17:00 mark",
+    },
+    "2026-07-04": {"label": "Full Rest Day", "phase": "Week 1", "type": "rest", "details": ["Complete recovery. Hydration and mobility."], "stat": ""},
+    "2026-07-05": {"label": "Full Rest Day", "phase": "Week 1", "type": "rest", "details": ["Complete recovery. Hydration and mobility."], "stat": ""},
+    "2026-07-06": {
+        "label": "Outdoor Easy Run",
+        "phase": "Phase 1 — Neuromuscular Speed · Week 2",
+        "type": "outdoor",
+        "details": ["4 miles slow aerobic recovery"],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 2.0 mi",
+    },
+    "2026-07-07": {
+        "label": "Treadmill Speed Sprints",
+        "phase": "Phase 1 — Neuromuscular Speed · Week 2",
+        "type": "treadmill",
+        "details": [
+            "10-min warm-up at 6.0 mph",
+            "10 × 45-sec sprints at 11.2 mph",
+            "90-sec side-rail rest between each",
+            "5-min cool-down",
+        ],
+        "stat": "Speed: 11.2 mph",
+    },
+    "2026-07-08": {
+        "label": "Outdoor Easy + Strides",
+        "phase": "Phase 1 — Neuromuscular Speed · Week 2",
+        "type": "outdoor",
+        "details": [
+            "3 miles easy conversational run",
+            "Then 4 × 20-sec explosive flat strides (ultra-smooth form)",
+        ],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 1.5 mi",
+    },
+    "2026-07-09": {
+        "label": "Outdoor Feel Run",
+        "phase": "Phase 1 — Neuromuscular Speed · Week 2",
+        "type": "outdoor",
+        "details": ["4 miles controlled baseline tempo — comfortable but brisk"],
+        "stat": "Pace: 7:40–8:00/mi · Turnaround: 2.0 mi",
+    },
+    "2026-07-10": {
+        "label": "Outdoor VO2 Max (4×4)",
+        "phase": "Phase 1 — Neuromuscular Speed · Week 2",
+        "type": "outdoor",
+        "details": [
+            "10-min easy warm-up jog",
+            "4 × 4 min hard",
+            "3-min slow walk/jog recovery between sets",
+        ],
+        "stat": "Pace: 6:30–6:45/mi · Turnaround: 17:00 mark",
+    },
+    "2026-07-11": {"label": "Full Rest Day", "phase": "Week 2", "type": "rest", "details": ["Allow adaptations to cement. Zero running."], "stat": ""},
+    "2026-07-12": {"label": "Full Rest Day", "phase": "Week 2", "type": "rest", "details": ["Allow adaptations to cement. Zero running."], "stat": ""},
+    "2026-07-13": {
+        "label": "Outdoor Easy Run",
+        "phase": "Phase 2 — Lactate Tolerance · Week 3",
+        "type": "outdoor",
+        "details": ["4 miles slow recovery, keeping legs fresh"],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 2.0 mi",
+    },
+    "2026-07-14": {
+        "label": "Treadmill Target Pace Endurance",
+        "phase": "Phase 2 — Lactate Tolerance · Week 3",
+        "type": "treadmill",
+        "details": [
+            "10-min warm-up at 6.0 mph",
+            "6 × 90-sec sustained intervals at 10.6 mph",
+            "2-min walk at 3.0 mph between each to clear acid",
+        ],
+        "stat": "Speed: 10.6 mph",
+    },
+    "2026-07-15": {
+        "label": "Outdoor Easy Run",
+        "phase": "Phase 2 — Lactate Tolerance · Week 3",
+        "type": "outdoor",
+        "details": ["4 miles clear, unhurried recovery"],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 2.0 mi",
+    },
+    "2026-07-16": {
+        "label": "Outdoor Feel Run",
+        "phase": "Phase 2 — Lactate Tolerance · Week 3",
+        "type": "outdoor",
+        "details": ["4 miles steady aerobic tempo by feel"],
+        "stat": "Pace: 7:40–8:00/mi · Turnaround: 2.0 mi",
+    },
+    "2026-07-17": {
+        "label": "Outdoor Extended VO2 Max (3×5)",
+        "phase": "Phase 2 — Lactate Tolerance · Week 3",
+        "type": "outdoor",
+        "details": [
+            "10-min easy warm-up",
+            "3 × 5 min hard sustained blocks",
+            "3-min walking recovery between each",
+        ],
+        "stat": "Pace: 6:30–6:45/mi · Turnaround: 15:30 mark",
+    },
+    "2026-07-18": {"label": "Full Rest Day", "phase": "Week 3", "type": "rest", "details": ["Critical recovery for muscle tissue repair."], "stat": ""},
+    "2026-07-19": {"label": "Full Rest Day", "phase": "Week 3", "type": "rest", "details": ["Critical recovery for muscle tissue repair."], "stat": ""},
+    "2026-07-20": {
+        "label": "Outdoor Easy Run",
+        "phase": "Phase 2 — Lactate Tolerance · Week 4",
+        "type": "outdoor",
+        "details": ["4 miles clear recovery jogging"],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 2.0 mi",
+    },
+    "2026-07-21": {
+        "label": "Treadmill Target Pace Endurance",
+        "phase": "Phase 2 — Lactate Tolerance · Week 4",
+        "type": "treadmill",
+        "details": [
+            "10-min warm-up at 6.0 mph",
+            "6 × 90-sec sustained intervals at 10.6 mph",
+            "2-min walking recovery between sets",
+        ],
+        "stat": "Speed: 10.6 mph",
+    },
+    "2026-07-22": {
+        "label": "Outdoor Easy + Strides",
+        "phase": "Phase 2 — Lactate Tolerance · Week 4",
+        "type": "outdoor",
+        "details": [
+            "3 miles easy recovery",
+            "Then 4 fast, loose flat strides",
+        ],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 1.5 mi",
+    },
+    "2026-07-23": {
+        "label": "Outdoor Feel Run",
+        "phase": "Phase 2 — Lactate Tolerance · Week 4",
+        "type": "outdoor",
+        "details": ["4 miles firm pace development"],
+        "stat": "Pace: 7:40–8:00/mi · Turnaround: 2.0 mi",
+    },
+    "2026-07-24": {
+        "label": "Outdoor Extended VO2 Max (3×5)",
+        "phase": "Phase 2 — Lactate Tolerance · Week 4",
+        "type": "outdoor",
+        "details": [
+            "10-min easy warm-up",
+            "3 × 5 min hard blocks",
+            "3-min walking recovery between each",
+        ],
+        "stat": "Pace: 6:30–6:45/mi · Turnaround: 15:30 mark",
+    },
+    "2026-07-25": {"label": "Full Rest Day", "phase": "Week 4", "type": "rest", "details": ["Maximize rest before tapering begins."], "stat": ""},
+    "2026-07-26": {"label": "Full Rest Day", "phase": "Week 4", "type": "rest", "details": ["Maximize rest before tapering begins."], "stat": ""},
+    "2026-07-27": {
+        "label": "Outdoor Easy Run",
+        "phase": "Phase 3 — Taper & Peak · Week 5",
+        "type": "outdoor",
+        "details": ["3 miles highly relaxed, low-impact pacing"],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 1.5 mi",
+    },
+    "2026-07-28": {
+        "label": "Treadmill Speed Sharpener",
+        "phase": "Phase 3 — Taper & Peak · Week 5",
+        "type": "treadmill",
+        "details": [
+            "10-min warm-up at 6.0 mph",
+            "4 × 60-sec crisp intervals — hyper-fast but relaxed",
+            "2-min rest between each",
+        ],
+        "stat": "Speed: 10.8 mph",
+    },
+    "2026-07-29": {
+        "label": "Outdoor Easy Run",
+        "phase": "Phase 3 — Taper & Peak · Week 5",
+        "type": "outdoor",
+        "details": ["3 miles easy fluid movement"],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 1.5 mi",
+    },
+    "2026-07-30": {
+        "label": "Outdoor Light Flow",
+        "phase": "Phase 3 — Taper & Peak · Week 5",
+        "type": "outdoor",
+        "details": [
+            "3 miles smooth run",
+            "Conclude with 4 quick strides (maintain explosive neural firing)",
+        ],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 1.5 mi",
+    },
+    "2026-07-31": {
+        "label": "Outdoor VO2 Max — Reduced Volume",
+        "phase": "Phase 3 — Taper & Peak · Week 5",
+        "type": "outdoor",
+        "details": [
+            "10-min easy warm-up",
+            "2 × 4 min hard (shedding fatigue, keeping engine awake)",
+            "3-min rest between sets",
+        ],
+        "stat": "Pace: 6:30–6:45/mi · Turnaround: 14:00 mark",
+    },
+    "2026-08-01": {"label": "Full Rest Day", "phase": "Week 5", "type": "rest", "details": ["Hydrate cleanly. Zero active load."], "stat": ""},
+    "2026-08-02": {"label": "Full Rest Day", "phase": "Week 5", "type": "rest", "details": ["Hydrate cleanly. Zero active load."], "stat": ""},
+    "2026-08-03": {
+        "label": "Outdoor Easy Run",
+        "phase": "Phase 3 — Taper & Peak · Week 6",
+        "type": "outdoor",
+        "details": ["3 miles low-stress leg turnover"],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 1.5 mi",
+    },
+    "2026-08-04": {
+        "label": "Treadmill Speed Touch-Up",
+        "phase": "Phase 3 — Taper & Peak · Week 6",
+        "type": "treadmill",
+        "details": [
+            "10-min warm-up at 6.0 mph",
+            "2 × 40-sec fluid strides to wake up muscle fibers",
+            "Long rest between",
+            "5-min cool-down",
+        ],
+        "stat": "Speed: 11.0 mph",
+    },
+    "2026-08-05": {
+        "label": "Outdoor Easy Run",
+        "phase": "Phase 3 — Taper & Peak · Week 6",
+        "type": "outdoor",
+        "details": ["3 miles conversational cruising"],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 1.5 mi",
+    },
+    "2026-08-06": {
+        "label": "Outdoor Feel Calibration",
+        "phase": "Phase 3 — Taper & Peak · Week 6",
+        "type": "outdoor",
+        "details": ["3 miles smooth at baseline tempo — tracking target comfort"],
+        "stat": "Pace: 7:40–7:50/mi · Turnaround: 1.5 mi",
+    },
+    "2026-08-07": {
+        "label": "Outdoor Easy Flush",
+        "phase": "Phase 3 — Taper & Peak · Week 6",
+        "type": "outdoor",
+        "details": ["3 miles very slow, low-effort flush out"],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 1.5 mi",
+    },
+    "2026-08-08": {"label": "Weekend Recovery", "phase": "Week 6", "type": "rest", "details": ["Accumulate maximum explosive potential."], "stat": ""},
+    "2026-08-09": {"label": "Weekend Recovery", "phase": "Week 6", "type": "rest", "details": ["Accumulate maximum explosive potential."], "stat": ""},
+    "2026-08-10": {
+        "label": "Pre-Race Primer",
+        "phase": "Phase 3 — Taper & Peak · Week 6",
+        "type": "outdoor",
+        "details": [
+            "2 miles very easy running",
+            "4 brief flat strides to lock in fast mechanics",
+        ],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 1.0 mi",
+    },
+    "2026-08-11": {
+        "label": "Light Activation Spin",
+        "phase": "Phase 3 — Taper & Peak · Week 6",
+        "type": "outdoor",
+        "details": [
+            "1.5 miles easy jogging",
+            "Optional: 2 × 20-sec loose accelerators",
+        ],
+        "stat": "Pace: 8:45–9:30/mi · Turnaround: 0.75 mi",
+    },
+    "2026-08-12": {
+        "label": "Total Rest & Mental Prep",
+        "phase": "Phase 3 — Taper & Peak · Week 6",
+        "type": "rest",
+        "details": ["Full rest. Stay off feet. Hydrate. Visualize pacing."],
+        "stat": "",
+    },
+    "2026-08-13": {
+        "label": "RACE DAY",
+        "phase": "Phase 3 — Taper & Peak · Week 6",
+        "type": "race",
+        "details": [
+            "Find a flat 1-mile route or 400m track (4 laps + 9m)",
+            "10-min easy warm-up jog",
+            "2 short strides",
+            "Let it fly",
+        ],
+        "stat": "Target: 5:30–5:35 min/mile",
+    },
+}
+
+@misc_bp.route("/run")
+def run_workout():
+    today = datetime.now().strftime("%Y-%m-%d")
+    workout = WORKOUTS.get(today)
+    return render_template("misc/run.html", workout=workout, today=today)
+
 
 @misc_bp.route("/dish-finder")
 def dish_finder():
@@ -118,7 +439,7 @@ def admin_logout():
     return redirect(next_url)
 
 
-def _insert_recipe_txt(category, subcategory, title, notes, image_filename, date_str, tier='3'):
+def _insert_recipe_txt(category, subcategory, title, notes, image_filename, date_str, tier='3', tags=None):
     with open('data/misc/Recipes.txt', 'r') as f:
         lines = f.readlines()
 
@@ -143,8 +464,10 @@ def _insert_recipe_txt(category, subcategory, title, notes, image_filename, date
         f'{indent}{notes}\n',
         f'{indent}{image_filename}\n',
         f'{indent}{date_str}\n',
-        f'{indent}>{tier}\n',
     ]
+    if tags:
+        new_lines.append(f'{indent}#{",".join(tags)}\n')
+    new_lines.append(f'{indent}>{tier}\n')
     lines = lines[:insert_idx] + new_lines + lines[insert_idx:]
     with open('data/misc/Recipes.txt', 'w') as f:
         f.writelines(lines)
@@ -156,8 +479,11 @@ def recipes_add():
     if not is_admin():
         return jsonify({'error': 'Unauthorized'}), 403
 
-    title = request.form.get('title', '').strip()
-    notes = request.form.get('notes', '').strip()
+    def _singleline(s):
+        return ' '.join(s.split())
+
+    title = _singleline(request.form.get('title', '').strip())
+    notes = _singleline(request.form.get('notes', '').strip())
     link  = request.form.get('link', '').strip()
     category    = request.form.get('category', '').strip()
     subcategory = request.form.get('subcategory', '').strip()
@@ -165,26 +491,33 @@ def recipes_add():
     if not title or not category or not subcategory:
         return jsonify({'error': 'Missing required fields'}), 400
 
-    image_filename = ''
     f_img = request.files.get('image')
-    if f_img and f_img.filename and _allowed_img(f_img.filename):
-        filename = secure_filename(f_img.filename)
-        f_img.save(os.path.join('static', filename))
-        image_filename = filename
+    if not (f_img and f_img.filename and _allowed_img(f_img.filename)):
+        return jsonify({'error': 'A photo is required'}), 400
+    image_filename = secure_filename(f_img.filename)
+    f_img.save(os.path.join('static', image_filename))
 
-    if link and notes:
-        final_notes = f'<a href="{link}" target="_blank">Recipe &rarr;</a><br>{notes}'
-    elif link:
-        final_notes = f'<a href="{link}" target="_blank">Recipe &rarr;</a>'
+    recipe_href = link
+    f_recipe_img = request.files.get('recipe_image')
+    if not recipe_href and f_recipe_img and f_recipe_img.filename and _allowed_img(f_recipe_img.filename):
+        filename = secure_filename(f_recipe_img.filename)
+        f_recipe_img.save(os.path.join('static', filename))
+        recipe_href = f'static/{filename}'
+
+    if recipe_href and notes:
+        final_notes = f'<a href="{recipe_href}" target="_blank">Recipe &rarr;</a><br>{notes}'
+    elif recipe_href:
+        final_notes = f'<a href="{recipe_href}" target="_blank">Recipe &rarr;</a>'
     else:
         final_notes = notes
 
-    date_str = request.form.get('date', '').strip() or datetime.now().strftime('%m/%d/%Y')
+    date_str = _singleline(request.form.get('date', '').strip()) or datetime.now().strftime('%m/%d/%Y')
     tier = request.form.get('tier', '3').strip()
     if tier not in ('1', '2', '3'):
         tier = '3'
+    tags = [_singleline(t.strip()) for t in request.form.get('tags', '').split(',') if t.strip()]
 
-    ok = _insert_recipe_txt(category, subcategory, title, final_notes, image_filename, date_str, tier)
+    ok = _insert_recipe_txt(category, subcategory, title, final_notes, image_filename, date_str, tier, tags)
     if not ok:
         return jsonify({'error': 'Category/subcategory not found'}), 404
     return jsonify({'ok': True})
@@ -197,7 +530,8 @@ def recipes():
     for cat, subcats in nested.items():
         for subcat, recipe_list in subcats.items():
             for recipe in recipe_list:
-                flat.append({**recipe, 'category': cat, 'subcategory': subcat})
+                flat.append({**recipe, 'category': cat, 'subcategory': subcat,
+                             'date_ts': _parse_date_ts(recipe.get('date', ''))})
     by_tier = {}
     for r in flat:
         by_tier.setdefault(r.get('tier', 3), []).append(r)
@@ -205,8 +539,9 @@ def recipes():
         random.shuffle(bucket)
     sorted_recipes = by_tier.get(1, []) + by_tier.get(2, []) + by_tier.get(3, [])
     cats = {cat: list(subcats.keys()) for cat, subcats in nested.items()}
+    all_tags = sorted(set(tag for r in flat for tag in r.get('tags', [])))
     return render_template('misc/recipes3.html',
-                           recipes=sorted_recipes, cats=cats, is_admin=is_admin())
+                           recipes=sorted_recipes, cats=cats, all_tags=all_tags, is_admin=is_admin())
 
 @misc_bp.route("/recipes3")
 def recipes3():

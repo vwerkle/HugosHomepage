@@ -47,6 +47,14 @@
         .hidden-cell { color: #d1d5db; }
         .leader-col { background: #f0fdf4 !important; }
 
+        /* CHALK — benchmarking bot */
+        .chalk-card { border-bottom-color: #94a3b8; opacity: 0.75; }
+        .chalk-card .leader-name { color: #94a3b8; }
+        .chalk-card .leader-score { color: #94a3b8; }
+        .chalk-agreement { font-size: 0.62rem; color: #94a3b8; margin-top: 3px; }
+        .chalk-col-header { background: #4b5563 !important; }
+        .chalk-col { background: #f1f5f9 !important; color: #64748b; }
+
         .nav-back { display: inline-block; margin-top: 18px; color: #16a34a; text-decoration: none; font-weight: 600; }
 
         /* Champion section */
@@ -75,7 +83,7 @@
         <a href="/restaurants" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Restaurants</a>
         <a href="/vacation" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Vacation</a>
         <a href="/pools" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Pools</a>
-        <a href="/worldcup/picks" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Make Picks</a>
+        <a href="/worldcup/picks" style="text-decoration:none;color:#0f172a;margin-left:15px;font-size:0.95rem;">Games</a>
     </div>
 </nav>
 
@@ -88,10 +96,13 @@
 
     <div class="leaderboard-summary">
         {% for user, score in sorted_leaderboard %}
-        <div class="leader-card {% if user in leaders %}gold{% endif %}">
-            <span class="leader-name">{{ user }} {% if user in leaders %}👑{% endif %}</span>
+        <div class="leader-card {% if user == chalk_user %}chalk-card{% elif user in leaders %}gold{% endif %}">
+            <span class="leader-name">{{ user }} {% if user in leaders %}👑{% endif %}{% if user == chalk_user %}<em style="font-size:0.6rem;font-style:normal;">bot</em>{% endif %}</span>
             <span class="leader-score">{{ score }}</span>
             <div class="leader-pts">pts</div>
+            {% if user != chalk_user and chalk_agreement.get(user) is not none %}
+            <div class="chalk-agreement">{{ chalk_agreement[user] }}% chalk</div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
@@ -101,7 +112,7 @@
         <h3>🏆 Champion Pick — Tiebreaker</h3>
         {% if usernames %}
         <div class="champion-picks-row">
-            {% for user in usernames %}
+            {% for user in usernames %}{% if user != chalk_user %}
             <div class="champion-pick-card {% if user in leaders %}gold{% endif %}">
                 <span class="c-name">{{ user }}{% if user in leaders %} 👑{% endif %}</span>
                 {% if champion_locked or user == logged_in_user %}
@@ -112,7 +123,7 @@
                     <span class="c-team c-hidden">—</span>
                 {% endif %}
             </div>
-            {% endfor %}
+            {% endif %}{% endfor %}
         </div>
         {% else %}
         <p style="text-align:center;color:#94a3b8;margin:0;font-size:0.85rem;">No picks yet.</p>
@@ -129,9 +140,12 @@
                 <tr>
                     <th>Match</th>
                     {% for user in usernames %}
-                    <th {% if user in leaders %}style="background:#2a5a2a"{% endif %}>
-                        {{ user }} {% if user in leaders %}👑{% endif %}
+                    <th class="{% if user == chalk_user %}chalk-col-header{% endif %}" {% if user in leaders %}style="background:#2a5a2a"{% endif %}>
+                        {{ user }} {% if user in leaders %}👑{% endif %}{% if user == chalk_user %} <em style="font-size:0.6rem;font-style:normal;opacity:0.7;">bot</em>{% endif %}
                         <br><small style="font-weight:normal;opacity:0.8;">{{ user_totals[user] }} pts</small>
+                        {% if user != chalk_user and chalk_agreement.get(user) is not none %}
+                        <br><small style="font-weight:normal;opacity:0.65;font-size:0.6rem;">{{ chalk_agreement[user] }}% chalk</small>
+                        {% endif %}
                     </th>
                     {% endfor %}
                 </tr>
@@ -164,7 +178,7 @@
                         </td>
                         {% for user in usernames %}
                             {% set cell = row.users[user] %}
-                            <td class="{% if cell.hidden %}hidden-cell{% elif cell.correct %}win-cell{% elif cell.wrong %}loss-cell{% endif %} {% if user in leaders %}leader-col{% endif %}">
+                            <td class="{% if user == chalk_user %}chalk-col{% else %}{% if cell.hidden %}hidden-cell{% elif cell.correct %}win-cell{% elif cell.wrong %}loss-cell{% endif %} {% if user in leaders %}leader-col{% endif %}{% endif %}">
                                 {% if cell.hidden %}{% if cell.has_pick %}⚽{% endif %}{% else %}{{ cell.pick or '' }}{% endif %}
                             </td>
                         {% endfor %}
